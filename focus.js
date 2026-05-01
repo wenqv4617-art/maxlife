@@ -634,4 +634,6 @@ ${memoryText || '暂无'}
     }
 
     console.log('🧘 专注模块脚本已就绪，等待 initFocusModule() 调用');
+    // 在 focus.js 文件最底部，})(); 之前添加：
+window.showFocusReportModal = showFocusReportModal;
 })();
