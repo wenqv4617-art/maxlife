@@ -488,22 +488,9 @@ async function renderMsgList(friendsOnly = false) {
         filteredMsgs = displayMsgs.filter(m => {
             return !following.some(f => f.name === m.from || f.handle === m.fromHandle);
         });
-    } 'msg' };
     }
-    if (document.getElementById('forumNotifView').style.display !== 'none') {
-        return { type: 'notif' };
-    }
-    if (document.getElementById('forumTrendView').style.display !== 'none') {
-        return { type: 'trend' };
-    }
-    if (document.getElementById('forumMsgConversationView').style.display !== 'none') {
-        return { type: 'conv', data: { fromName: window._currentConversationFrom || '' } };
-    }
-    // 在帖子详情页或作者主页时返回null（不需要压栈，因为这些都是由上层压入的）
-    return null;
-}
 
-function switchForumView(viewId) {
+    if (filteredMsgs.length === 0) {
     forumViews.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
