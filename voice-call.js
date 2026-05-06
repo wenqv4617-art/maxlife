@@ -1,0 +1,507 @@
+// ============================================
+// 语音通话模块 - voice-call.js
+// 版本：v1.0
+// 说明：提供语音通话发起/接听/挂断/通话消息/
+//       来电弹窗/线下邀约等完整功能
+// 依赖：需要全局 DB 对象（IndexedDB操作）
+//      需要全局 showStatus 函数
+//      需要全局 escapeHtml 函数
+//      需要全局 callLLM 函数（AI调用）
+//      需要全局 recordApiPending 函数（API监控）
+//      需要全局 loadConversationMessages 函数
+//      需要全局 buildSystemPrompt 函数
+// ============================================
+
+(function() {
+    "use strict";
+
+    // 缓存全局依赖
+    let DB, showStatus, escapeHtml, callLLM, recordApiPending, loadConversationMessages, buildSystemPrompt, getAvatarColor;
+
+    // ==================== 模块内部状态 ====================
+    let voiceCallActive = false;
+    let voiceCallRole = null;          // 'caller' | 'receiver'
+    let voiceCallConversationId = null;
+    let voiceCallStartTime = null;
+    let voiceCallTimerInterval = null;
+    let voiceCallMessages = [];
+
+    // ==================== 初始化 ====================
+    window.initVoiceCallModule = async function(deps) {
+        if (deps) {
+            DB = deps.DB;
+            showStatus = deps.showStatus;
+            escapeHtml = deps.escapeHtml;
+            callLLM = deps.callLLM;
+            recordApiPending = deps.recordApiPending;
+            loadConversationMessages = deps.loadConversationMessages;
+            buildSystemPrompt = deps.buildSystemPrompt;
+            getAvatarColor = deps.getAvatarColor;
+        } else {
+            // 回退到全局
+            DB = window.DB;
+            showStatus = window.showStatus || function(msg, type) { console.log(`[${type}] ${msg}`); };
+            escapeHtml = window.escapeHtml || function(s) { return String(s).replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); };
+            callLLM = window.callLLM;
+            recordApiPending = window.recordApiPending || function() {};
+            loadConversationMessages = window.loadConversationMessages || function() {};
+            buildSystemPrompt = window.buildSystemPrompt || async function() { return ''; };
+            getAvatarColor = window.getAvatarColor || function(n) { return '#444'; };
+        }
+
+        console.log('📞 语音通话模块已加载');
+        bindVoiceCallEvents();
+    };
+
+    // ==================== 事件绑定 ====================
+    function bindVoiceCallEvents() {
+        // 挂断
+        document.getElementById('voiceCallHangupBtn')?.addEventListener('click', hangUpVoiceCall);
+        // 接听
+        document.getElementById('voiceCallAnswerBtn')?.addEventListener('click', connectVoiceCall);
+        // 发送通话消息
+        document.getElementById('voiceCallSendBtn')?.addEventListener('click', sendVoiceCallMessage);
+        document.getElementById('voiceCallInput')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendVoiceCallMessage();
+        });
+
+        // 静音按钮（视觉切换）
+        document.getElementById('voiceCallMuteBtn')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const btn = e.currentTarget;
+            if (btn.style.background === 'rgb(255, 255, 255)') {
+                btn.style.background = '#333';
+                btn.style.color = '';
+                btn.textContent = '🎙️';
+            } else {
+                btn.style.background = '#fff';
+                btn.style.color = '#000';
+                btn.textContent = '🔇';
+            }
+        });
+
+        // 免提按钮（视觉切换）
+        document.getElementById('voiceCallSpeakerBtn')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const btn = e.currentTarget;
+            if (btn.style.background === 'rgb(7, 193, 96)') {
+                btn.style.background = '#333';
+                btn.style.color = '';
+                btn.textContent = '🔊';
+            } else {
+                btn.style.background = '#07C160';
+                btn.style.color = '#fff';
+                btn.textContent = '🔉';
+            }
+        });
+
+        // 来电弹窗事件
+        document.getElementById('incomingCallAcceptBtn')?.addEventListener('click', acceptIncomingCall);
+        document.getElementById('incomingCallRefuseBtn')?.addEventListener('click', refuseIncomingCall);
+    }
+
+    // ==================== 启动语音通话 ====================
+    async function startVoiceCall(convId, role = 'caller') {
+        const conv = await DB.get('conversations', convId);
+        if (!conv) return;
+        const char = await DB.get('characters', conv.charId);
+        const convDetail = await DB.get('convDetails', convId);
+
+        const charName = convDetail?.charName || char?.name || '对方';
+        const charAvatar = convDetail?.charAvatar || char?.avatar || '';
+
+        const avatarEl = document.getElementById('voiceCallAvatar');
+        if (charAvatar) {
+            avatarEl.style.backgroundImage = `url('${charAvatar}')`;
+            avatarEl.style.backgroundColor = 'transparent';
+            avatarEl.textContent = '';
+        } else {
+            avatarEl.style.backgroundImage = '';
+            avatarEl.style.backgroundColor = '#444';
+            avatarEl.textContent = charName.charAt(0);
+        }
+        document.getElementById('voiceCallName').textContent = charName;
+        document.getElementById('voiceCallStatus').textContent = role === 'caller' ? '等待对方接听...' : '邀请你语音通话...';
+        document.getElementById('voiceCallStatus').style.display = 'block';
+        document.getElementById('voiceCallTimer').style.display = 'none';
+        document.getElementById('voiceCallInputRow').style.display = 'none';
+        document.getElementById('voiceCallMsgArea').innerHTML = '';
+        document.getElementById('voiceCallAnswerItem').style.display = role === 'receiver' ? 'flex' : 'none';
+
+        voiceCallActive = true;
+        voiceCallRole = role;
+        voiceCallConversationId = convId;
+        voiceCallMessages = [];
+        voiceCallStartTime = null;
+        if (voiceCallTimerInterval) clearInterval(voiceCallTimerInterval);
+
+        document.getElementById('voiceCallOverlay').style.display = 'flex';
+
+        if (role === 'caller') {
+            setTimeout(() => {
+                if (!voiceCallActive || voiceCallRole !== 'caller') return;
+                connectVoiceCall();
+            }, 2000);
+        }
+    }
+    window.startVoiceCall = startVoiceCall;
+
+    // ==================== 接通语音通话 ====================
+    function connectVoiceCall() {
+        if (!voiceCallActive) return;
+        // 关闭来电弹窗
+        document.getElementById('incomingCallCard').classList.remove('show');
+
+        document.getElementById('voiceCallStatus').style.display = 'none';
+        document.getElementById('voiceCallTimer').style.display = 'block';
+        document.getElementById('voiceCallAnswerItem').style.display = 'none';
+        document.getElementById('voiceCallInputRow').style.display = 'flex';
+        document.getElementById('voiceCallInput').focus();
+
+        voiceCallStartTime = Date.now();
+
+        (async () => {
+            const startRole = voiceCallRole === 'caller' ? 'user' : 'assistant';
+            const conv = await DB.get('conversations', voiceCallConversationId);
+            if (conv) {
+                await DB.put('chats', {
+                    role: startRole,
+                    content: '语音通话',
+                    messageType: 'voice_call_start',
+                    conversationId: voiceCallConversationId,
+                    charId: conv.charId,
+                    timestamp: Date.now()
+                });
+            }
+        })();
+
+        voiceCallTimerInterval = setInterval(updateVoiceCallTimer, 1000);
+        updateVoiceCallTimer();
+    }
+
+    // ==================== 更新通话计时器 ====================
+    function updateVoiceCallTimer() {
+        if (!voiceCallStartTime) return;
+        const elapsed = Math.floor((Date.now() - voiceCallStartTime) / 1000);
+        const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+        const secs = (elapsed % 60).toString().padStart(2, '0');
+        document.getElementById('voiceCallTimer').textContent = `${mins}:${secs}`;
+    }
+
+    // ==================== 挂断语音通话 ====================
+    async function hangUpVoiceCall() {
+        if (!voiceCallActive) return;
+        const hangingUpRole = voiceCallRole;
+        voiceCallActive = false;
+        if (voiceCallTimerInterval) clearInterval(voiceCallTimerInterval);
+
+        const convId = voiceCallConversationId;
+        const elapsedSec = voiceCallStartTime ? Math.floor((Date.now() - voiceCallStartTime) / 1000) : 0;
+        const durationStr = formatVoiceDuration(elapsedSec);
+
+        await generateVoiceCallLog(convId, durationStr, hangingUpRole);
+
+        document.getElementById('voiceCallOverlay').style.display = 'none';
+        document.getElementById('incomingCallCard').classList.remove('show');
+        document.getElementById('voiceCallInput').value = '';
+        document.getElementById('voiceCallMsgArea').innerHTML = '';
+        voiceCallMessages = [];
+        voiceCallConversationId = null;
+    }
+
+    // ==================== 格式化通话时长 ====================
+    function formatVoiceDuration(totalSec) {
+        if (totalSec < 60) return `${totalSec}秒`;
+        const m = Math.floor(totalSec / 60);
+        const s = totalSec % 60;
+        return `${m}分${s}秒`;
+    }
+
+    // ==================== 生成通话记录气泡 ====================
+    async function generateVoiceCallLog(convId, durationStr, hangingUpRole) {
+        const conv = await DB.get('conversations', convId);
+        if (!conv) return;
+        const now = Date.now();
+        const endRole = hangingUpRole === 'caller' ? 'user' : 'assistant';
+        await DB.put('chats', {
+            role: endRole,
+            content: `语音通话已结束${durationStr}`,
+            messageType: 'voice_call_end',
+            conversationId: convId,
+            charId: conv.charId,
+            timestamp: now
+        });
+        await loadConversationMessages(convId);
+    }
+
+    // ==================== 发送通话中消息 ====================
+    async function sendVoiceCallMessage() {
+        if (!voiceCallActive || !voiceCallConversationId) return;
+        const input = document.getElementById('voiceCallInput');
+        const text = input.value.trim();
+        if (!text) return;
+
+        voiceCallMessages.push({ role: 'user', content: text });
+        renderVoiceCallMessages();
+        input.value = '';
+
+        await DB.put('chats', {
+            role: 'user',
+            content: text,
+            messageType: 'voice_call_msg',
+            conversationId: voiceCallConversationId,
+            charId: (await DB.get('conversations', voiceCallConversationId)).charId,
+            timestamp: Date.now()
+        });
+
+        await fetchVoiceCallAIReply(voiceCallConversationId);
+    }
+
+    // ==================== 获取通话中AI回复 ====================
+    async function fetchVoiceCallAIReply(convId) {
+        const conv = await DB.get('conversations', convId);
+        if (!conv) return;
+        const char = await DB.get('characters', conv.charId);
+        const mask = await DB.get('userProfiles', conv.maskId);
+        if (!char) return;
+
+        const systemPrompt = await buildVoiceCallSystemPrompt(char, mask, convId);
+        const messages = [{ role: 'system', content: systemPrompt }];
+        const context = voiceCallMessages.slice(-6);
+        context.forEach(m => {
+            messages.push({ role: m.role === 'user' ? 'user' : 'assistant', content: m.content });
+        });
+
+        try {
+            const reply = await callLLM(messages, { temperature: 0.95 });
+
+            // 检查是否包含挂断指令
+            const hasEndCmd = reply.includes('[voiceCall:end]');
+            const cleanReply = reply.replace(/\s*\[voiceCall:end\]\s*/g, '').trim();
+
+            if (cleanReply) {
+                await DB.put('chats', {
+                    role: 'assistant',
+                    content: cleanReply,
+                    messageType: 'voice_call_msg',
+                    conversationId: convId,
+                    charId: char.id,
+                    timestamp: Date.now()
+                });
+                voiceCallMessages.push({ role: 'assistant', content: cleanReply });
+                renderVoiceCallMessages();
+            }
+
+            // 如果有挂断指令，执行挂断
+            if (hasEndCmd) {
+                voiceCallRole = voiceCallRole === 'caller' ? 'receiver' : 'caller';
+                await hangUpVoiceCall();
+            }
+        } catch (e) {
+            showStatus(`通话回复失败: ${e.message}`, 'error');
+        }
+    }
+
+    // ==================== 构建通话系统prompt ====================
+    async function buildVoiceCallSystemPrompt(char, mask, convId) {
+        const basePrompt = await buildSystemPrompt(char, mask, null, 'online', convId);
+        // 把【回复准则】开始到末尾的所有内容，替换为语音通话专用规则
+        let prompt = basePrompt.replace(
+            /【回复准则】[\s\S]*$/,
+            `【语音通话模式说明】
+- 你正在与用户进行实时语音通话，这是一种沉浸式的实时对话体验。
+- 说话方式要像真实打电话一样：用语自然随意，带语气词，句子短而连贯。
+- 避免任何书面化的长篇大论，不要像在写文章或回复消息。
+- 可以使用"嗯""那个""其实吧""你知道吗"等口语化表达。
+- 保持角色性格和说话风格不变。
+- 不要任何格式标记，不要[MSG]前缀，不要思维链，不要心声标记。
+- 直接输出你要说的话，就是纯文本对话内容。
+- 禁止使用动作描写符号（如*微笑*、(点头)等），因为这是语音通话，不是文字聊天。
+
+【话题连续性规则 - 非常重要】
+- 你必须密切关注对话上下文，围绕之前聊的话题继续深入。
+- 每次回复都要回顾最近几轮对话的内容，确保不跑题、不跳跃。
+- 如果用户在聊某个具体话题，你应继续推动话题发展：追问细节、分享相关经历、表达共鸣等。
+- 只有当前话题明显自然结束时，才可以温和地过渡到新话题。
+- 不要突然转移话题或重新开启一个无关的寒暄。
+
+【主动挂断规则】
+- 当对话自然结束，或你有事需要离开时（比如要去忙工作、到站了、手机没电了等），你可以主动挂断通话。
+- 当用户提出需要你挂断语音通话时你需要主动挂断。
+- 挂断前必须先给出自然的结束语，比如"那我先挂啦""回头再聊""到了再给你打"等，让挂断不显得突兀。
+- 在结束语的最后一行，单独输出指令：[voiceCall:end]
+- 挂断后，你和用户回到线上聊天界面。你的结束语应自然收尾，让对话可以平滑过渡回文字聊天。
+- 示例：
+  嗯好，那就这么说定了，我先去开会啦，回头聊。
+  [voiceCall:end]
+- 注意：指令必须单独成行，放在最后。用户看不到这条指令，这是给系统处理的。
+
+直接输出你要说的话（包含可能的[voiceCall:end]指令），不要任何格式标记。`
+        );
+        return prompt;
+    }
+
+    // ==================== 渲染通话中消息 ====================
+    function renderVoiceCallMessages() {
+        const area = document.getElementById('voiceCallMsgArea');
+        if (!area) return;
+        let html = '';
+        voiceCallMessages.forEach(m => {
+            const cls = m.role === 'user' ? 'self' : 'other';
+            html += `<div class="voice-call-msg ${cls}">${escapeHtml(m.content)}</div>`;
+        });
+        area.innerHTML = html;
+        area.scrollTop = area.scrollHeight;
+    }
+
+    // ==================== 接收通话邀请（显示来电弹窗） ====================
+    async function receiveVoiceCallInvitation(convId) {
+        const conv = await DB.get('conversations', convId);
+        if (!conv) return;
+        const char = await DB.get('characters', conv.charId);
+        const convDetail = await DB.get('convDetails', convId);
+
+        const charName = convDetail?.charName || char?.name || '对方';
+        const charAvatar = convDetail?.charAvatar || char?.avatar || '';
+
+        const cardAvatar = document.getElementById('incomingCallAvatar');
+        if (charAvatar) {
+            cardAvatar.style.backgroundImage = `url('${charAvatar}')`;
+            cardAvatar.style.backgroundColor = 'transparent';
+            cardAvatar.textContent = '';
+        } else {
+            cardAvatar.style.backgroundImage = '';
+            cardAvatar.style.backgroundColor = '#444';
+            cardAvatar.textContent = charName.charAt(0);
+        }
+        document.getElementById('incomingCallName').textContent = charName;
+
+        window._incomingCallConvId = convId;
+        document.getElementById('incomingCallCard').classList.add('show');
+
+        // 如果当前正在通话中，先挂断
+        if (voiceCallActive) {
+            await hangUpVoiceCall();
+        }
+    }
+    window.receiveVoiceCallInvitation = receiveVoiceCallInvitation;
+
+    // ==================== 接听来电 ====================
+    async function acceptIncomingCall() {
+        const convId = window._incomingCallConvId;
+        if (!convId) return;
+        document.getElementById('incomingCallCard').classList.remove('show');
+        window._incomingCallConvId = null;
+        await startVoiceCall(convId, 'receiver');
+    }
+
+    // ==================== 拒接来电 ====================
+    async function refuseIncomingCall() {
+        const convId = window._incomingCallConvId;
+        document.getElementById('incomingCallCard').classList.remove('show');
+
+        if (convId) {
+            const conv = await DB.get('conversations', convId);
+            if (conv) {
+                await DB.put('chats', {
+                    role: 'user',
+                    content: '已拒绝语音通话',
+                    messageType: 'voice_call_end',
+                    conversationId: convId,
+                    charId: conv.charId,
+                    timestamp: Date.now()
+                });
+
+                await generateRejectionReaction(convId, 'voice');
+
+                if (window.currentConversationId === convId) {
+                    await loadConversationMessages(convId);
+                }
+            }
+        }
+        window._incomingCallConvId = null;
+    }
+
+    // ==================== 生成拒绝反应 ====================
+    async function generateRejectionReaction(convId, type) {
+        const conv = await DB.get('conversations', convId);
+        if (!conv) return;
+        const char = await DB.get('characters', conv.charId);
+        const mask = await DB.get('userProfiles', conv.maskId);
+        if (!char) return;
+
+        const chats = await DB.queryByIndex('chats', 'conversationId', convId);
+        const contextChats = chats.filter(c => c.messageType !== 'innerVoice');
+        contextChats.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+        const recent = contextChats.slice(-8);
+
+        const systemPrompt = await buildSystemPrompt(char, mask, null, 'online', convId);
+        const messages = [{ role: 'system', content: systemPrompt }];
+        recent.forEach(m => {
+            messages.push({ role: m.role === 'user' ? 'user' : 'assistant', content: m.content });
+        });
+
+        const typeHint = type === 'voice'
+            ? '对方刚才拒绝了你的语音通话请求。请根据上下文，自然地对这个拒绝做出反应。比如问一句"怎么不接电话？"或者表达一点小情绪，但要贴合你的人设和你们的关系。直接输出你要说的话，正常使用[MSG]格式。'
+            : '对方刚才拒绝了你的线下见面邀约。请根据上下文，自然地对这个拒绝做出反应。比如问一句"为什么不想见我？"或者表示理解，但要贴合你的人设和你们的关系。直接输出你要说的话，正常使用[MSG]格式。';
+
+        messages.push({ role: 'user', content: typeHint });
+
+        try {
+            const reply = await callLLM(messages);
+            // 使用全局 parseAIResponse（需要在 index 中已定义）
+            const parsedMessages = typeof parseAIResponse === 'function' ? parseAIResponse(reply) : [{ type: 'text', content: reply }];
+            if (parsedMessages.length === 0) {
+                await DB.put('chats', {
+                    role: 'assistant', content: reply, messageType: 'text',
+                    conversationId: convId, charId: char.id, timestamp: Date.now()
+                });
+            } else {
+                let baseTime = Date.now();
+                for (let i = 0; i < parsedMessages.length; i++) {
+                    const msg = parsedMessages[i];
+                    await DB.put('chats', {
+                        role: 'assistant', content: msg.content, messageType: msg.type,
+                        conversationId: convId, charId: char.id, timestamp: baseTime + i
+                    });
+                }
+            }
+            await DB.put('conversations', { ...conv, updatedAt: Date.now() });
+        } catch (e) {
+            console.error('生成拒绝反应失败:', e);
+        }
+    }
+    window.generateRejectionReaction = generateRejectionReaction;
+
+    // ==================== 折叠通话记录气泡 ====================
+    function foldCallMessages(startRow, endRow) {
+        let current = startRow.nextElementSibling;
+        const toHide = [];
+        while (current && current !== endRow) {
+            toHide.push(current);
+            current = current.nextElementSibling;
+        }
+        if (toHide.length === 0) return;
+        toHide.forEach(el => {
+            el.style.display = 'none';
+            el.classList.add('call-folded-msg');
+        });
+        const bubble = startRow.querySelector('.bubble');
+        if (bubble) {
+            const toggleBtn = document.createElement('span');
+            toggleBtn.className = 'call-toggle-btn';
+            toggleBtn.innerHTML = ' ▶ 展开';
+            toggleBtn.style.cssText = 'cursor:pointer;font-size:12px;color:#d7e4ee;margin-left:8px;';
+            toggleBtn.onclick = function(e) {
+                e.stopPropagation();
+                const isHidden = toHide[0].style.display === 'none';
+                toHide.forEach(el => { el.style.display = isHidden ? '' : 'none'; });
+                toggleBtn.innerHTML = isHidden ? ' ▼' : ' ▶';
+            };
+            bubble.appendChild(toggleBtn);
+        }
+    }
+    window.foldCallMessages = foldCallMessages;
+
+    console.log('📞 语音通话模块脚本已就绪，等待 initVoiceCallModule() 调用');
+})();
