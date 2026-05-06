@@ -281,7 +281,7 @@ ${(()=>{
             browser: `${base}\n\n生成5-8条搜索历史。输出JSON: {"history":[{"text":"","time":""}]}`,
             browser_search: `${base}\n\n搜索"${extra.searchText||''}"，生成3-4篇200-350字长文帖子带评论。JSON: {"posts":[...]}`,
             memo: `${base}\n\n生成5-8条新备忘录，全部未完成。JSON: {"memos":[{"text":"","checked":false}]}`,
-                        diary: `${base}
+            diary: `${base}
 
 【写日记前的强制思考】
 
