@@ -1,0 +1,1401 @@
+/* ================================================================
+ * guangguang.css - 逛逛模块样式
+ * 来源：3.0转账红包.html
+ * 说明：包含逛逛首页、详情、购买、购物车、消息、我的、
+ *       代付弹窗、礼物弹窗、转账红包卡片等所有样式
+ * ================================================================ */
+
+/* ========== 逛逛页面容器 ========== */
+#page-guangguang {
+    background: #f8f8f8;
+    display: flex;
+    flex-direction: column;
+}
+
+.gg-page {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    display: none;
+    flex-direction: column;
+    background-color: #f8f8f8;
+}
+
+.gg-page.active {
+    display: flex;
+}
+
+#gg-detail,
+#gg-purchase,
+#gg-msg-detail {
+    background: #f8f8f8;
+}
+
+.gg-nav-item {
+    transition: color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+.gg-nav-item:active {
+    opacity: 0.7;
+    transform: scale(0.95);
+}
+
+/* ========== 搜索栏 ========== */
+.search-wrap {
+    background: #fff;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.search-box {
+    flex: 1;
+    background: #f5f5f5;
+    border-radius: 20px;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.search-box input {
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    outline: none;
+    flex: 1;
+}
+
+.search-btn {
+    background: #ff4400;
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 15px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+/* ========== 商品网格 ========== */
+.goods-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 10px;
+    flex: 1;
+    overflow-y: auto;
+    align-content: start;
+}
+
+.goods-card {
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.goods-card .goods-img {
+    width: 100%;
+    aspect-ratio: 3/4;
+    background-position: center;
+    background-size: cover;
+    flex-shrink: 0;
+}
+
+.goods-card .goods-info {
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.goods-card .goods-name {
+    font-size: 13px;
+    color: #333;
+    line-height: 1.3;
+    margin-bottom: 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-all;
+}
+
+.goods-card .goods-price {
+    font-size: 16px;
+    color: #ff4400;
+    font-weight: 700;
+    margin-top: auto;
+}
+
+/* ========== 商品详情页 ========== */
+.gg-detail-header {
+    background: #fff;
+    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+    border-bottom: 0.5px solid #eee;
+    flex-shrink: 0;
+}
+
+.gg-detail-image {
+    width: 100%;
+    aspect-ratio: 1/1;
+    background: #f0f0f0;
+    background-size: cover;
+    background-position: center;
+}
+
+.gg-detail-info {
+    background: #fff;
+    padding: 15px;
+    margin-bottom: 10px;
+}
+
+.gg-detail-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.gg-detail-price {
+    font-size: 28px;
+    color: #ff4400;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.gg-detail-desc {
+    font-size: 15px;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.gg-detail-shop {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.gg-detail-shop-label {
+    font-size: 14px;
+    color: #999;
+}
+
+.gg-detail-shop-name {
+    font-size: 16px;
+    color: #333;
+    font-weight: 600;
+}
+
+.gg-detail-actions {
+    background: #fff;
+    padding: 15px;
+    display: flex;
+    gap: 10px;
+    border-top: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+.gg-detail-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.gg-detail-btn-outline {
+    border: 1px solid #ff4400;
+    background: #fff;
+    color: #ff4400;
+}
+
+.gg-detail-btn-solid {
+    border: 1px solid #ff4400;
+    background: #ff4400;
+    color: #fff;
+}
+
+.gg-detail-btn-gradient {
+    border: none;
+    background: linear-gradient(135deg, #ff6b35, #ff4400);
+    color: #fff;
+}
+
+/* ========== 购买页 ========== */
+.gg-purchase-header {
+    background: #fff;
+    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+    border-bottom: 0.5px solid #eee;
+    flex-shrink: 0;
+}
+
+.gg-purchase-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+}
+
+.gg-purchase-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.gg-purchase-goods {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.gg-purchase-goods-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    background: #f0f0f0;
+    background-size: cover;
+    background-position: center;
+    flex-shrink: 0;
+}
+
+.gg-purchase-goods-info {
+    flex: 1;
+}
+
+.gg-purchase-goods-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+.gg-purchase-goods-desc {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 6px;
+}
+
+.gg-purchase-goods-price {
+    font-size: 22px;
+    color: #ff4400;
+    font-weight: 700;
+}
+
+.gg-purchase-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.gg-purchase-gift-toggle {
+    font-size: 14px;
+    color: #ff4400;
+}
+
+.gg-purchase-gift-selector {
+    display: none;
+    margin-top: 10px;
+}
+
+.gg-purchase-gift-label {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.gg-purchase-gift-contact-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.gg-pay-btns {
+    display: flex;
+    gap: 10px;
+}
+
+.gg-pay-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    border: 2px solid #e0e0e0;
+    background: #fff;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.gg-pay-btn.active {
+    border-color: #ff4400;
+    background: #fff5f0;
+    color: #ff4400;
+}
+
+.gg-pay-btn:active {
+    transform: scale(0.96);
+}
+
+.gg-tafu-selector {
+    display: none;
+    margin-top: 10px;
+}
+
+.gg-tafu-label {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.gg-tafu-contact-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.gg-settle-footer {
+    background: #fff;
+    padding: 15px;
+    border-top: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+.gg-settle-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #ff6b35, #ff4400);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.gg-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-bottom: 0.5px solid #f0f0f0;
+    cursor: pointer;
+}
+
+.gg-contact-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.gg-contact-name {
+    font-size: 16px;
+    color: #333;
+}
+
+/* ========== 购物车 ========== */
+.gg-cart-header {
+    background: #fff;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.gg-cart-title {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.gg-cart-manage {
+    font-size: 17px;
+    color: #333;
+}
+
+.gg-cart-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.gg-cart-item {
+    background: #fff;
+    padding: 15px;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.gg-cart-check {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    text-align: center;
+    line-height: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.gg-cart-check.checked {
+    border: 2px solid #ff4400;
+    background: #ff4400;
+    color: #fff;
+}
+
+.gg-cart-check.unchecked {
+    border: 2px solid #ccc;
+    background: #fff;
+    color: transparent;
+}
+
+.gg-cart-img {
+    width: 80px;
+    height: 80px;
+    background-position: center;
+    background-size: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.gg-cart-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.gg-cart-name {
+    font-size: 15px;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gg-cart-shop {
+    font-size: 13px;
+    color: #999;
+}
+
+.gg-cart-price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.gg-cart-price {
+    font-size: 18px;
+    color: #ff4400;
+    font-weight: 700;
+}
+
+.gg-cart-qty {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.gg-cart-qty-btn {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #ddd;
+    border-radius: 14px;
+    text-align: center;
+    line-height: 26px;
+    cursor: pointer;
+    transition: all 0.1s;
+}
+
+.gg-cart-qty-btn:active {
+    background: #f0f0f0;
+}
+
+.gg-cart-footer {
+    background: #fff;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+.gg-cart-select-all {
+    font-size: 16px;
+}
+
+.gg-cart-total {
+    font-size: 18px;
+}
+
+.gg-cart-settle-btn {
+    background: #ff4400;
+    color: #fff;
+    border: none;
+    padding: 12px 40px;
+    border-radius: 25px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* ========== 消息页 ========== */
+.gg-msg-list {
+    flex: 1;
+    overflow-y: auto;
+    background: #fff;
+}
+
+.gg-msg-conv-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 0.5px solid #f0f0f0;
+    background: #fff;
+    cursor: pointer;
+}
+
+.gg-msg-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #ff9800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 22px;
+    flex-shrink: 0;
+    margin-right: 14px;
+}
+
+.gg-msg-info {
+    flex: 1;
+}
+
+.gg-msg-name {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.gg-msg-preview {
+    font-size: 13px;
+    color: #999;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+}
+
+.gg-msg-time {
+    font-size: 11px;
+    color: #999;
+}
+
+/* ========== 消息对话页 ========== */
+.gg-msg-detail-header {
+    background: #faf9f6;
+    padding: 8px 15px;
+    display: flex;
+    align-items: center;
+    border-bottom: 0.5px solid #d4ccbe;
+    flex-shrink: 0;
+}
+
+.gg-msg-detail-title {
+    flex: 1;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.gg-msg-detail-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 12px;
+    background: #f8f8f8;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.gg-msg-expand-menu {
+    display: none;
+    background: #f8f8f8;
+    padding: 4px 8px;
+    border-top: 0.5px solid #d4ccbe;
+    gap: 20px;
+    justify-content: flex-start;
+    overflow-x: auto;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.gg-msg-input-area {
+    background: #fff;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-top: 0.5px solid #d0d0d0;
+    flex-shrink: 0;
+}
+
+.gg-msg-input-wrapper {
+    flex: 1;
+    background: #fff;
+    border-radius: 24px;
+    padding: 8px 16px;
+    border: 0.5px solid #e2e2e2;
+}
+
+.gg-msg-input-wrapper input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 15px;
+}
+
+/* ========== 我的逛逛 ========== */
+.gg-mine-header {
+    background: #f5e7d3;
+    padding: 20px 15px;
+    flex-shrink: 0;
+}
+
+.gg-mine-user-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.gg-mine-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #ff9800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 30px;
+    flex-shrink: 0;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+}
+
+.gg-mine-user-info {
+    flex: 1;
+}
+
+.gg-mine-username {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+
+.gg-mine-vip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.gg-mine-vip-badge {
+    background: #333;
+    color: #fff;
+    font-size: 12px;
+    padding: 3px 6px;
+    border-radius: 4px;
+}
+
+.gg-wallet-card {
+    background: linear-gradient(135deg, #5a3e2b, #664b33);
+    color: #fff;
+    padding: 15px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.gg-wallet-label {
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.gg-wallet-balance {
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.gg-wallet-recharge-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.gg-orders-section {
+    background: #fff;
+    border-radius: 12px;
+    margin: 10px;
+    padding: 15px;
+    flex-shrink: 0;
+}
+
+.gg-orders-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.gg-orders-title {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.gg-orders-all {
+    color: #999;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.gg-order-list {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 0 5px;
+}
+
+.gg-order-item {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    background: #fafaf9;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.gg-order-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    background-position: center;
+    background-size: cover;
+    flex-shrink: 0;
+}
+
+.gg-order-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.gg-order-name {
+    font-size: 14px;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gg-order-date {
+    font-size: 12px;
+    color: #999;
+}
+
+.gg-order-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.gg-order-price {
+    font-size: 15px;
+    color: #ff4400;
+    font-weight: 600;
+}
+
+.gg-order-status {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.gg-order-status.paid {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.gg-order-status.gifted {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.gg-order-status.pending {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.gg-order-status.done {
+    background: #f5f5f5;
+    color: #999;
+}
+
+/* ========== 底部导航 ========== */
+.gg-bottom-nav {
+    background: #fff;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    border-top: 1px solid #eee;
+    flex-shrink: 0;
+    z-index: 20;
+}
+
+.gg-bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    color: #999;
+    font-size: 12px;
+    cursor: pointer;
+    position: relative;
+}
+
+.gg-bottom-nav-item.active {
+    color: #ff4400;
+}
+
+.gg-bottom-nav-icon {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.gg-bottom-nav-item.active .gg-bottom-nav-icon {
+    background: #ff4400;
+    color: #fff;
+    border-radius: 50%;
+}
+
+.gg-nav-badge {
+    position: absolute;
+    top: -5px;
+    right: 2px;
+    background: #ff4400;
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 5px;
+    border-radius: 10px;
+    display: none;
+}
+
+/* ========== 代付弹窗 ========== */
+#gg-tafu-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+}
+
+.gg-tafu-modal-card {
+    width: 92%;
+    max-width: 360px;
+    padding: 32px 28px;
+    background: rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 24px;
+    box-shadow: 0 12px 38px rgba(224, 140, 100, 0.25);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.gg-tafu-modal-bg {
+    position: absolute;
+    top: -50px;
+    right: -30px;
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle, #ffb89066, transparent 70%);
+    border-radius: 50%;
+    z-index: 0;
+}
+
+.gg-tafu-modal-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #7a4f3b;
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 2;
+}
+
+.gg-tafu-modal-goods {
+    font-size: 16px;
+    color: #6b4b3c;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 2;
+}
+
+.gg-tafu-modal-price {
+    font-size: 18px;
+    font-weight: 600;
+    color: #c26a49;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.gg-tafu-modal-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #d89b7a, transparent);
+    margin: 16px 0;
+    opacity: 0.7;
+    position: relative;
+    z-index: 2;
+}
+
+.gg-tafu-modal-input {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 0.5px solid #d4cdc2;
+    font-size: 14px;
+    margin-bottom: 20px;
+    outline: none;
+    position: relative;
+    z-index: 2;
+}
+
+.gg-tafu-modal-actions {
+    display: flex;
+    gap: 10px;
+    position: relative;
+    z-index: 2;
+}
+
+.gg-tafu-modal-cancel {
+    flex: 1;
+    padding: 12px;
+    border-radius: 20px;
+    border: 0.5px solid #c9bfae;
+    background: #fff;
+    color: #666;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.gg-tafu-modal-confirm {
+    flex: 1;
+    padding: 12px;
+    border-radius: 20px;
+    border: none;
+    background: linear-gradient(135deg, #ff6b35, #ff4400);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* ========== 礼物弹窗 ========== */
+#gg-gift-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+}
+
+.gg-gift-modal-card {
+    width: 92%;
+    max-width: 360px;
+    padding: 36px 30px;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 28px;
+    box-shadow: 0 15px 45px rgba(230, 160, 120, 0.28);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.gg-gift-modal-ribbon {
+    position: absolute;
+    top: 0;
+    right: 20px;
+    width: 50px;
+    height: 75px;
+    background: linear-gradient(180deg, #f8b9a2, #f3a88c);
+    clip-path: polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%);
+    border-radius: 0 0 6px 6px;
+    opacity: 0.85;
+}
+
+.gg-gift-modal-bg {
+    position: absolute;
+    top: -50px;
+    left: -30px;
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle, #ffcba470, transparent 70%);
+    border-radius: 50%;
+    z-index: 0;
+}
+
+.gg-gift-modal-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #8c5e48;
+    letter-spacing: 3px;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 2;
+}
+
+.gg-gift-modal-info {
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    margin-bottom: 20px;
+    text-align: left;
+    position: relative;
+    z-index: 2;
+}
+
+.gg-gift-modal-goods {
+    font-size: 16px;
+    color: #795847;
+    margin-bottom: 8px;
+}
+
+.gg-gift-modal-price {
+    font-size: 18px;
+    font-weight: 600;
+    color: #d47c5e;
+}
+
+.gg-gift-modal-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e5b8a1, transparent);
+    margin: 20px 0;
+    opacity: 0.75;
+    position: relative;
+    z-index: 2;
+}
+
+.gg-gift-modal-bless {
+    font-size: 15px;
+    color: #94725f;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.gg-gift-modal-actions {
+    display: flex;
+    gap: 10px;
+    position: relative;
+    z-index: 2;
+}
+
+.gg-gift-modal-cancel {
+    flex: 1;
+    padding: 12px;
+    border-radius: 20px;
+    border: 0.5px solid #c9bfae;
+    background: #fff;
+    color: #666;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.gg-gift-modal-confirm {
+    flex: 1;
+    padding: 12px;
+    border-radius: 20px;
+    border: none;
+    background: linear-gradient(135deg, #f3a88c, #d47c5e);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* ========== 微信转账卡片 ========== */
+.gg-transfer-card {
+    width: 88%;
+    max-width: 88%;
+    padding: 16px 20px;
+    border: 0.5px solid #e0e0e0;
+    border-radius: 6px;
+    text-align: center;
+    margin: 0 auto;
+    line-height: 1.4;
+}
+
+.gg-transfer-card.pending {
+    background: #b9061e;
+    opacity: 1;
+}
+
+.gg-transfer-card.received {
+    background: #b9061e;
+    opacity: 1;
+}
+
+.gg-transfer-card.rejected {
+    background: #f5f5f5;
+    opacity: 0.6;
+}
+
+.gg-transfer-label {
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+.gg-transfer-label.pending,
+.gg-transfer-label.received {
+    color: #999;
+}
+
+.gg-transfer-label.rejected {
+    color: #999;
+}
+
+.gg-transfer-amount {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+}
+
+.gg-transfer-card.rejected .gg-transfer-amount {
+    color: #999;
+}
+
+.gg-transfer-hint {
+    font-size: 11px;
+}
+
+.gg-transfer-hint.pending {
+    color: #b0b0b0;
+}
+
+.gg-transfer-hint.received {
+    color: #07c160;
+}
+
+.gg-transfer-hint.rejected {
+    color: #999;
+}
+
+/* ========== 微信红包卡片 ========== */
+.gg-redpacket-card {
+    width: 88%;
+    max-width: 88%;
+    padding: 16px 20px;
+    background: #e74c3c;
+    border: 0.5px solid #c0392b;
+    border-radius: 6px;
+    text-align: center;
+    margin: 0 auto;
+    line-height: 1.4;
+}
+
+.gg-redpacket-icon {
+    font-size: 22px;
+    margin-bottom: 8px;
+}
+
+.gg-redpacket-msg {
+    font-size: 14px;
+    color: #fff;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.gg-redpacket-label {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* ========== AI主动发起：代付卡片 ========== */
+.gg-tafu-card-ai {
+    width: 88%;
+    max-width: 88%;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 10px;
+    text-align: center;
+    margin: 0 auto;
+    line-height: 1.2;
+}
+
+.gg-tafu-card-ai .gg-tafu-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #7a4f3b;
+    margin-bottom: 4px;
+}
+
+.gg-tafu-card-ai .gg-tafu-goods {
+    font-size: 11px;
+    color: #6b4b3c;
+    margin-bottom: 1px;
+}
+
+.gg-tafu-card-ai .gg-tafu-price {
+    font-size: 12px;
+    font-weight: 600;
+    color: #c26a49;
+    margin-bottom: 4px;
+}
+
+.gg-tafu-card-ai .gg-tafu-msg {
+    font-size: 10px;
+    color: #94725f;
+    margin-bottom: 2px;
+}
+
+.gg-tafu-card-ai .gg-tafu-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #d89b7a, transparent);
+    margin: 3px 0;
+    opacity: 0.7;
+}
+
+.gg-tafu-card-ai .gg-tafu-status {
+    font-size: 11px;
+    font-weight: 600;
+    color: #e05f47;
+}
+
+.gg-tafu-card-ai .gg-tafu-status.paid {
+    color: #4caf50;
+}
+
+.gg-tafu-card-ai .gg-tafu-status.rejected {
+    color: #999;
+}
+
+/* ========== AI主动发起：送礼卡片 ========== */
+.gg-gift-card-ai {
+    width: 88%;
+    max-width: 88%;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 10px;
+    text-align: center;
+    margin: 0 auto;
+    line-height: 1.2;
+}
+
+.gg-gift-card-ai .gg-gift-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #8c5e48;
+    margin-bottom: 6px;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-style: italic;
+    letter-spacing: 2px;
+}
+
+.gg-gift-card-ai .gg-gift-goods {
+    font-size: 11px;
+    color: #795847;
+    margin-bottom: 2px;
+}
+
+.gg-gift-card-ai .gg-gift-price {
+    font-size: 12px;
+    font-weight: 600;
+    color: #d47c5e;
+    margin-bottom: 4px;
+}
+
+.gg-gift-card-ai .gg-gift-msg {
+    font-size: 10px;
+    color: #94725f;
+}
+
+.gg-gift-card-ai .gg-gift-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e5b8a1, transparent);
+    margin: 4px 0;
+    opacity: 0.75;
+}
+
+.gg-gift-card-ai .gg-gift-bless {
+    font-size: 10px;
+    color: #94725f;
+}
+
+/* ========== 空状态 ========== */
+.gg-empty {
+    text-align: center;
+    padding: 60px;
+    color: #999;
+}
