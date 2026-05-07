@@ -6393,7 +6393,6 @@ ${relationshipDesc || '你们正在通过线上聊天软件闲聊。你的语气
 container.querySelectorAll('.transfer-card-row[data-transfer-from="ai"]').forEach(row => {
     const content = decodeURIComponent(row.dataset.transferContent);
     // 已经是最终状态的卡片不绑定点击
-    if (content.includes('received') || content.includes('rejected') || content.includes('已到账') || content.includes('已退还') || content.includes('已支付') || content.includes('对方拒绝')) return;
     
     row.style.cursor = 'pointer';
     row.addEventListener('click', function(e) {
