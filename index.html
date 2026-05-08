@@ -9611,13 +9611,13 @@ if (filteredMessages.length === 0) {
             function switchPage(pageId) {
     // 返回桌面
     if (pageId === 'desktop') {
-        document.querySelector('.app-main').style.display = 'none';
-        document.getElementById('homeMain').style.display = '';
-        document.querySelector('.home-dock').style.display = '';
-        document.querySelector('.page-indicator').style.display = '';
-        Object.values(pages).forEach(p => p?.classList.remove('active'));
-        return;
-    }
+    document.querySelector('.app-main').style.display = 'none';
+    document.getElementById('homeMain').removeAttribute('style');
+    document.querySelector('.home-dock').removeAttribute('style');
+    document.querySelector('.page-indicator').removeAttribute('style');
+    Object.values(pages).forEach(p => p?.classList.remove('active'));
+    return;
+}
 
     // 进入子页面：隐藏首页桌面
     document.getElementById('homeMain').style.display = 'none';
