@@ -117,7 +117,7 @@ window.initHomeModule = function({ DB, showStatus, switchPage, refreshConversati
             input.onchange = async (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
-                const dataUrl = await compressImage(file, 400, 400, 0.85);
+                const dataUrl = await compressImage(file, 800, 800, 0.9);
                 el.style.backgroundImage = `url('${dataUrl}')`;
                 el.classList.add('has-image');
                 await setHomeSetting(storageKey, dataUrl);
