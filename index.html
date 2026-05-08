@@ -9701,6 +9701,7 @@ window.switchPage = switchPage;
             async function init() {
                 await openDB();
                 await initDefaults();
+                document.querySelector('.app-main').style.display = 'none';
                 mainTabBar.style.display = 'none';
 
                 setupAvatarUpload('newContact');
