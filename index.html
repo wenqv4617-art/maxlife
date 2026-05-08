@@ -9609,6 +9609,10 @@ if (filteredMessages.length === 0) {
             const mainTabBar = document.getElementById('mainTabBar');
 
             function switchPage(pageId) {
+                document.getElementById('homeMain').style.display = 'none';
+    document.querySelector('.home-dock').style.display = 'none';
+    document.querySelector('.page-indicator').style.display = 'none';
+    document.querySelector('.app-main').style.display = '';
                 Object.values(pages).forEach(p => p?.classList.remove('active'));
                 pages[pageId]?.classList.add('active');
 
