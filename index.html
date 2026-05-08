@@ -9737,7 +9737,10 @@ window.switchPage = switchPage;
 
                 
                 
-                document.getElementById('backToHomeFromChatBtn')?.addEventListener('click', () => switchPage('desktop'));
+                document.getElementById('backToHomeFromChatBtn')?.addEventListener('click', () => {
+    document.getElementById('mainTabBar').style.display = 'none';
+    switchPage('desktop');
+});
 document.getElementById('backFromAccountingBtn')?.addEventListener('click', () => switchPage('desktop'));
 document.getElementById('backFromDataManagerBtn')?.addEventListener('click', () => switchPage('desktop'));
 document.getElementById('backFromWorldbookBtn')?.addEventListener('click', () => switchPage('desktop'));
