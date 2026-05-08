@@ -237,6 +237,11 @@ window.initHomeModule = function({ DB, showStatus, switchPage, refreshConversati
     }
 
     function handleNavigation(nav) {
+        // 隐藏首页桌面
+    document.getElementById('homeMain').style.display = 'none';
+    document.querySelector('.home-dock').style.display = 'none';
+    document.querySelector('.page-indicator').style.display = 'none';
+    document.querySelector('.app-main').style.display = '';
         const pageMap = {
             'chat': 'chat',
             'worldbook': 'worldbook',
