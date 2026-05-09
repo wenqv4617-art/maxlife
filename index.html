@@ -7570,8 +7570,12 @@ for (let i = 0; i < filteredMessages.length; i++) {
     let finalContent = msg.content;
     
     if (msg.type === 'emoticon' && window.emoticonModule) {
-        const allItems = await DB.getAll('emoticonItems');
-        const matched = allItems.find(item => item.text === msg.text);
+    const allItems = await DB.getAll('emoticonItems');
+    const matched = allItems.find(item => item.text === msg.content);
+    finalContent = matched 
+        ? JSON.stringify({ url: matched.url, text: matched.text })
+        : JSON.stringify({ url: '', text: msg.content });
+}
         finalContent = matched 
             ? JSON.stringify({ url: matched.url, text: matched.text })
             : JSON.stringify({ url: '', text: msg.text });
@@ -8020,8 +8024,12 @@ for (let i = 0; i < filteredMessages.length; i++) {
     let finalContent = msg.content;
     
     if (msg.type === 'emoticon' && window.emoticonModule) {
-        const allItems = await DB.getAll('emoticonItems');
-        const matched = allItems.find(item => item.text === msg.text);
+    const allItems = await DB.getAll('emoticonItems');
+    const matched = allItems.find(item => item.text === msg.content);
+    finalContent = matched 
+        ? JSON.stringify({ url: matched.url, text: matched.text })
+        : JSON.stringify({ url: '', text: msg.content });
+}
         finalContent = matched 
             ? JSON.stringify({ url: matched.url, text: matched.text })
             : JSON.stringify({ url: '', text: msg.text });
