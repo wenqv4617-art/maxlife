@@ -423,7 +423,8 @@ window.initEmoticonModule = function({ DB, showStatus, escapeHtml, getAvatarColo
             document.getElementById('emoticonEntryBtn')?.addEventListener('click', () => {
                 if (switchPage) switchPage('emoticon');
             });
-            document.getElementById('backFromEmoticonBtn')?.addEventListener('click', () => {
+            document.getElementById('backFromEmoticonBtn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
     if (switchPage) switchPage('profile');
 });
         }
