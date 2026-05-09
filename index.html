@@ -6102,7 +6102,7 @@ ${emoticonSection ? '- 你可以偶尔使用表情包，格式为 [EMOTICON:文�
                 const messages = [];
                 const parts = text.split(/\[MSG\]/).filter(p => p.trim());
                 for (const part of parts) {
-                    const match = part.match(/^(文字|图片|语音|线下邀约):\s*([\s\S]*?)$/m);
+                    const match = part.match(/^(文字|图片|语音|线下邀约|表情包):\s*([\s\S]*?)$/m);
                     if (!match) continue;
                     const type = match[1];
                     const content = match[2].trim();
