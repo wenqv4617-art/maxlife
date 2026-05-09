@@ -9715,7 +9715,7 @@ async function setWallpaper(value) {
             const tabs = document.querySelectorAll('.tab-item');
             const mainTabBar = document.getElementById('mainTabBar');
 
-            function switchPage(pageId) {
+            async function switchPage(pageId) {
     // 返回桌面
     if (pageId === 'desktop') {
     document.querySelector('.app-main').style.display = 'none';
