@@ -10439,6 +10439,7 @@ document.getElementById('backFromSettingsBtn')?.addEventListener('click', () => 
                     });
                     window.emoticonModule.bindEvents();
                     window.emoticonModule.setupEmoticonPickerDismiss();
+                    window.parseAIResponse = window.emoticonModule.parseAIResponse;
                 }
 
                 console.log('✅ 初始化完成');
