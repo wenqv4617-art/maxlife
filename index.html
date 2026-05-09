@@ -6368,7 +6368,7 @@ ${relationshipDesc || '你们正在通过线上聊天软件闲聊。你的语气
                         let html = '';
                         let prevTime = null;
 
-                        displayChats.forEach((c, index) => {
+                       displayChats.forEach(async (c, index) => {
                             if (shouldShowTimestamp(c.timestamp, prevTime)) {
                                 html +=
                                     `<div class="timestamp-divider">${formatTimestamp(c.timestamp, prevTime)}</div>`;
