@@ -9895,6 +9895,7 @@ async function setWallpaper(value) {
     } else if (pageId === 'emoticon') {
         if (window.emoticonModule) window.emoticonModule.renderEmoticonPage();
     } else if (pageId === 'group-conversation') {
+        console.log('切换到群聊页面');
         if (window.currentGroupId) {
             window.loadGroupMessages(window.currentGroupId);
         }
