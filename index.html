@@ -9838,7 +9838,10 @@ async function setWallpaper(value) {
     document.querySelector('.home-dock').style.display = 'none';
     document.querySelector('.page-indicator').style.display = 'none';
     document.querySelector('.app-main').style.display = '';
-
+if (pageId !== 'guangguang') {
+    const ggPage = document.getElementById('page-guangguang');
+    if (ggPage) ggPage.classList.remove('active');
+}
     Object.values(pages).forEach(p => p?.classList.remove('active'));
     pages[pageId]?.classList.add('active');
 
