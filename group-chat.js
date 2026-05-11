@@ -764,6 +764,10 @@ ${charsSection}
         msgInput.placeholder = g.isUserParticipating ? '输入消息...' : '输入旁白/系统消息...';
         await loadGroupMessages(id);
         window.switchPage('group-conversation');
+        setTimeout(() => {
+        const ggBottomNav = document.querySelector('#page-guangguang > div:last-child');
+        if (ggBottomNav) ggBottomNav.style.display = 'none';
+    }, 100);
     }
 
     // ========== 发送消息 ==========
