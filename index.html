@@ -9900,6 +9900,9 @@ async function setWallpaper(value) {
         if (window.emoticonModule) window.emoticonModule.renderEmoticonPage();
     } else if (pageId === 'group-conversation') {
         console.log('切换到群聊页面');
+            // 强制关闭逛逛
+        const ggPage = document.getElementById('page-guangguang');
+        if (ggPage) ggPage.classList.remove('active');
         if (window.currentGroupId) {
             window.loadGroupMessages(window.currentGroupId);
         }
