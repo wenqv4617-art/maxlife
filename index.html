@@ -9806,6 +9806,9 @@ async function setWallpaper(value) {
     // 返回桌面
     if (pageId === 'desktop') {
         console.log('switchPage 被调用:', pageId);
+        if (pageId === 'desktop' || pageId === 'guangguang') {
+    console.trace('跳到桌面/逛逛的调用栈');
+        }
     document.querySelector('.app-main').style.display = 'none';
     var hm = document.getElementById('homeMain');
     hm.style.display = '';
