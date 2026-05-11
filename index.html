@@ -8185,6 +8185,7 @@ for (let i = 0; i < filteredMessages.length; i++) {
                 }
                 return null;
             }
+    window.getActiveMask = getActiveMask;
 
             async function refreshMaskSelect() {
                 const masks = await DB.getAll('userProfiles');
