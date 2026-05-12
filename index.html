@@ -9961,6 +9961,45 @@ if (homeMainEl) {
                 setupAvatarUpload('editContact');
                 setupAvatarUpload('mask');
 
+                // ========== 锁屏基础功能（不依赖任何defer脚本，确保新浏览器也能出时钟和解锁） ==========
+(function setupLockscreenBasics() {
+    const ls = document.getElementById('lockscreen');
+    if (!ls) return;
+
+    // 兜底时钟（home.js 初始化后会覆盖，但在此之前保证不卡 --:--）
+    function lockscreenClock() {
+        var now = new Date();
+        var tEl = document.getElementById('lsTime');
+        var dEl = document.getElementById('lsDate');
+        if (tEl) tEl.textContent =
+            String(now.getHours()).padStart(2, '0') + ':' +
+            String(now.getMinutes()).padStart(2, '0');
+        if (dEl) dEl.textContent =
+            now.getFullYear() + '年' + (now.getMonth() + 1) + '月' +
+            now.getDate() + '日 星期' +
+            ['日', '一', '二', '三', '四', '五', '六'][now.getDay()];
+    }
+    lockscreenClock();
+    var clockInterval = setInterval(lockscreenClock, 1000);
+
+    // 兜底解锁（home.js 初始化后会同样绑定，但不影响）
+    var fallbackLocked = true;
+    function unlock() {
+        if (!fallbackLocked) return;
+        fallbackLocked = false;
+        clearInterval(clockInterval);  // 解锁后停掉兜底时钟
+        ls.classList.add('hide');
+        var blurBg = ls.querySelector('.lockscreen-bg');
+        if (blurBg) blurBg.style.display = 'none';
+    }
+    ls.addEventListener('click', unlock);
+    var startY = 0;
+    ls.addEventListener('touchstart', function(e) { startY = e.touches[0].clientY; });
+    ls.addEventListener('touchend', function(e) {
+        if (startY - e.changedTouches[0].clientY > 30) unlock();
+    });
+})();
+
                 function updateHomeClock() {
                     const now = new Date();
                     const hours = String(now.getHours()).padStart(2, '0');
