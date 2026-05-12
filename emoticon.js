@@ -68,7 +68,7 @@ window.initEmoticonModule = function({ DB, showStatus, escapeHtml, getAvatarColo
     async function addEmoticon(groupId, url, text) {
     const item = { groupId, url, text: text || '', createdAt: Date.now() };
     const id = await new Promise((resolve, reject) => {
-        const req = indexedDB.open('CompanionDB_V18', 22);
+        const req = indexedDB.open('CompanionDB_V18', 23);
         req.onsuccess = e => {
             const db = e.target.result;
             const tx = db.transaction('emoticonItems', 'readwrite');
