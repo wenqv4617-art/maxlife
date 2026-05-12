@@ -10561,19 +10561,7 @@ document.getElementById('backFromSettingsBtn')?.addEventListener('click', () => 
                 updateApiStatusFloat();
 
                 
-// ========== 轮询等待 defer 脚本就绪 ==========
-async function waitForModule(name, timeout = 5000) {
-    if (window[name]) return;
-    const start = Date.now();
-    while (!window[name] && (Date.now() - start < timeout)) {
-        await new Promise(r => setTimeout(r, 15));
-    }
-    if (!window[name]) console.warn('⚠️ 模块 ' + name + ' 加载超时');
-}
-await waitForModule('initHomeModule');
-await waitForModule('initEmoticonModule');
-await waitForModule('initGroupChatModule');
-// ========== 等待结束 ==========
+
 
 // 初始化首页模块
 if (window.initHomeModule) {
@@ -10670,7 +10658,12 @@ if (window.initHomeModule) {
                 console.log('✅ 初始化完成');
             }
 
-            init();
+            // 延迟到 DOMContentLoaded 之后执行，确保所有 defer 脚本已加载
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => init());
+} else {
+    init();
+}
         })();
     </script>
     <script>
