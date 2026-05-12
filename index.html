@@ -10520,6 +10520,11 @@ document.getElementById('backFromSettingsBtn')?.addEventListener('click', () => 
                 });
 
                 updateApiStatusFloat();
+
+                // ========== 等待 defer 脚本全部加载 ==========
+if (document.readyState === 'loading') {
+    await new Promise(r => document.addEventListener('DOMContentLoaded', r, { once: true }));
+}
                 // 初始化首页模块
                 if (window.initHomeModule) {
                     window.homeModule = window.initHomeModule({
