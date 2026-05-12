@@ -10658,12 +10658,25 @@ if (window.initHomeModule) {
                 console.log('✅ 初始化完成');
             }
 
-            // 延迟到 DOMContentLoaded 之后执行，确保所有 defer 脚本已加载
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => init());
-} else {
-    init();
-}
+                        // ========== 等待所有 defer 模块加载完毕后再初始化 ==========
+            function waitForAllModules() {
+                return new Promise(function(resolve) {
+                    if (window.initHomeModule && window.initEmoticonModule && window.initGroupChatModule) {
+                        resolve();
+                        return;
+                    }
+                    function check() {
+                        if (window.initHomeModule && window.initEmoticonModule && window.initGroupChatModule) {
+                            resolve();
+                            return;
+                        }
+                        requestAnimationFrame(check);
+                    }
+                    requestAnimationFrame(check);
+                });
+            }
+
+            waitForAllModules().then(function() { init(); });
         })();
     </script>
     <script>
