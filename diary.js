@@ -56,7 +56,7 @@
     // ==================== 事件绑定 ====================
     function bindDiaryEvents() {
         // 返回按钮
-        document.getElementById('backFromDiaryBtn')?.addEventListener('click', () => switchPage('home'));
+        document.getElementById('backFromDiaryBtn')?.addEventListener('click', () => switchPage('desktop'));
         document.getElementById('backFromDiaryDetailBtn')?.addEventListener('click', () => {
             if (window.diaryIsEditMode) {
                 diarySaveCurrent();
