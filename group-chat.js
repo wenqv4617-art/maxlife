@@ -1430,13 +1430,26 @@ ${charsSection}
     }
 
     // ========== 表情包 Section ==========
-    async function buildEmoticonSection() {
-        const allItems = await window.DB.getAll('emoticonItems');
+        async function buildEmoticonSection() {
+        const id = window.currentGroupId;
+        if (!id) return '';
+        const g = await window.DB.get('groupChats', id);
+        const mountedIds = g?.emoticonGroupIds || [];
+        if (mountedIds.length === 0) return '';
+        let allItems = [];
+        for (const gid of mountedIds) {
+            const items = await window.DB.queryByIndex('emoticonItems', 'groupId', gid);
+            allItems.push(...items);
+        }
         if (allItems.length === 0) return '';
         let section = '\n\n【可用表情包】\n你可以使用以下表情包来表达情绪。格式：[MSG]表情包:文字说明\n';
         const seen = new Set();
-        allItems.forEach(item => { if (item.text && !seen.has(item.text)) { seen.add(item.text);
-                section += `- ${item.text}\n`; } });
+        allItems.forEach(item => {
+            if (item.text && !seen.has(item.text)) {
+                seen.add(item.text);
+                section += `- ${item.text}\n`;
+            }
+        });
         return section;
     }
 
