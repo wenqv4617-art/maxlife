@@ -2202,7 +2202,7 @@ function bindForumEvents() {
 
     logoBtn.addEventListener('click', (e) => {
         if (logoIsLongPress) { logoIsLongPress = false; return; }
-        window.switchPage('home');
+        window.switchPage('desktop');
     });
 
     function startLogoPress() {
