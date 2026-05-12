@@ -10560,17 +10560,28 @@ document.getElementById('backFromSettingsBtn')?.addEventListener('click', () => 
 
                 updateApiStatusFloat();
 
-                // ========== 等待 defer 脚本全部加载 ==========
-if (document.readyState === 'loading') {
-    await new Promise(r => document.addEventListener('DOMContentLoaded', r, { once: true }));
+                
+// ========== 轮询等待 defer 脚本就绪 ==========
+async function waitForModule(name, timeout = 5000) {
+    if (window[name]) return;
+    const start = Date.now();
+    while (!window[name] && (Date.now() - start < timeout)) {
+        await new Promise(r => setTimeout(r, 15));
+    }
+    if (!window[name]) console.warn('⚠️ 模块 ' + name + ' 加载超时');
 }
-                // 初始化首页模块
-                if (window.initHomeModule) {
-                    window.homeModule = window.initHomeModule({
-                        DB, showStatus, switchPage, refreshConversationList, getAvatarColor, compressImage
-                    });
-                    await window.homeModule.init();
-                }
+await waitForModule('initHomeModule');
+await waitForModule('initEmoticonModule');
+await waitForModule('initGroupChatModule');
+// ========== 等待结束 ==========
+
+// 初始化首页模块
+if (window.initHomeModule) {
+    window.homeModule = window.initHomeModule({
+        DB, showStatus, switchPage, refreshConversationList, getAvatarColor, compressImage
+    });
+    await window.homeModule.init();
+}
 
                 // 初始化表情包模块
                 if (window.initEmoticonModule) {
