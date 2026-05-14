@@ -193,7 +193,7 @@
     const isImg = iconDef.type === "image" || isImageValue(value);
 
     if (isImg) {
-      el.innerHTML = `<img src="${value}" style="width:1em;height:1em;object-fit:contain;vertical-align:middle;" alt="">`;
+      el.innerHTML = `<img src="${value}" style="width:2em;height:2em;object-fit:contain;vertical-align:middle;" alt="">`;
     } else {
       el.textContent = value || "";
     }
