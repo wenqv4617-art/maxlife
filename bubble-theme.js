@@ -403,7 +403,7 @@
         <div class="theme-icon-preview" style="width:40px;height:40px;border-radius:10px;background:#f8f8f8;">${preview}</div>
         <div class="theme-icon-info">
           <div class="theme-icon-name">${esc(item.label)}</div>
-          <div class="theme-icon-emoji-label">${esc(item.key)}</div>
+
         </div>
         <div class="theme-icon-actions">
           <button class="theme-icon-action-btn bt-icon-text">文本/URL</button>
