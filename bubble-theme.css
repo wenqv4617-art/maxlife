@@ -69,3 +69,11 @@
   margin-bottom: 6px;
   font-size: 13px;
 }
+
+#bubbleCssInput::placeholder{
+  color:#9aa3ad;
+  opacity:1;
+  line-height:1.5;
+  font-size:12px;
+  white-space:pre-wrap;
+}
