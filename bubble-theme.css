@@ -1,0 +1,71 @@
+/* 气泡主题面板样式 */
+#bubbleCssInput {
+  font-family: "SF Mono", Monaco, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  background: #fff;
+  color: #333;
+}
+
+#bubbleThemePreviewRoot .chat-header h2 {
+  margin: 0;
+}
+
+.bubble-theme-empty {
+  text-align: center;
+  color: #a0a8a2;
+  font-size: 12px;
+  padding: 12px;
+  background: #f8f6f2;
+  border-radius: 10px;
+}
+
+.bubble-theme-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #e7e2d8;
+  border-radius: 10px;
+  background: #fff;
+  margin-bottom: 8px;
+}
+
+.bubble-theme-row-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.bubble-theme-row-time {
+  font-size: 11px;
+  color: #a0a8a2;
+  margin-top: 2px;
+}
+
+.bubble-theme-row-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.bubble-theme-target-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  margin: 6px 0;
+}
+
+.bubble-theme-target-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px dashed #d9d3c8;
+  border-radius: 8px;
+  background: #fff;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
