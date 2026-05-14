@@ -117,7 +117,7 @@
 
   async function getAllThemes() {
     const list = await window.DB.getAll(STORE_NAME);
-    return (list || []).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0);
+    return (list || []).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
   }
 
   async function renderArchiveList() {
