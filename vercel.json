@@ -1,0 +1,32 @@
+{
+  "headers": [
+    {
+      "source": "/maxlife/sw.js",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
+      ]
+    },
+    {
+      "source": "/maxlife/manifest.json",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/maxlife/(.*)",
+      "destination": "/maxlife/$1"
+    }
+  ]
+}
