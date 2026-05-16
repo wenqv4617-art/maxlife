@@ -17,25 +17,26 @@
   const STYLE_PREFIX = "bt-style-";
   const PREVIEW_STYLE_ID = "bt-preview-style";
 
-  const ICON_SCHEMA = [
-    { key: "expandMenuBtn", label: "输入栏➕" },
-    { key: "convSendBtn", label: "发送⬆️" },
-    { key: "convFetchBtn", label: "AI⬇️" },
+  // B (新代码)
+const ICON_SCHEMA = [
+  { key: "expandMenuBtn", label: "" },
+  { key: "convSendBtn", label: "" },
+  { key: "convFetchBtn", label: "" },
 
-    { key: "userImage", label: "展开栏-图片" },
-    { key: "userVoice", label: "展开栏-语音" },
-    { key: "emoticon", label: "展开栏-表情" },
-    { key: "innerVoice", label: "展开栏-心声" },
-    { key: "voiceCall", label: "展开栏-通话" },
-    { key: "sendDiary", label: "展开栏-日记" },
-    { key: "toggleMode", label: "展开栏-见面" },
-    { key: "transfer", label: "展开栏-转账" },
-    { key: "sendRedPacket", label: "展开栏-发红包" },
-    { key: "openSummary", label: "展开栏-总结" },
-    { key: "openDetail", label: "展开栏-详情" },
-    { key: "checkPhone", label: "展开栏-查手机" },
-    { key: "focus", label: "展开栏-专注" }
-  ];
+  { key: "userImage", label: "" },
+  { key: "userVoice", label: "" },
+  { key: "emoticon", label: "" },
+  { key: "innerVoice", label: "" },
+  { key: "voiceCall", label: "" },
+  { key: "sendDiary", label: "" },
+  { key: "toggleMode", label: "" },
+  { key: "transfer", label: "" },
+  { key: "sendRedPacket", label: "" },
+  { key: "openSummary", label: "" },
+  { key: "openDetail", label: "" },
+  { key: "checkPhone", label: "" },
+  { key: "focus", label: "" }
+];
 
   // B (新代码)
 const DEFAULT_ICON_MAP = {
