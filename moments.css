@@ -541,10 +541,7 @@
   transform: scale(0.95);
 }
 
-/* 默认隐藏加号按钮 */
-.mm-fab {
-  display: none !important;
-}
+
 
 /* 仅在朋友圈页面显示 */
 #page-moments.page.active .mm-fab {
