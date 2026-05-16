@@ -1,0 +1,740 @@
+/* ============================================
+   查手机模块 - phone-check.css
+   依赖：index.html 中的基础样式
+   ============================================ */
+
+/* ========== 手机桌面 ========== */
+.phone-check-page {
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    background: linear-gradient(150deg, #e4f8f9, #cdeef2);
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 500;
+}
+.phone-check-page.active {
+    display: flex;
+}
+
+.phone-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 0 0 0;
+}
+.phone-time-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 60px;
+    color: #246b79;
+    flex-shrink: 0;
+}
+.phone-time {
+    font-size: 68px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+.phone-date {
+    font-size: 14px;
+    margin-top: 4px;
+    opacity: 0.85;
+}
+.phone-middle {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    gap: 8px;
+    margin-top: 80px;
+    padding: 0 8px;
+    flex-shrink: 0;
+    max-height: 220px;
+    min-height: 180px;
+    align-items: center;
+}
+.phone-todo-container {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 16px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.phone-todo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+.phone-todo-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: #444;
+}
+.phone-todo-actions {
+    font-size: 20px;
+    color: #333;
+}
+.phone-todo-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 2px;
+    max-height: 140px;
+}
+.phone-todo-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+}
+.phone-todo-checkbox {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    flex-shrink: 0;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.phone-todo-checkbox.checked {
+    background: #ffc107;
+    border-color: #ffc107;
+    color: #fff;
+}
+.phone-todo-text {
+    font-size: 13px;
+    color: #333;
+}
+.phone-todo-time {
+    font-size: 11px;
+    color: #999;
+}
+.phone-app-box {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    place-items: center;
+    gap: 8px;
+}
+.phone-app-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+.phone-app-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #72c9bf;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    aspect-ratio: 1 / 1;
+}
+.phone-app-name {
+    margin-top: 4px;
+    font-size: 11px;
+    color: #246b79;
+    text-align: center;
+}
+.phone-dock {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 16px;
+    margin-top: 80px;
+}
+.phone-dock-wrapper {
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(12px);
+    border-radius: 22px;
+    padding: 12px 24px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    display: flex;
+    gap: 24px;
+}
+.phone-dock .phone-app-icon {
+    width: 48px;
+    height: 48px;
+}
+
+/* ========== 2×2 布局 ========== */
+.phone-app-box-2x2 {
+    width: 160px;
+    flex-shrink: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 8px;
+    place-items: center;
+    align-content: center;
+}
+.phone-app-box-2x2 .phone-app-icon {
+    width: 56px;
+    height: 56px;
+    font-size: 26px;
+}
+.phone-app-box-2x2 .phone-app-name {
+    margin-top: 4px;
+    font-size: 11px;
+    color: #246b79;
+    text-align: center;
+}
+
+/* ========== 全屏应用 ========== */
+.phone-fullscreen-app {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    z-index: 600;
+    display: none;
+    flex-direction: column;
+}
+.phone-fullscreen-app.active {
+    display: flex;
+}
+.phone-app-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 16px;
+    background: #f5f5f5;
+    position: relative;
+    flex-shrink: 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+.phone-app-header-back {
+    position: absolute;
+    left: 16px;
+    font-size: 20px;
+    cursor: pointer;
+    color: #246b79;
+    padding: 4px 8px;
+}
+.phone-app-header-title {
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+.phone-app-header-title:active {
+    background: rgba(0, 0, 0, 0.05);
+}
+.phone-app-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+}
+.phone-app-header-actions {
+    position: absolute;
+    right: 16px;
+    font-size: 20px;
+    color: #333;
+}
+
+/* ========== 讯息列表 ========== */
+.phone-chat-list {
+    overflow-y: auto;
+    background: #fff;
+}
+.phone-chat-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    gap: 12px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+.phone-chat-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 18px;
+    background-size: cover;
+    background-position: center;
+}
+.phone-chat-info {
+    flex: 1;
+    min-width: 0;
+}
+.phone-chat-name-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.phone-chat-name {
+    font-size: 16px;
+    font-weight: 500;
+}
+.phone-chat-time {
+    font-size: 13px;
+    color: #999;
+}
+.phone-chat-preview {
+    font-size: 14px;
+    color: #666;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ========== 讯息详情 ========== */
+.phone-chat-messages {
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.phone-message-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+.phone-message-item.right {
+    flex-direction: row-reverse;
+}
+.phone-message-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+.phone-message-bubble {
+    max-width: 70%;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 15px;
+    line-height: 1.4;
+}
+.phone-message-item.left .phone-message-bubble {
+    background: #fff;
+    color: #333;
+    border: 1px solid #e8e8e8;
+}
+.phone-message-item.right .phone-message-bubble {
+    background: #95ec69;
+    color: #000;
+}
+.phone-chat-input-area {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    background: #fff;
+    border-top: 1px solid #eee;
+    gap: 12px;
+    flex-shrink: 0;
+}
+.phone-chat-input {
+    flex: 1;
+    border: none;
+    background: #f5f5f5;
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 15px;
+    outline: none;
+}
+
+/* ========== 浏览器 ========== */
+.phone-browser-search {
+    padding: 8px 16px;
+    flex-shrink: 0;
+}
+.phone-search-bar {
+    flex: 1;
+    background-color: #e0ebf8;
+    border-radius: 24px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.phone-search-bar input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 15px;
+}
+.phone-history-section {
+    padding: 16px;
+}
+.phone-history-title {
+    font-size: 15px;
+    color: #666;
+    margin-bottom: 10px;
+}
+.phone-history-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    gap: 10px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+}
+.phone-history-item:hover {
+    background: #f9f9f9;
+}
+.phone-history-icon {
+    color: #999;
+}
+.phone-history-text {
+    flex: 1;
+    font-size: 15px;
+}
+.phone-history-time {
+    font-size: 12px;
+    color: #999;
+}
+
+/* ========== 通用列表 ========== */
+.phone-list-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    gap: 12px;
+}
+.phone-list-item:active {
+    background: #f9f9f9;
+}
+.phone-list-item-info {
+    flex: 1;
+    min-width: 0;
+}
+.phone-list-item-title {
+    font-size: 16px;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.phone-list-item-sub {
+    font-size: 13px;
+    color: #999;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.phone-list-item-date {
+    font-size: 13px;
+    color: #999;
+    flex-shrink: 0;
+}
+
+/* ========== 详情页 ========== */
+.phone-detail-page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    z-index: 650;
+    display: none;
+    flex-direction: column;
+}
+.phone-detail-page.active {
+    display: flex;
+}
+.phone-detail-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+.phone-detail-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #333;
+}
+.phone-detail-date {
+    font-size: 14px;
+    color: #999;
+    margin-bottom: 16px;
+}
+.phone-detail-body {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #333;
+    white-space: pre-wrap;
+}
+.phone-detail-comment {
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+.phone-detail-comment-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #555;
+}
+.phone-detail-comment-text {
+    font-size: 15px;
+    margin-top: 4px;
+    color: #333;
+}
+.phone-section-title {
+    margin-top: 24px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #666;
+    margin-bottom: 12px;
+}
+
+/* ========== 购物 ========== */
+.phone-shop-tabs {
+    display: flex;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0;
+}
+.phone-shop-tab {
+    flex: 1;
+    text-align: center;
+    padding: 14px;
+    font-size: 16px;
+    cursor: pointer;
+    color: #666;
+    border-bottom: 2px solid transparent;
+}
+.phone-shop-tab.active {
+    color: #246b79;
+    border-bottom-color: #246b79;
+    font-weight: 500;
+}
+.phone-shop-panel {
+    display: none;
+    padding: 16px;
+}
+.phone-shop-panel.active {
+    display: block;
+}
+.phone-cart-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+.phone-cart-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    background: #e0ebf8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+}
+.phone-cart-info {
+    flex: 1;
+    min-width: 0;
+}
+.phone-cart-name {
+    font-size: 15px;
+    color: #333;
+}
+.phone-cart-desc {
+    font-size: 13px;
+    color: #999;
+    margin-top: 4px;
+}
+.phone-cart-price {
+    font-size: 18px;
+    font-weight: 600;
+    color: #e74c3c;
+    margin-top: 6px;
+}
+.phone-asset-total {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 4px;
+}
+.phone-asset-total span {
+    font-size: 36px;
+    font-weight: 700;
+    color: #246b79;
+}
+.phone-asset-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+.phone-asset-desc {
+    font-size: 14px;
+    color: #333;
+}
+.phone-asset-amount {
+    font-size: 16px;
+    font-weight: 500;
+}
+.phone-asset-amount.income {
+    color: #27ae60;
+}
+.phone-asset-amount.expense {
+    color: #e74c3c;
+}
+
+/* ========== 统计 ========== */
+.phone-stats-summary {
+    padding: 16px;
+}
+.phone-stats-total {
+    font-size: 15px;
+    color: #666;
+    margin-bottom: 8px;
+}
+.phone-stats-total span {
+    font-size: 28px;
+    font-weight: 700;
+    color: #246b79;
+}
+.phone-stats-bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 100px;
+    margin-bottom: 20px;
+}
+.phone-stats-bar-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.phone-stats-bar {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    min-height: 4px;
+}
+.phone-stats-bar-label {
+    font-size: 10px;
+    color: #666;
+    margin-top: 4px;
+    text-align: center;
+}
+.phone-stats-list-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 12px;
+}
+.phone-stats-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+.phone-stats-info {
+    flex: 1;
+}
+.phone-stats-name {
+    font-size: 16px;
+    color: #333;
+}
+.phone-stats-time {
+    font-size: 15px;
+    font-weight: 500;
+    color: #246b79;
+}
+
+/* ========== 长按提示 ========== */
+.long-press-hint {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    z-index: 700;
+    pointer-events: none;
+    animation: fadeInOut 2s ease forwards;
+}
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* ========== 查手机导航栏 ========== */
+.phone-check-nav {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f5f5f5;
+    border-bottom: 1px solid #e0e0e0;
+    flex-shrink: 0;
+}
+.phone-check-back {
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    color: #246b79;
+}
+.phone-check-title {
+    flex: 1;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+}
+
+/* ========== SVG 图标适配 ========== */
+.phone-app-icon svg {
+    display: block;
+    margin: 0 auto;
+    color: #fff;
+}
+
+.phone-app-box-2x2 .phone-app-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.phone-dock .phone-app-icon svg {
+    width: 28px;
+    height: 28px;
+}
