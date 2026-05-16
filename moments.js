@@ -983,8 +983,7 @@ const groups = [...new Set(chars.map(c => c.group || "默认"))];
   }
   if (cur) lines.push(cur);
   lines = lines.slice(0, 8);
-
-  const totalH = lines.length * lineHeight;
+     
   const totalH = lines.length * lineHeight;
 let y = 450 - totalH / 2 + lineHeight / ( ln of lines) {
     ctx.fillText(ln, 450, y);
