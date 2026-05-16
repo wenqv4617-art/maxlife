@@ -1350,6 +1350,16 @@ document.getElementById("momentsTextImgAddBtn")?.addEventListener("click", async
     if (e.target.id === "momentsShareModal") e.currentTarget.classList.remove("show");
   });
 
+     // ====== 新增：绑定详情弹窗关闭事件 ======
+document.getElementById("momentsDetailCloseBtn")?.addEventListener("click", () => {
+  document.getElementById("momentsDetailModal")?.classList.remove("show");
+});
+
+document.getElementById("momentsDetailModal")?.addEventListener("click", (e) => {
+  if (e.target === e.currentTarget) {
+    e.currentTarget.classList.remove("show");
+  }
+});
   bindForwardCardGlobalClick();
 }
 
