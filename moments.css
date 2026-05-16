@@ -516,7 +516,8 @@
   max-width: 280px;
 }
 
-/* 左下角发布悬浮按钮 - 默认隐藏 */
+
+/* 左下角发布悬浮按钮 - 只出现在朋友圈页面 */
 .mm-fab {
   position: fixed;
   left: 16px;
@@ -529,18 +530,16 @@
   color: #6f5a49;
   font-size: 32px;
   line-height: 1;
-  display: none !important;  /* ← 改为 none */
+  display: none !important;  /* ← 重要：默认隐藏 */
   align-items: center;
   justify-content: center;
   box-shadow: 0 10px 20px rgba(68, 46, 28, .14), 0 2px 6px rgba(68, 46, 28, .1);
   z-index: 10020;
   cursor: pointer;
 }
-.mm-fab:active {
-  transform: scale(0.95);
-}
 
 /* 仅在朋友圈页面显示 */
-#page-moments.page.active .mm-fab {
+#page-moments.page.active .mm-fab,
+#page-moments .mm-fab {
   display: inline-flex !important;
 }
