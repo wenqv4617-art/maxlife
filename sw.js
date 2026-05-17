@@ -1,4 +1,4 @@
-const CACHE_NAME = 'haloes-v5';
+const CACHE_NAME = 'haloes-v6';
 
 self.addEventListener('install', () => {
   self.skipWaiting();
@@ -12,16 +12,24 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  // 不是 GET 请求不处理
   if (event.request.method !== 'GET') return;
-  if (event.request.mode === 'navigate') {
-    event.respondWith(fetch(event.request));
+
+  // 页面请求：完全不拦截，交给浏览器自己走网络
+  if (event.request.mode === 'navigate' || event.request.destination === 'document') {
     return;
   }
+
+  // 静态资源：网络优先，网络挂了用缓存
   event.respondWith(
-    fetch(event.request).then(r => {
-      const clone = r.clone();
-      caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
-      return r;
-    }).catch(() => caches.match(event.request))
+    fetch(event.request).then(response => {
+      if (response.ok) {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+      }
+      return response;
+    }).catch(() => {
+      return caches.match(event.request);
+    })
   );
 });
