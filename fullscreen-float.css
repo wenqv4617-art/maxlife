@@ -1,0 +1,171 @@
+/* =========================================================
+ * fullscreen-float.css
+ * 长按 API 悬浮窗进入浏览器全屏 / 撑开模式
+ * ========================================================= */
+
+/* 选择弹窗遮罩 */
+.float-fullscreen-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2600;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.36);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.float-fullscreen-modal.active {
+    display: flex;
+}
+
+.float-fullscreen-card {
+    width: min(320px, 88vw);
+    background: #faf8f5;
+    border: 1px solid #d4cdc2;
+    border-radius: 20px;
+    padding: 18px 18px 16px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
+    color: #4a5568;
+    animation: floatFullscreenPop 0.18s ease-out;
+}
+
+@keyframes floatFullscreenPop {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.float-fullscreen-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #4a5568;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.float-fullscreen-title svg {
+    width: 18px;
+    height: 18px;
+    color: #6f91ac;
+    flex-shrink: 0;
+}
+
+.float-fullscreen-desc {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #7b8794;
+    margin-bottom: 16px;
+}
+
+.float-fullscreen-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.float-fullscreen-btn {
+    border: none;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: transform 0.08s, opacity 0.15s, background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.float-fullscreen-btn:active {
+    transform: scale(0.95);
+}
+
+.float-fullscreen-btn.secondary {
+    background: #f0ede8;
+    color: #6b7280;
+    border: 1px solid #d4cdc2;
+}
+
+.float-fullscreen-btn.primary {
+    background: #d7e4ee;
+    color: #3f5870;
+    border: 1px solid #c6d8e8;
+    font-weight: 600;
+}
+
+/* fallback 撑开模式：
+   用于浏览器不支持 requestFullscreen 的情况。
+   不隐藏浏览器地址栏，但会让 phone-mock 尽量占满可见区域。 */
+body.browser-fullscreen-fallback {
+    justify-content: center;
+    align-items: stretch;
+}
+
+body.browser-fullscreen-fallback .phone-mock {
+    width: 100vw !important;
+    max-width: none !important;
+    height: var(--app-height, 100dvh) !important;
+    max-height: var(--app-height, 100dvh) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+/* 真正 Fullscreen API 进入后也保持撑满 */
+html:fullscreen,
+html:-webkit-full-screen {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #e2e8e3;
+}
+
+html:fullscreen body,
+html:-webkit-full-screen body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+html:fullscreen .phone-mock,
+html:-webkit-full-screen .phone-mock {
+    width: 100vw !important;
+    max-width: none !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #faf9f6;
+}
+
+/* 全屏/撑开模式下，dock 稍微下沉一点，避免遮第二页底部应用 */
+body.browser-fullscreen-fallback .home-dock,
+html:fullscreen .home-dock,
+html:-webkit-full-screen .home-dock {
+    bottom: calc(24px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* 全屏模式下保证 API 悬浮窗和卡片始终在最上层 */
+html:fullscreen #apiStatusFloat,
+html:-webkit-full-screen #apiStatusFloat,
+body.browser-fullscreen-fallback #apiStatusFloat {
+    z-index: 3000 !important;
+}
+
+html:fullscreen #apiStatusCard,
+html:-webkit-full-screen #apiStatusCard,
+body.browser-fullscreen-fallback #apiStatusCard {
+    z-index: 2999 !important;
+}
+
+html:fullscreen .float-fullscreen-modal,
+html:-webkit-full-screen .float-fullscreen-modal,
+body.browser-fullscreen-fallback .float-fullscreen-modal {
+    z-index: 3100 !important;
+}
