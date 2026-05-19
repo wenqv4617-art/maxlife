@@ -503,8 +503,8 @@
 
 .html-card-frame {
     width: 100%;
-    min-height: 100px;
-    height: 100px;
+    min-height: 560px;
+    height: 560px;
     display: block;
     border: 0;
     background: transparent;
