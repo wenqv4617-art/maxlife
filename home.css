@@ -1,0 +1,561 @@
+/* ========== 首页双页式布局 ========== */
+
+/* 锁屏页 */
+.lockscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: var(--app-height, 100dvh);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 80px;
+    transition: transform 0.4s cubic-bezier(0.2, 0.0, 0, 1.0);
+}
+
+.lockscreen.hide {
+    transform: translateY(-100%);
+    pointer-events: none;
+    visibility: hidden;
+}
+
+.lockscreen-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    filter: blur(12px);
+    transform: scale(1.05);
+    z-index: 0;
+    will-change: transform;
+}
+
+.lockscreen-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    width: 100%;
+    padding: 0 24px;
+}
+
+.lockscreen-time {
+    font-size: 70px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 4px;
+    line-height: 1.2;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+    text-shadow: 0 2px 20px rgba(0,0,0,0.2);
+}
+
+.lockscreen-date {
+    font-size: 16px;
+    color: rgba(255,255,255,0.85);
+    margin-top: 8px;
+    font-weight: 400;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.15);
+}
+
+.lockscreen-hint {
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.7);
+    font-size: 13px;
+    letter-spacing: 2px;
+    z-index: 1;
+    animation: hintPulse 2s ease-in-out infinite;
+}
+
+@keyframes hintPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* ========== 主内容区 ========== */
+.home-main {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.home-pages-track {
+    display: flex;
+    width: 200%;
+    flex: 1;
+    min-height: 0;
+    transition: transform 0.35s cubic-bezier(0.2, 0.0, 0, 1.0);
+}
+
+.home-pages-track.page2 {
+    transform: translateX(-50%);
+}
+
+.home-page {
+    width: 50%;
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    flex-shrink: 0;
+    padding: 16px 14px 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ========== 应用图标 ========== */
+.app-icon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.15s;
+}
+
+.app-icon-item:active {
+    transform: scale(0.92);
+}
+
+.app-icon-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    background: #c9c9c9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    background-size: cover;
+    background-position: center;
+}
+
+.app-icon-box.has-custom-image {
+    background-color: transparent !important;
+}
+
+.app-icon-emoji {
+    font-size: 26px;
+}
+
+.app-icon-box.has-custom-image .app-icon-emoji {
+    display: none;
+}
+
+.app-icon-label {
+    font-size: 11px;
+    color: #4a5568;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* ========== 名片组件 ========== */
+.namecard {
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.namecard-upper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60%;
+    background: #e0e0e0;
+    cursor: pointer;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+}
+
+.namecard-upper.has-image::after {
+    display: none;
+}
+
+.namecard-upper::after {
+    content: '+';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 28px;
+    color: #b0b0b0;
+    font-weight: 200;
+    z-index: 1;
+}
+
+.namecard-avatar {
+    position: absolute;
+    left: 50%;
+    top: 56%;
+    transform: translate(-50%, -50%);
+    width: 64px;
+    height: 64px;
+    background: #e0e0e0;
+    border-radius: 50%;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15), 0 0 0 4px rgba(255,255,255,0.9);
+    z-index: 5;
+    cursor: pointer;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.namecard-avatar::after {
+    content: '+';
+    font-size: 22px;
+    color: #b0b0b0;
+    font-weight: 200;
+}
+
+.namecard-avatar.has-image::after {
+    display: none;
+}
+
+.namecard-lower {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 33%;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 0.5px solid rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.namecard-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    text-align: center;
+    outline: none;
+    min-width: 60px;
+    padding: 2px 8px;
+}
+
+.namecard-body {
+    font-size: 12px;
+    color: #475569;
+    text-align: center;
+    outline: none;
+    min-width: 60px;
+    padding: 2px 8px;
+}
+
+/* ========== 第一页 Flex 布局 ========== */
+.page1-flex {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-height: 0;
+}
+
+.page1-spacer-top {
+    flex: 1;
+    min-height: 0;
+}
+
+.page1-spacer-bottom {
+    flex: 3;
+    min-height: 0;
+}
+
+.page1-namecard-wrapper {
+    width: 100%;
+    flex-shrink: 0;
+    height: calc(3 * (52px + 6px + 11px));
+}
+
+.page1-gap {
+    flex-shrink: 0;
+    height: 70px;
+}
+
+.page1-row2 {
+    display: flex;
+    gap: 4px;
+    width: 100%;
+    flex-shrink: 0;
+    height: calc(2 * 95px);
+}
+
+.page1-photo {
+    flex: 1;
+    height: 100%;
+    border-radius: 12px;
+    background: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.page1-photo::after {
+    content: '+';
+    font-size: 28px;
+    color: #b0b0b0;
+    font-weight: 200;
+    position: absolute;
+}
+
+.page1-photo.has-image::after {
+    display: none;
+}
+
+.page1-apps {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 0;
+    justify-items: center;
+    align-items: center;
+    height: 100%;
+}
+
+/* ========== 第二页 Flex 布局 ========== */
+.page2-flex {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    padding-top: 0px;
+}
+
+.page2-gap-large {
+    flex-shrink: 0;
+}
+
+.page2-photo {
+    width: 100%;
+    aspect-ratio: 4 / 2;
+    flex-shrink: 0;
+    background: #e0e0e0;
+    border-radius: 12px;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.page2-photo::after {
+    content: '+';
+    font-size: 28px;
+    color: #b0b0b0;
+    font-weight: 200;
+    position: absolute;
+}
+
+.page2-photo.has-image::after {
+    display: none;
+}
+
+.page2-apps {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 4px;
+    flex-shrink: 0;
+}
+
+/* ========== 拍立得组件 ========== */
+.polaroid-fan {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 520 / 390;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    flex-shrink: 0;
+    min-height: 0;
+}
+
+.polaroid-card {
+    position: absolute;
+    bottom: 0;
+    width: 36%;
+    aspect-ratio: 3 / 4;
+    background: #000;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.2, 0.0, 0, 1.0), box-shadow 0.3s ease;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    transform-origin: bottom center;
+}
+
+.polaroid-card:nth-child(1) {
+    left: 8%;
+    transform: rotate(-10deg);
+    z-index: 1;
+}
+
+.polaroid-card:nth-child(2) {
+    left: 50%;
+    transform: translateX(-50%) rotate(0deg);
+    z-index: 3;
+}
+
+.polaroid-card:nth-child(3) {
+    right: 8%;
+    transform: rotate(10deg);
+    z-index: 2;
+}
+
+.polaroid-photo {
+    width: 100%;
+    aspect-ratio: 1;
+    background: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.polaroid-photo::after {
+    content: '+';
+    font-size: 32px;
+    color: #b0b0b0;
+    font-weight: 200;
+}
+
+.polaroid-photo.has-image::after {
+    display: none;
+}
+
+.polaroid-bottom {
+    flex: 1;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.45);
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+/* ========== 页指示器 ========== */
+.page-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 0;
+    flex-shrink: 0;
+}
+
+.page-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #c9c1b6;
+    transition: all 0.3s;
+}
+
+.page-dot.active {
+    background: #8b7d6b;
+    width: 18px;
+    border-radius: 3px;
+}
+
+/* ========== Dock栏 - 悬浮半透明样式 ========== */
+.home-dock {
+    position: absolute;
+    bottom: calc(50px + env(safe-area-inset-bottom, 0px));
+    left: 50%;
+    transform: translateX(-50%);
+    height: 70px;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 6px 20px;
+    z-index: 50;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
+    border: 0.5px solid rgba(255,255,255,0.6);
+    min-width: 200px;
+    gap: 30px;
+}
+
+.dock-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.15s;
+    font-size: 11px;
+    color: #6b6b6b;
+}
+
+.dock-item:active {
+    transform: scale(0.92);
+}
+
+.dock-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 10px;
+    background: #c9c9c9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    background-size: cover;
+    background-position: center;
+}
+
+.dock-icon.has-custom-image {
+    background-color: transparent !important;
+}
+
+.dock-icon-emoji {
+    font-size: 20px;
+}
+
+.dock-icon.has-custom-image .dock-icon-emoji {
+    display: none;
+}
+
+.dock-item.disabled {
+    opacity: 0.45;
+    pointer-events: none;
+}
