@@ -9240,7 +9240,7 @@ ${contextText}
         const reply = await callLLM([
             { role: 'system', content: htmlPrompt },
             { role: 'user', content: latestUserText }
-        ], { maxTokens: 10000, temperature: 0.6 });
+        ], { maxTokens: 30000, temperature: 0.6 });
 
         // 提取 html_card 内容,容错各种漂移
         let htmlContent = '';
