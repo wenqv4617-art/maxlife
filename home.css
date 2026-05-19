@@ -559,3 +559,13 @@
     opacity: 0.45;
     pointer-events: none;
 }
+/* ========== 第二页矮屏适配：避免 Dock 遮挡底部应用 ========== */
+@media (max-height: 820px) {
+    .page2-flex {
+        transform: translateY(-28px);
+    }
+
+    .page2-gap-large {
+        height: 10px !important;
+    }
+}
