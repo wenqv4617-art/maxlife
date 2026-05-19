@@ -101,9 +101,7 @@
     if (isStandalonePWA()) {
         if (titleText) titleText.textContent = "应用模式";
         desc.textContent = "当前已经是安装后的 PWA 应用模式，一般不需要再手动全屏。";
-        confirmBtn.textContent =";
- close {
- =浏览器全屏";
+        confirmBtn.textContent = "浏览器全屏";
         desc.textContent = "当前在浏览器中打开时，首页底部 Dock 可能遮挡第二页应用。进入全屏后页面会自动撑开，保持原本样式。";
         confirmBtn.textContent = "进入全屏";
         confirmBtn.onclick = async function() {
