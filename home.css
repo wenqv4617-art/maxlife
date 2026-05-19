@@ -562,7 +562,7 @@
 /* ========== 第二页矮屏适配：避免 Dock 遮挡底部应用 ========== */
 @media (max-height: 820px) {
     .page2-flex {
-        transform: translateY(-28px);
+        transform: translateY(-20px);
     }
 
     .page2-gap-large {
