@@ -795,3 +795,90 @@
     font-weight: 500;
     opacity: 0.85;
 }
+/* ========== 紧凑间距 ========== */
+.chat-messages {
+    gap: 6px !important;
+    padding: 12px 12px !important;
+}
+
+.message-row {
+    margin-bottom: 0 !important;
+}
+
+#groupChatMessages {
+    gap: 6px !important;
+}
+
+.group-message-row {
+    margin-bottom: 0 !important;
+}
+
+/* 时间分隔线也收紧一点 */
+.timestamp-divider {
+    padding: 4px 0 !important;
+    margin: 0 !important;
+}
+
+/* ========== 群聊：表情/语音/图片不要顶到角色名 ========== */
+.group-message-row .bubble.image-bubble,
+.group-message-row .bubble.voice-bubble,
+.group-message-row .emoticon-bubble {
+    display: flex !important;
+    width: fit-content !important;
+    max-width: 100%;
+    vertical-align: top;
+}
+
+.group-message-row.self .bubble.image-bubble,
+.group-message-row.self .bubble.voice-bubble,
+.group-message-row.self .emoticon-bubble {
+    margin-left: auto;
+}
+
+.group-message-content {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.group-message-row.self .group-message-content {
+    align-items: flex-end;
+}
+
+/* ========== 美化-气泡预览：工具栏完整展示（自动换行） ========== */
+#bubbleThemePreviewRoot {
+    overflow: visible !important;
+}
+
+#bubbleThemePreviewRoot .expand-menu {
+    flex-wrap: wrap !important;
+    overflow: visible !important;
+    height: auto !important;
+    padding: 8px 10px !important;
+    gap: 10px !important;
+    white-space: normal !important;
+}
+
+#bubbleThemePreviewRoot .expand-menu-item {
+    flex: 0 0 auto;
+    min-width: 48px;
+}
+
+#bubbleThemePreviewRoot .expand-menu-icon {
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#bubbleThemePreviewRoot .expand-menu-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+#bubbleThemePreviewRoot .expand-menu-label {
+    font-size: 10px;
+    text-align: center;
+    margin-top: 2px;
+}
