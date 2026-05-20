@@ -1,0 +1,797 @@
+/* 气泡主题面板样式 */
+#bubbleCssInput {
+  font-family: "SF Mono", Monaco, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  background: #fff;
+  color: #333;
+}
+
+#bubbleThemePreviewRoot .chat-header h2 {
+  margin: 0;
+}
+
+.bubble-theme-empty {
+  text-align: center;
+  color: #a0a8a2;
+  font-size: 12px;
+  padding: 12px;
+  background: #f8f6f2;
+  border-radius: 10px;
+}
+
+.bubble-theme-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #e7e2d8;
+  border-radius: 10px;
+  background: #fff;
+  margin-bottom: 8px;
+}
+
+.bubble-theme-row-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.bubble-theme-row-time {
+  font-size: 11px;
+  color: #a0a8a2;
+  margin-top: 2px;
+}
+
+.bubble-theme-row-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.bubble-theme-target-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  margin: 6px 0;
+}
+
+.bubble-theme-target-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px dashed #d9d3c8;
+  border-radius: 8px;
+  background: #fff;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+#bubbleCssInput::placeholder{
+  color:#9aa3ad;
+  opacity:1;
+  line-height:1.5;
+  font-size:12px;
+  white-space:pre-wrap;
+}
+/* ========== 线上单聊/群聊统一气泡体系 ========== */
+
+:root {
+    --chat-bubble-char-bg: #e9f2fb;
+    --chat-bubble-user-bg: #fde9ea;
+    --chat-bubble-text: #4a5568;
+    --chat-bubble-subtext: #8ba3c7;
+    --chat-bubble-border: rgba(74, 85, 104, 0.08);
+}
+
+/* 单聊：统一所有普通内容气泡 */
+.message-row.other .bubble,
+.message-row.other .image-bubble,
+.message-row.other .voice-bubble,
+.message-row.other .diary-share-bubble,
+.message-row.other .focus-report-bubble,
+.message-row.other .call-record-bubble,
+.message-row.other .html-card-bubble {
+    background: var(--chat-bubble-char-bg) !important;
+    color: var(--chat-bubble-text) !important;
+    border-radius: 18px !important;
+    border-top-left-radius: 5px !important;
+    border: 1px solid var(--chat-bubble-border) !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+}
+
+.message-row.self .bubble,
+.message-row.self .image-bubble,
+.message-row.self .voice-bubble,
+.message-row.self .diary-share-bubble,
+.message-row.self .focus-report-bubble,
+.message-row.self .call-record-bubble,
+.message-row.self .html-card-bubble {
+    background: var(--chat-bubble-user-bg) !important;
+    color: var(--chat-bubble-text) !important;
+    border-radius: 18px !important;
+    border-top-right-radius: 5px !important;
+    border: 1px solid var(--chat-bubble-border) !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+}
+
+/* 群聊：统一 char/user 气泡 */
+.group-message-row:not(.self) .group-bubble,
+.group-message-row:not(.self) .bubble,
+.group-message-row:not(.self) .image-bubble,
+.group-message-row:not(.self) .voice-bubble,
+.group-message-row:not(.self) .emoticon-bubble,
+.group-message-row:not(.self) .call-record-bubble,
+.group-message-row:not(.self) .html-card-bubble {
+    background: var(--chat-bubble-char-bg) !important;
+    color: var(--chat-bubble-text) !important;
+    border-radius: 18px !important;
+    border-top-left-radius: 5px !important;
+    border: 1px solid var(--chat-bubble-border) !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+}
+
+.group-message-row.self .group-bubble,
+.group-message-row.self .bubble,
+.group-message-row.self .image-bubble,
+.group-message-row.self .voice-bubble,
+.group-message-row.self .emoticon-bubble,
+.group-message-row.self .call-record-bubble,
+.group-message-row.self .html-card-bubble {
+    background: var(--chat-bubble-user-bg) !important;
+    color: var(--chat-bubble-text) !important;
+    border-radius: 18px !important;
+    border-top-right-radius: 5px !important;
+    border: 1px solid var(--chat-bubble-border) !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+}
+
+/* 媒体气泡：图片/语音统一内部结构 */
+.media-bubble {
+    min-width: 132px;
+    padding: 10px 14px !important;
+}
+
+.media-bubble-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.media-bubble-icon {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: currentColor;
+    opacity: 0.78;
+    flex-shrink: 0;
+}
+
+.media-bubble-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.media-bubble-title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.media-bubble-desc {
+    margin-top: 2px;
+    font-size: 12px;
+    color: var(--chat-bubble-subtext);
+    line-height: 1.35;
+    word-break: break-word;
+}
+
+/* 语音通话记录 */
+.call-record-bubble {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 13px !important;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.call-record-icon {
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.75;
+}
+
+/* 引用消息：主内容在上，引用信息在下 */
+.quoted-bubble {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.quote-ref-footer {
+    margin-top: 4px;
+    padding: 7px 9px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.48);
+    border-left: 3px solid rgba(74,85,104,0.22);
+    font-size: 12px;
+    color: var(--chat-bubble-subtext);
+    line-height: 1.45;
+}
+
+.quote-ref-footer-title {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 2px;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.quote-ref-footer-content {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* 表情包也纳入统一视觉，不要突兀 */
+.emoticon-bubble {
+    padding: 8px !important;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    max-width: 180px;
+}
+
+.emoticon-bubble img {
+    max-width: 120px;
+    max-height: 120px;
+    border-radius: 10px;
+    object-fit: contain;
+}
+
+.emoticon-text {
+    font-size: 12px;
+    color: var(--chat-bubble-subtext);
+}
+
+/* HTML 卡片外壳 */
+.html-card-bubble,
+.html-card-frame-wrap {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 14px;
+}
+
+/* 群聊发言人名字稍微统一 */
+.group-sender-name {
+    font-size: 12px;
+    color: #7a8794;
+    margin-bottom: 4px;
+}
+
+/* ========== 气泡主题预览区统一组件 ========== */
+
+#bubbleThemePreviewRoot {
+  --chat-bubble-char-bg: #e9f2fb;
+  --chat-bubble-user-bg: #fde9ea;
+  --chat-bubble-text: #4a5568;
+  --chat-bubble-subtext: #8ba3c7;
+  --chat-bubble-border: rgba(74, 85, 104, 0.08);
+}
+
+#bubbleThemePreviewRoot .message-row.other .bubble,
+#bubbleThemePreviewRoot .message-row.other .image-bubble,
+#bubbleThemePreviewRoot .message-row.other .voice-bubble,
+#bubbleThemePreviewRoot .message-row.other .call-record-bubble {
+  background: var(--chat-bubble-char-bg) !important;
+  color: var(--chat-bubble-text) !important;
+  border-radius: 18px !important;
+  border-top-left-radius: 5px !important;
+  border: 1px solid var(--chat-bubble-border) !important;
+}
+
+#bubbleThemePreviewRoot .message-row.self .bubble,
+#bubbleThemePreviewRoot .message-row.self .image-bubble,
+#bubbleThemePreviewRoot .message-row.self .voice-bubble,
+#bubbleThemePreviewRoot .message-row.self .call-record-bubble {
+  background: var(--chat-bubble-user-bg) !important;
+  color: var(--chat-bubble-text) !important;
+  border-radius: 18px !important;
+  border-top-right-radius: 5px !important;
+  border: 1px solid var(--chat-bubble-border) !important;
+}
+
+#bubbleThemePreviewRoot .media-bubble {
+  min-width: 132px;
+  padding: 10px 14px !important;
+}
+
+#bubbleThemePreviewRoot .media-bubble-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+#bubbleThemePreviewRoot .media-bubble-icon,
+#bubbleThemePreviewRoot .call-record-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+  opacity: 0.78;
+  flex-shrink: 0;
+}
+
+#bubbleThemePreviewRoot .media-bubble-icon {
+  width: 24px;
+  height: 24px;
+}
+
+#bubbleThemePreviewRoot .call-record-icon {
+  width: 18px;
+  height: 18px;
+}
+
+#bubbleThemePreviewRoot .media-bubble-main {
+  flex: 1;
+  min-width: 0;
+}
+
+#bubbleThemePreviewRoot .media-bubble-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+#bubbleThemePreviewRoot .media-bubble-desc {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--chat-bubble-subtext);
+  line-height: 1.35;
+}
+
+#bubbleThemePreviewRoot .call-record-bubble {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 13px !important;
+  font-size: 13px;
+}
+
+#bubbleThemePreviewRoot .quoted-bubble {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#bubbleThemePreviewRoot .quote-ref-footer {
+  margin-top: 4px;
+  padding: 7px 9px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.48);
+  border-left: 3px solid rgba(74,85,104,0.22);
+  font-size: 12px;
+  color: var(--chat-bubble-subtext);
+}
+
+#bubbleThemePreviewRoot .quote-ref-footer-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 2px;
+  font-weight: 600;
+  color: #6b7280;
+}
+/* ========== 简约图片/语音气泡（覆盖之前的 media-bubble 版） ========== */
+
+/* 图片：方块，居中一个 SVG */
+.bubble.image-bubble {
+    width: 78px !important;
+    height: 78px !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.bubble.image-bubble .image-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    opacity: 0.55;
+    color: currentColor;
+}
+
+.bubble.image-bubble .image-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* 语音：一行，麦克风 + 时长 */
+.bubble.voice-bubble {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px !important;
+    min-width: 0 !important;
+}
+
+.bubble.voice-bubble .voice-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    opacity: 0.78;
+    color: currentColor;
+    animation: none !important;
+    font-size: 0;
+}
+
+.bubble.voice-bubble .voice-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.bubble.voice-bubble .voice-duration {
+    font-size: 13px;
+    font-weight: 500;
+    color: currentColor;
+    opacity: 0.85;
+}
+
+/* 修复：mount-options 内的世界书分组在滚动容器里不要被压扁 */
+.mount-options .wb-mount-group {
+    flex-shrink: 0;
+    flex-grow: 0;
+}
+
+.mount-options {
+    align-items: stretch;
+}
+
+/* 引用消息保险一遍：避免之前样式被父级 flex 影响 */
+.group-bubble.quoted-bubble {
+    display: block;
+}
+
+.group-bubble.quoted-bubble .quoted-bubble-main {
+    line-height: 1.55;
+    word-break: break-word;
+}
+
+.group-bubble.quoted-bubble .quote-ref-footer {
+    margin-top: 8px;
+    padding: 7px 10px;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.05);
+    border-left: 3px solid rgba(0,0,0,0.18);
+    font-size: 12px;
+    color: rgba(74,85,104,0.78);
+    line-height: 1.45;
+}
+
+.group-bubble.quoted-bubble .quote-ref-footer-title {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 3px;
+    font-weight: 600;
+    color: rgba(74,85,104,0.85);
+}
+
+.group-bubble.quoted-bubble .quote-ref-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 13px;
+    height: 13px;
+    opacity: 0.85;
+}
+
+.group-bubble.quoted-bubble .quote-ref-footer-content {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: break-word;
+}
+/* ========== 终版统一气泡 v2 ========== */
+
+/* 1. 整体气泡更紧凑 */
+.bubble {
+    padding: 7px 12px !important;
+    line-height: 1.5 !important;
+    border-radius: 16px !important;
+    font-size: 15px;
+}
+
+.message-row.other .bubble {
+    border-top-left-radius: 5px !important;
+}
+
+.message-row.self .bubble {
+    border-top-right-radius: 5px !important;
+}
+
+.group-bubble {
+    padding: 7px 12px !important;
+    line-height: 1.5 !important;
+    border-radius: 16px !important;
+}
+
+.group-message-row:not(.self) .group-bubble {
+    border-top-left-radius: 5px !important;
+}
+
+.group-message-row.self .group-bubble {
+    border-top-right-radius: 5px !important;
+}
+
+/* 2. 图片气泡：78x78 居中 SVG */
+.bubble.image-bubble {
+    width: 78px !important;
+    height: 78px !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.bubble.image-bubble .image-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    opacity: 0.55;
+    color: currentColor;
+}
+
+.bubble.image-bubble .image-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* 3. 语音气泡：纵向排布，header 一行，content 在下方 */
+.bubble.voice-bubble {
+    display: inline-flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 7px 13px !important;
+    min-width: 0 !important;
+    max-width: 260px;
+    gap: 6px;
+}
+
+.voice-bubble-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1;
+}
+
+/* user 方对称：7" + svg */
+.message-row.self .voice-bubble-header,
+.group-message-row.self .voice-bubble-header {
+    flex-direction: row-reverse;
+}
+
+.voice-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    opacity: 0.78;
+    color: currentColor;
+    flex-shrink: 0;
+    animation: none !important;
+}
+
+.voice-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.voice-duration {
+    font-size: 13px;
+    font-weight: 500;
+    color: currentColor;
+    opacity: 0.85;
+}
+
+/* 展开内容：一行块，内嵌在气泡下方 */
+.voice-content-display {
+    margin: 0;
+    padding: 7px 10px;
+    background: rgba(255,255,255,0.55);
+    border-radius: 10px;
+    font-size: 13px;
+    color: #4a5568;
+    line-height: 1.5;
+    border-left: 3px solid rgba(74,85,104,0.18);
+    word-break: break-word;
+    text-align: left;
+}
+
+/* user 方语音内容靠右文本 */
+.message-row.self .voice-content-display,
+.group-message-row.self .voice-content-display {
+    border-left: none;
+    border-right: 3px solid rgba(74,85,104,0.18);
+    text-align: right;
+}
+
+/* 4. 表情包不需要气泡背景 */
+.message-row.other .bubble.emoticon-bubble,
+.message-row.self .bubble.emoticon-bubble,
+.group-message-row:not(.self) .emoticon-bubble,
+.group-message-row.self .emoticon-bubble {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    display: inline-flex !important;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+
+.emoticon-bubble img {
+    max-width: 110px;
+    max-height: 110px;
+    border-radius: 10px;
+    object-fit: contain;
+    display: block;
+}
+
+.emoticon-text {
+    font-size: 11px;
+    color: #8ba3c7;
+}
+
+/* 5. 通话记录气泡更紧凑 */
+.call-record-bubble {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 12px !important;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.call-record-icon {
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.75;
+}
+
+/* 6. 引用气泡：主消息在上，引用块在下 */
+.group-bubble.quoted-bubble {
+    display: block;
+}
+
+.group-bubble.quoted-bubble .quoted-bubble-main {
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.group-bubble.quoted-bubble .quote-ref-footer {
+    margin-top: 7px;
+    padding: 6px 9px;
+    border-radius: 9px;
+    background: rgba(0,0,0,0.05);
+    border-left: 3px solid rgba(0,0,0,0.18);
+    font-size: 12px;
+    color: rgba(74,85,104,0.78);
+    line-height: 1.45;
+}
+
+.group-bubble.quoted-bubble .quote-ref-footer-title {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 2px;
+    font-weight: 600;
+    color: rgba(74,85,104,0.85);
+}
+
+.group-bubble.quoted-bubble .quote-ref-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 13px;
+    height: 13px;
+}
+
+.group-bubble.quoted-bubble .quote-ref-footer-content {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: break-word;
+}
+
+/* 7. 世界书挂载弹窗里分组别被压扁 */
+.mount-options .wb-mount-group {
+    flex-shrink: 0;
+    flex-grow: 0;
+}
+
+/* ========== 预览区同步 v2 ========== */
+#bubbleThemePreviewRoot .bubble {
+    padding: 7px 12px !important;
+    line-height: 1.5 !important;
+    border-radius: 16px !important;
+}
+
+#bubbleThemePreviewRoot .bubble.image-bubble {
+    width: 78px !important;
+    height: 78px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+#bubbleThemePreviewRoot .bubble.image-bubble .image-icon {
+    width: 30px;
+    height: 30px;
+    opacity: 0.55;
+    color: currentColor;
+    display: inline-flex;
+}
+
+#bubbleThemePreviewRoot .bubble.voice-bubble {
+    display: inline-flex !important;
+    flex-direction: column !important;
+    padding: 7px 13px !important;
+    max-width: 260px;
+    gap: 6px;
+}
+
+#bubbleThemePreviewRoot .voice-bubble-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1;
+}
+
+#bubbleThemePreviewRoot .message-row.self .voice-bubble-header {
+    flex-direction: row-reverse;
+}
+
+#bubbleThemePreviewRoot .voice-icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.78;
+    display: inline-flex;
+    color: currentColor;
+}
+
+#bubbleThemePreviewRoot .voice-duration {
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0.85;
+}
