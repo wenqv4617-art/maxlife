@@ -1,0 +1,632 @@
+/* ============================================
+   语音通话模块样式 - voice-call.css
+   版本：v1.0
+   说明：包含语音通话全屏界面、来电弹窗、
+         线下邀约卡片等完整样式
+   依赖：无（独立使用）
+   ============================================ */
+
+/* ========== 语音通话全屏界面 ========== */
+#voiceCallOverlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(160deg, #1a1a1a 0%, #000000 100%);
+    z-index: 9999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    color: white;
+    overflow: hidden;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* 头像呼吸光晕 */
+.voice-call-avatar-wrap {
+    position: relative;
+    margin-top: 100px;
+    margin-bottom: 24px;
+}
+
+.voice-call-avatar-main {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    z-index: 2;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42px;
+    font-weight: 600;
+    color: #fff;
+    background-color: #444;
+    background-size: cover;
+    background-position: center;
+}
+
+.voice-call-breath-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    animation: voiceBreath 2.5s infinite ease-in-out;
+}
+
+.voice-call-breath-ring:nth-child(2) {
+    animation-delay: 0.8s;
+}
+
+.voice-call-breath-ring:nth-child(3) {
+    animation-delay: 1.6s;
+}
+
+@keyframes voiceBreath {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.7;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0;
+    }
+}
+
+.voice-call-username {
+    font-size: 22px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    z-index: 1;
+}
+
+.voice-call-status-text {
+    font-size: 15px;
+    color: #aaa;
+    margin-bottom: 10px;
+    z-index: 1;
+}
+
+.voice-call-timer-text {
+    font-size: 16px;
+    color: #aaa;
+    margin-bottom: 20px;
+    z-index: 1;
+    display: none;
+}
+
+/* 消息区域 */
+.voice-call-msg-area {
+    width: 90%;
+    max-width: 360px;
+    flex: 1;
+    max-height: 30vh;
+    overflow-y: auto;
+    padding: 12px;
+    margin: 0 0 12px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    scrollbar-width: none;
+    z-index: 1;
+}
+
+.voice-call-msg-area::-webkit-scrollbar {
+    display: none;
+}
+
+.voice-call-msg {
+    max-width: 80%;
+    padding: 8px 14px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-break: break-word;
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+.voice-call-msg.self {
+    align-self: flex-end;
+    background: rgba(7, 193, 96, 0.35);
+}
+
+.voice-call-msg.other {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* 输入框区域 */
+.voice-call-input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 90%;
+    max-width: 360px;
+    margin-bottom: 12px;
+    z-index: 1;
+}
+
+.voice-call-input-row input {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: 20px;
+    border: none;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    font-size: 14px;
+    outline: none;
+}
+
+.voice-call-input-row input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.voice-call-send-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #07C160;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.voice-call-send-btn:active {
+    background: #059a4c;
+}
+
+/* 底部按钮组 */
+.voice-call-btn-group {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    max-width: 360px;
+    padding: 0 20px 50px;
+    z-index: 1;
+}
+
+.voice-call-btn-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.voice-call-btn-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.voice-call-btn-icon.mute-btn,
+.voice-call-btn-icon.speaker-btn {
+    background: #333;
+}
+
+.voice-call-btn-icon.mute-btn:active,
+.voice-call-btn-icon.speaker-btn:active {
+    background: #555;
+    transform: scale(0.93);
+}
+
+.voice-call-btn-icon.hangup-btn {
+    background: #f53f3f;
+}
+
+.voice-call-btn-icon.hangup-btn:active {
+    background: #d43d35;
+    transform: scale(0.93);
+}
+
+.voice-call-btn-icon.answer-btn {
+    background: #07C160;
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+}
+
+.voice-call-btn-icon.answer-btn:active {
+    background: #059a4c;
+    transform: scale(0.93);
+}
+
+.voice-call-btn-text {
+    font-size: 12px;
+    color: #ccc;
+}
+
+/* ========== 来电弹窗样式 ========== */
+#incomingCallCard {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 16px;
+    display: none;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    z-index: 10000;
+    animation: callCardSlideDown 0.4s ease forwards;
+}
+
+#incomingCallCard.show {
+    display: flex;
+}
+
+@keyframes callCardSlideDown {
+    from {
+        transform: translateY(-120%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.call-card-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 600;
+    color: #fff;
+    background-color: #444;
+    background-size: cover;
+    background-position: center;
+}
+
+.call-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.call-card-name {
+    font-size: 17px;
+    color: #000;
+    font-weight: 500;
+}
+
+.call-card-tip {
+    font-size: 13px;
+    color: #999;
+    margin-top: 2px;
+}
+
+.call-card-btn-group {
+    display: flex;
+    gap: 16px;
+    flex-shrink: 0;
+}
+
+.call-card-btn-refuse {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #f25048;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.call-card-btn-refuse:active {
+    background: #d43d35;
+    transform: scale(0.93);
+}
+
+.call-card-btn-accept {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #52d052;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.call-card-btn-accept:active {
+    background: #3db83d;
+    transform: scale(0.93);
+}
+
+.call-card-btn-refuse span,
+.call-card-btn-accept span {
+    line-height: 1;
+}
+
+/* ========== 线下邀约卡片样式 ========== */
+.offline-invite-bubble {
+    background: #f7f1e8 !important;
+    border-radius: 12px !important;
+    border: 1px solid #d9cdbf !important;
+    padding: 20px 24px !important;
+    position: relative;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(90, 75, 60, 0.12);
+    min-width: 240px;
+    max-width: 92% !important;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.offline-invite-bubble::before {
+    content: "";
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 1px;
+    background: #b8a998;
+}
+
+.offline-invite-en-title {
+    font-size: 24px;
+    letter-spacing: 1px;
+    color: #5c4f40;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.offline-invite-cn-desc {
+    font-size: 12px;
+    line-height: 1.7;
+    color: #706253;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.offline-invite-info-line {
+    font-size: 11px;
+    color: #645749;
+    text-align: center;
+}
+
+.offline-invite-status {
+    text-align: center;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed #d9cdbf;
+    font-size: 12px;
+    color: #5c4f40;
+}
+
+.offline-invite-bubble.accepted {
+    border-left: 3px solid #7a9e7e;
+}
+
+.offline-invite-bubble.rejected {
+    opacity: 0.5;
+    filter: grayscale(30%);
+}
+
+/* 确认弹窗 */
+.offline-invite-confirm-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.offline-invite-confirm-card {
+    background: #f7f1e8;
+    border-radius: 16px;
+    padding: 24px;
+    width: 85%;
+    max-width: 320px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    border: 1px solid #d9cdbf;
+}
+
+.offline-invite-confirm-card .confirm-en-title {
+    font-size: 28px;
+    color: #5c4f40;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+
+.offline-invite-confirm-card .confirm-hint {
+    font-size: 13px;
+    color: #706253;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.offline-invite-confirm-card .confirm-btn-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.offline-invite-confirm-card .confirm-btn {
+    padding: 10px 28px;
+    border-radius: 24px;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 500;
+}
+
+.offline-invite-confirm-card .confirm-btn.accept {
+    background: #7a9e7e;
+    color: white;
+}
+
+.offline-invite-confirm-card .confirm-btn.accept:active {
+    background: #5a7e5e;
+    transform: scale(0.95);
+}
+
+.offline-invite-confirm-card .confirm-btn.reject {
+    background: #e8e4db;
+    color: #5c4f40;
+}
+
+.offline-invite-confirm-card .confirm-btn.reject:active {
+    background: #d4cdc2;
+    transform: scale(0.95);
+}
+
+/* ============================================
+   对话详情页增强样式
+   功能：
+   1. 详情页 emoji 替换为 SVG 后的对齐样式
+   2. 时间感知开关样式
+   说明：直接合并在 voice-call.css 中
+   ============================================ */
+
+#page-conv-detail .cd-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+#page-conv-detail .cd-icon svg {
+    display: block;
+}
+
+/* 头像占位 SVG */
+#page-conv-detail .avatar-preview svg {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* 时间感知区域 */
+#page-conv-detail .cd-tp-section .cd-tp-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+#page-conv-detail .cd-tp-section .cd-tp-info {
+    flex: 1;
+    min-width: 0;
+}
+
+#page-conv-detail .cd-tp-section .cd-tp-title {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 6px;
+}
+
+#page-conv-detail .cd-tp-section .cd-tp-title .cd-icon {
+    color: #4a5568;
+}
+
+#page-conv-detail .cd-tp-section .cd-tp-desc {
+    font-size: 12px;
+    color: #8ba3c7;
+    line-height: 1.55;
+}
+
+/* 时间感知开关 */
+#page-conv-detail .cd-switch {
+    position: relative;
+    width: 46px;
+    height: 26px;
+    background: #d4cdc2;
+    border-radius: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    margin-top: 2px;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+#page-conv-detail .cd-switch.on {
+    background: #7a9e7e;
+}
+
+#page-conv-detail .cd-switch::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #ffffff;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+}
+
+#page-conv-detail .cd-switch.on::after {
+    transform: translateX(20px);
+}
+
+/* 详情页 header 按钮加图标后的对齐 */
+#page-conv-detail .header-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* label 图标对齐 */
+#page-conv-detail .form-group label {
+    display: flex;
+    align-items: center;
+}
+
+#page-conv-detail .form-group label .cd-icon {
+    color: #8ba3c7;
+}
+
+/* AI 更新按钮对齐 */
+#page-conv-detail #aiUpdateSelfModelBtn {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+}
