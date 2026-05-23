@@ -1217,7 +1217,24 @@ window.switchPage('group-conversation');
         window.showStatus('🤖 正在生成群聊回复...', 'info');
         window.recordApiPending();
         try {
-            const reply = await window.callLLM([{ role: 'system', content: prompt }, { role: 'user', content: '请生成回复。' }], { maxTokens: 1500 });
+            let llmOptions = { maxTokens: 1500 };
+
+if (mode === 'offline') {
+    const offlineMaxChars = parseInt(g.offlineControl?.maxChars || 1200);
+
+    llmOptions.maxTokens = Math.min(
+        16000,
+        Math.max(2000, Math.ceil(offlineMaxChars * 1.5))
+    );
+}
+
+const reply = await window.callLLM(
+    [
+        { role: 'system', content: prompt },
+        { role: 'user', content: '请生成回复。' }
+    ],
+    llmOptions
+);
             const nowTs = Date.now();
             let bt = nowTs;
             if (mode === 'offline') {
@@ -2994,7 +3011,7 @@ let injectingGroupOfflineControl = false;
     function clampMaxChars(v) {
         let n = parseInt(v);
         if (isNaN(n)) n = DEFAULT_CONTROL.maxChars;
-        return Math.max(100, Math.min(8000, n));
+        return Math.max(100, Math.min(20000, n));
     }
 
     function normalizeControl(c) {
@@ -3034,7 +3051,7 @@ let injectingGroupOfflineControl = false;
                 <div class="offline-control-grid">
                     <div class="offline-control-field">
                         <label>${icon(OC_ICON.text)}<span style="margin-left:5px;">每轮线下回复最大字数</span></label>
-                        <input type="number" id="${prefix}OfflineMaxChars" min="100" max="8000" step="50" value="${c.maxChars}">
+                        <input type="number" id="${prefix}OfflineMaxChars" min="100" max="20000" step="50" value="${c.maxChars}">
                     </div>
 
                     <div class="offline-control-row-2">

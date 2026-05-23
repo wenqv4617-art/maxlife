@@ -795,3 +795,98 @@
     font-weight: 500;
     opacity: 0.85;
 }
+/* ========== 全局主题控制与 SVG 预览切换 (新增加) ========== */
+.gt-tab {
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+}
+.gt-tab.active {
+  color: #4a5568 !important;
+  border-bottom-color: #8ba3c7 !important;
+}
+.gt-pane {
+  animation: gtFadeIn 0.2s ease-in-out;
+}
+@keyframes gtFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.theme-entry-card:hover {
+  background: #fcfbf9 !important;
+}
+
+/* ========== 全局样式存档区紧凑布局 ========== */
+
+#globalThemeArchiveList .global-theme-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #e7e2d8;
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+#globalThemeArchiveList .global-theme-row.active {
+  border-color: #8ba3c7;
+  background: #f0f6f1;
+}
+
+#globalThemeArchiveList .bubble-theme-row-main {
+  flex: 1;
+  min-width: 0;
+}
+
+#globalThemeArchiveList .bubble-theme-row-name {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  font-size: 13px;
+}
+
+#globalThemeArchiveList .global-theme-active-tag {
+  flex-shrink: 0;
+  font-size: 10px;
+  line-height: 1;
+  padding: 3px 5px;
+  border-radius: 8px;
+  color: #4a7a4e;
+  background: #e8f4e8;
+  font-weight: 600;
+}
+
+#globalThemeArchiveList .bubble-theme-row-time {
+  font-size: 10px;
+  color: #a0a8a2;
+  margin-top: 3px;
+}
+
+#globalThemeArchiveList .bubble-theme-row-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 4px;
+}
+
+#globalThemeArchiveList .bubble-theme-row-actions .small-btn {
+  min-width: 0;
+  padding: 5px 8px;
+  font-size: 11px;
+  line-height: 1.2;
+  white-space: nowrap;
+  border-radius: 12px;
+}
+
+#globalThemeArchiveList .gt-apply.is-active {
+  color: #4a7a4e;
+  background: #e8f4e8;
+  border-color: #c8e0c8;
+  opacity: 1;
+}
+
+#globalThemeArchiveList .gt-del {
+  color: #c0392b;
+  background: #fff5f5;
+  border-color: #e8d0d0;
+}

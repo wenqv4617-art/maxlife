@@ -4,8 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Haloes · AI陪伴</title>
-    <link rel="apple-touch-icon" sizes="144x144" href="/maxlife/icon-144.png">
-<link rel="apple-touch-icon" sizes="512x512" href="/maxlife/icon-512.png">
+    <script>
+(function() {
+    const isGithub = window.location.hostname.includes('github.io');
+    const firstPath = window.location.pathname.split('/').filter(Boolean)[0];
+    const basePath = isGithub && firstPath ? `/${firstPath}/` : '/';
+
+    [
+        ['144x144', 'icon-144.png'],
+        ['512x512', 'icon-512.png']
+    ].forEach(([sizes, file]) => {
+        const link = document.createElement('link');
+        link.rel = 'apple-touch-icon';
+        link.sizes = sizes;
+        link.href = basePath + file;
+        document.head.appendChild(link);
+    });
+})();
+</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
@@ -4383,7 +4399,7 @@
             <span id="temperatureValue">0.8</span>
         </div>
     </div>
-    <div class="form-group"><label>Max Tokens</label><input type="number" id="maxTokensInput" value="800" min="100" max="4000"></div>
+    <div class="form-group"><label>Max Tokens</label><input type="number" id="maxTokensInput" value="4000" min="100" max="16000"></div>
     <div class="form-group"><label>Top P</label>
         <div class="slider-container">
             <input type="range" id="topPSlider" min="0" max="1" step="0.05" value="1.0">
@@ -4582,6 +4598,14 @@
 ">
                             <div style="font-size: 17px; font-weight: 600; color: #4a5568;">气泡</div>
                         </div>
+                        
+                        <div class="theme-entry-card clickable" data-theme-page="global" style="
+    background: white; border-radius: 16px; padding: 20px; margin-bottom: 12px;
+    display: flex; align-items: center; border: 1px solid #d4cdc2;
+    cursor: pointer;
+">
+    <div style="font-size: 17px; font-weight: 600; color: #4a5568;">全局</div>
+</div>
 
                         <div class="theme-entry-card clickable" data-theme-page="lockscreen" style="
     background: white; border-radius: 16px; padding: 20px; margin-bottom: 12px;
@@ -4829,6 +4853,83 @@
       style="width:100%;padding:8px;border:1px solid #d4cdc2;border-radius:8px;margin-bottom:8px;"></select>
     <div id="bubbleThemeTargetList"></div>
   </div>
+  
+  <div id="themePanelGlobal" style="display:none;">
+  <div class="theme-section" style="margin-top: 0;">
+    <div class="theme-section-title">全局样式</div>
+    <div class="theme-section-desc">
+      在这里输入 CSS。该 CSS 会直接作用于应用全局，可覆盖首页、聊天室、联系人、世界书、日记、论坛、群聊等页面。
+    </div>
+
+    <textarea id="globalCssInput"
+      style="width:100%;min-height:260px;border:1px solid #d4cdc2;border-radius:10px;padding:10px;font-family:'SF Mono',Monaco,monospace;font-size:12px;line-height:1.55;"
+      placeholder="/* 全局 CSS 示例 */
+
+/* 首页 */
+.home-main {
+  background: #fdfaf2 !important;
+}
+
+.namecard {
+  border-radius: 18px !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06) !important;
+}
+
+/* 聊天列表 */
+#page-chat,
+#conversationListContainer {
+  background: #fdfaf2 !important;
+}
+
+.conversation-item {
+  background: #ffffff !important;
+  border-radius: 14px !important;
+  margin: 8px 12px !important;
+  border: 1px solid #efeae0 !important;
+}
+
+/* 单聊 */
+#page-conversation .chat-header,
+#page-group-conversation .chat-header {
+  background: #ffffff !important;
+}
+
+.chat-messages {
+  background: #f8f6f2 !important;
+}
+
+/* 世界书 */
+#page-worldbook,
+#page-worldbook-detail {
+  background: #f8f6f2 !important;
+}
+
+.worldbook-card,
+.worldbook-section {
+  border-radius: 16px !important;
+}
+
+/* 底部导航 */
+.tab-bar {
+  background: #ffffff !important;
+}"></textarea>
+
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+      <button class="small-btn" id="globalSaveSnapshotBtn">保存存档</button>
+    </div>
+  </div>
+
+  <div class="theme-section">
+    <div class="theme-section-title">全局样式存档</div>
+    <div id="globalThemeArchiveList"></div>
+
+    <button class="small-btn" id="globalRestoreDefaultBtn"
+      style="width:100%;margin-top:12px;padding:10px;color:#c0392b;border-color:#e8d0d0;background:#fff5f5;">
+      恢复默认
+    </button>
+  </div>
+</div>
+  
 </div>
                     </div>
                 </div>
@@ -6193,7 +6294,7 @@
                 if (!await DB.getSetting('lastSummaryEndSegment')) await DB.setSetting('lastSummaryEndSegment', 0);
                 if (!await DB.getSetting('llmBaseUrl')) await DB.setSetting('llmBaseUrl', 'https://api.openai.com/v1');
                 if (!await DB.getSetting('temperature')) await DB.setSetting('temperature', '0.8');
-                if (!await DB.getSetting('maxTokens')) await DB.setSetting('maxTokens', '800');
+                if (!await DB.getSetting('maxTokens')) await DB.setSetting('maxTokens', '18000');
                 if (!await DB.getSetting('topP')) await DB.setSetting('topP', '1.0');
                 if (!await DB.getSetting('contextRounds')) await DB.setSetting('contextRounds', 4);
                 if (!await DB.getSetting('gg_wallet_balance')) await DB.setSetting('gg_wallet_balance', 0);
@@ -6564,6 +6665,15 @@ window.showStatus = showStatus;
                     if (!response.ok) { const errorText = await response.text(); throw new Error(
                             `HTTP ${response.status}: ${errorText.slice(0, 200)}`); }
                     const data = await response.json();
+
+const finishReason = data.choices?.[0]?.finish_reason;
+if (finishReason === 'length') {
+    console.warn('[callLLM] 输出被截断：finish_reason = length');
+    recordApiError(
+        '✂️ OUTPUT_TRUNCATED',
+        '输出达到 max_tokens 上限，被截断了。请调高 API 设置里的 Max Tokens。'
+    );
+}
 
 // 宽容提取内容
 let content = "";
@@ -7001,6 +7111,28 @@ if (convId) {
     }
 }
 
+let phoneIntrusionBlock = '';
+if (convId) {
+    try {
+        const phoneEvents = await DB.queryByIndex('chats', 'conversationId', convId);
+        const intrusionEvents = phoneEvents
+            .filter(c => c.messageType === 'phone_intrusion')
+            .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+            .slice(0, 5)
+            .reverse();
+
+        if (intrusionEvents.length) {
+            phoneIntrusionBlock += '\n【你可能察觉到的手机异常】\n';
+            phoneIntrusionBlock += '以下事件不是用户主动告诉你的，而是你的手机留下的异常痕迹、通知、聊天记录变化或联系人反应。你不需要每次都立刻发现，但如果符合你的性格和当前情境，可以自然地调侃、追问、试探或质问用户。\n';
+            intrusionEvents.forEach(e => {
+                phoneIntrusionBlock += `• ${e.content}\n`;
+            });
+        }
+    } catch (e) {
+        phoneIntrusionBlock = '';
+    }
+}
+
 
                 // ========== 线下控制配置 ==========
                 function buildOfflinePerspectiveRules(control, charName, userName, isGroup = false) {
@@ -7066,7 +7198,7 @@ ${userRule}
                     } catch (e) {}
                 }
 
-                offlineControl.maxChars = Math.max(100, Math.min(8000, parseInt(offlineControl.maxChars) || 1200));
+                offlineControl.maxChars = Math.max(100, Math.min(20000, parseInt(offlineControl.maxChars) || 1200));
 
                 const offlinePerspectiveRules = buildOfflinePerspectiveRules(
                     offlineControl,
@@ -7121,7 +7253,7 @@ ${offlineWritingRequirementBlock}
 【输出格式】
 直接写。不用任何标记。
 
-${wbAfter || ''}${memoryBlock ? '\n\n【记忆参考】\n' + memoryBlock : ''}`;
+${wbAfter || ''}${memoryBlock ? '\n\n【记忆参考】\n' + memoryBlock : ''}${phoneIntrusionBlock}`;
                 }
 
                 return `【世界设定】
@@ -7294,7 +7426,7 @@ ${emoticonSection ? '- 你可以偶尔使用表情包，格式为 [MSG]表情包
 4. 送礼：[送礼:商品名:金额:留言]
 只在情境自然合适时使用。
 
-记住：必须严格按照格式输出！${wbAfter || ''}${memoryBlock ? '\n\n【记忆参考】\n' + memoryBlock : ''}`;
+记住：必须严格按照格式输出！${wbAfter || ''}${memoryBlock ? '\n\n【记忆参考】\n' + memoryBlock : ''}${phoneIntrusionBlock}`;
             }
 
             function parseAIResponse(response) {
@@ -7847,7 +7979,10 @@ switchPage('conversation');
                     input.placeholder = mode === 'offline' ? '描述你的动作、对话或感受...' : '输入消息...';
                 }
 
-                let displayChats = chats.filter(c => c.messageType !== 'innerVoice');
+                let displayChats = chats.filter(c =>
+    c.messageType !== 'innerVoice' &&
+    c.messageType !== 'phone_intrusion'
+);
 
                 if (mode === 'online') {
                     displayChats = displayChats.filter(c => c.messageType !== 'offline_card');
@@ -8884,6 +9019,8 @@ if (window.bubbleThemeModule?.applyBubbleThemeForConversation) {
                 // ========== 折叠结束 ==========
             }
             window.loadConversationMessages = loadConversationMessages;
+window.openConversation = openConversation;
+            
 
             function updateModeToggleButton(mode) {
     const icon = document.getElementById('modeToggleIcon');
@@ -9042,7 +9179,19 @@ if (window.bubbleThemeModule?.applyBubbleThemeForConversation) {
                 }
 
                 try {
-                    const reply = await callLLM(messages);
+                    let llmOptions = {};
+
+if (mode === 'offline') {
+    const cd = await DB.get('convDetails', convId);
+    const offlineMaxChars = parseInt(cd?.offlineControl?.maxChars || 1200);
+
+    llmOptions.maxTokens = Math.min(
+        16000,
+        Math.max(2000, Math.ceil(offlineMaxChars * 1.5))
+    );
+}
+
+const reply = await callLLM(messages, llmOptions);
 
                     if (mode === 'offline') {
                         const innerVoiceMatch = reply.match(/---心声开始---([\s\S]*?)---心声结束---/);
@@ -9618,7 +9767,20 @@ ${contextText}
                 showStatus('🤖 正在生成回复...', 'info');
                 recordApiPending();
                 try {
-                    const reply = await callLLM(messages);
+                    let llmOptions = {};
+
+if (mode === 'offline') {
+    const cd = await DB.get('convDetails', convId);
+    const offlineMaxChars = parseInt(cd?.offlineControl?.maxChars || 1200);
+
+    // 中文 1 字不等于 1 token，这里给宽松估算
+    llmOptions.maxTokens = Math.min(
+        16000,
+        Math.max(2000, Math.ceil(offlineMaxChars * 1.5))
+    );
+}
+
+const reply = await callLLM(messages, llmOptions);
 
                     if (mode === 'offline') {
                         const innerVoiceMatch = reply.match(/---心声开始---([\s\S]*?)---心声结束---/);
@@ -11348,7 +11510,7 @@ if (window.momentsModule?.getAutoRule) {
     if (homeView) homeView.style.display = '';
     if (detailView) detailView.style.display = 'none';
 
-    ['themePanelWallpaper', 'themePanelIcon', 'themePanelBubble', 'themePanelLockscreen'].forEach(id => {
+    ['themePanelWallpaper', 'themePanelIcon', 'themePanelBubble', 'themePanelLockscreen', 'themePanelGlobal'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
     });
@@ -11609,43 +11771,65 @@ function bindPhotoDrag(box) {
 }
 
             function showThemeDetail(pageType) {
-                const homeView = document.getElementById('themeHomeView');
-                const detailView = document.getElementById('themeDetailView');
-                const titleEl = document.getElementById('themeDetailTitle');
+            
+                // ===== 修复：全局面板如果被误放进气泡面板里，就自动移出来 =====
+    const globalPanelFix = document.getElementById('themePanelGlobal');
+    const bubblePanelFix = document.getElementById('themePanelBubble');
 
-                if (homeView) homeView.style.display = 'none';
-                if (detailView) detailView.style.display = 'block';
-
-                ['themePanelWallpaper', 'themePanelIcon', 'themePanelBubble'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.style.display = 'none';
-                });
-
-                if (pageType === 'wallpaper') {
-                    if (titleEl) titleEl.textContent = '壁纸';
-                    const panel = document.getElementById('themePanelWallpaper');
-                    if (panel) panel.style.display = '';
-                    renderThemeWallpaperOptions();
-                } else if (pageType === 'icon') {
-                    if (titleEl) titleEl.textContent = '图标';
-                    const panel = document.getElementById('themePanelIcon');
-                    if (panel) panel.style.display = '';
-                    renderThemeIconList();
-                } else if (pageType === 'bubble') {
-    if (titleEl) titleEl.textContent = '气泡';
-    const panel = document.getElementById('themePanelBubble');
-    if (panel) panel.style.display = '';
-    if (window.bubbleThemeModule?.initBubbleThemePanel) {
-        window.bubbleThemeModule.initBubbleThemePanel();
+    if (
+        globalPanelFix &&
+        bubblePanelFix &&
+        globalPanelFix.parentElement === bubblePanelFix
+    ) {
+        bubblePanelFix.insertAdjacentElement('afterend', globalPanelFix);
     }
-} else if (pageType === 'lockscreen') {
-    if (titleEl) titleEl.textContent = '锁屏';
-    const panel = document.getElementById('themePanelLockscreen');
-    if (panel) panel.style.display = '';
-    renderThemeLockscreenPanel();
-    bindLockscreenPanelEvents();
+    // ===== 修复结束 =====
+            
+    const homeView = document.getElementById('themeHomeView');
+    
+    const detailView = document.getElementById('themeDetailView');
+    const titleEl = document.getElementById('themeDetailTitle');
+
+    if (homeView) homeView.style.display = 'none';
+    if (detailView) detailView.style.display = 'block';
+
+    ['themePanelWallpaper', 'themePanelIcon', 'themePanelBubble', 'themePanelLockscreen', 'themePanelGlobal'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+
+    if (pageType === 'wallpaper') {
+        if (titleEl) titleEl.textContent = '壁纸';
+        const panel = document.getElementById('themePanelWallpaper');
+        if (panel) panel.style.display = '';
+        renderThemeWallpaperOptions();
+    } else if (pageType === 'icon') {
+        if (titleEl) titleEl.textContent = '图标';
+        const panel = document.getElementById('themePanelIcon');
+        if (panel) panel.style.display = '';
+        renderThemeIconList();
+    } else if (pageType === 'bubble') {
+        if (titleEl) titleEl.textContent = '气泡';
+        const panel = document.getElementById('themePanelBubble');
+        if (panel) panel.style.display = '';
+        if (window.bubbleThemeModule?.initBubbleThemePanel) {
+            window.bubbleThemeModule.initBubbleThemePanel();
+        }
+    } else if (pageType === 'global') {
+        if (titleEl) titleEl.textContent = '全局';
+        const panel = document.getElementById('themePanelGlobal');
+        if (panel) panel.style.display = '';
+        if (window.globalThemeModule?.initGlobalThemePanel) {
+            window.globalThemeModule.initGlobalThemePanel();
+        }
+    } else if (pageType === 'lockscreen') {
+        if (titleEl) titleEl.textContent = '锁屏';
+        const panel = document.getElementById('themePanelLockscreen');
+        if (panel) panel.style.display = '';
+        renderThemeLockscreenPanel();
+        bindLockscreenPanelEvents();
+    }
 }
-            }
 
             let _lsPanelEventsBound = false;
             function bindLockscreenPanelEvents() {
@@ -12489,14 +12673,18 @@ async function getRelevantSummaries(convId, recentMessages, maxCount) {
 
 
             async function init() {
-    try {
-    await openDB();
-    await initDefaults();
-    } catch (e) {
-        console.error('DB初始化失败:', e);
-        db = null;
-        // 失败了也要继续，让页面可用
-    }
+try {
+await openDB();
+await initDefaults();
+// 自动应用保存的全局 UI 样式
+if (window.globalThemeModule?.applyActiveGlobalThemeOnStartup) {
+    await window.globalThemeModule.applyActiveGlobalThemeOnStartup();
+}
+} catch (e) {
+    console.error('DB初始化失败:', e);
+    db = null;
+    // 失败了也要继续，让页面可用
+}
     document.querySelector('.app-main').style.display = 'none';
                 mainTabBar.style.display = 'none';
                 // 应用壁纸到首页桌面
@@ -13206,11 +13394,11 @@ if (window.initGroupChatModule) {
     <script>
     if ('serviceWorker' in navigator) {
     const isGithub = window.location.hostname.includes('github.io');
-    const swPath = isGithub ? '/maxlife/sw.js' : '/sw.js';
-    const scope = isGithub ? '/maxlife/' : '/';
+    const firstPath = window.location.pathname.split('/').filter(Boolean)[0];
+    const basePath = isGithub && firstPath ? `/${firstPath}/` : '/';
 
-    navigator.serviceWorker.register(swPath, { scope: scope })
-        .then(reg => console.log('✅ PWA 服务已就绪'))
+    navigator.serviceWorker.register(basePath + 'sw.js', { scope: basePath })
+        .then(reg => console.log('✅ PWA 服务已就绪', basePath))
         .catch(err => console.log('❌ PWA 注册失败', err));
 }
 </script>

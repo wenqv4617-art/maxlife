@@ -20,6 +20,37 @@
     let currentPhoneApp = null;
     let longPressTimer = null;
     window._currentDiaryIdx = undefined;
+    
+    
+   // ==================== SVG 图标（禁止 emoji） ====================
+const PHONE_SVG = {
+    send: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"></line>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+    </svg>`,
+    refresh: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"></path>
+        <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"></path>
+    </svg>`,
+    phone: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="5" y="2" width="14" height="20" rx="2"></rect>
+        <line x1="12" y1="18" x2="12.01" y2="18"></line>
+    </svg>`,
+    loading: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M21 12a9 9 0 1 1-6.2-8.56"></path>
+    </svg>`,
+    warning: `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+        <line x1="12" y1="9" x2="12" y2="13"></line>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+    </svg>`
+};
+
+function phoneIcon(name) {
+    return PHONE_SVG[name] || '';
+}
 
     // ==================== 初始化入口 ====================
     window.initPhoneCheckModule = function(deps) {
@@ -219,7 +250,7 @@ const reply = await callLLM([{role:'user',content:prompt}], {maxTokens:3000,temp
 
     function showLongPressHint(msg) {
         const e=document.querySelector('.long-press-hint'); if(e)e.remove();
-        const h=document.createElement('div'); h.className='long-press-hint'; h.textContent=msg;
+        const h=document.createElement('div'); h.className='long-press-hint'; h.innerHTML = escapeHtml(msg);
         document.querySelector('.phone-mock')?.appendChild(h);
         setTimeout(()=>h.remove(),2500);
     }
@@ -437,11 +468,16 @@ ${(()=>{
 
     // ==================== 各 App 渲染（精简版） ====================
     async function syncUserChatToPhone(data) {
-        const convId=window.currentConversationId; if(!convId)return;
-        const chats=await DB.queryByIndex('chats','conversationId',convId);
-        const dc=chats.filter(c=>c.messageType!=='innerVoice').sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
-        if(!dc.length)return;
-        const cd=await DB.get('convDetails',convId);
+    const convId=window.currentConversationId; if(!convId)return;
+    const chats=await DB.queryByIndex('chats','conversationId',convId);
+    // 升级过滤条件：过滤掉心声、看手机入侵通知以及所有系统指令/提示
+    const dc=chats.filter(c=>
+        c.messageType !== 'innerVoice' &&
+        c.messageType !== 'phone_intrusion' &&
+        c.role !== 'system'
+    ).sort((a,b)=>(a.timestamp||0)-(a.timestamp||0));
+    if(!dc.length)return;
+    const cd=await DB.get('convDetails',convId);
         const char = await DB.get('characters', currentPhoneCharId);
         const un=cd?.userName||'用户';
         const ua=cd?.userAvatar||'';
@@ -474,22 +510,297 @@ ${(()=>{
     }
 
     function openPhoneChatDetail(idx) {
-    getPhoneData(currentPhoneCharId).then(data=>{
-        if (!data || !data.messages) return;  // ← 加这行
-        const chat=data.messages[idx]; if(!chat||!chat.contactName)return;  // ← 加判断
-            document.getElementById('phoneDetailTitle').textContent=chat.contactName;
-            const h='<div class="phone-chat-messages">'+(chat.messages||[]).map(m=>{
-                const mava=m.avatar||'';
-                const mavaBg=mava?`background-image:url('${mava}');background-size:cover;background-position:center;`:'';
-                const mavaTxt=mava?'':(m.name||chat.contactName||'?').charAt(0);
-                const mcolor=m.role==='self'?'#72c9bf':'#ffc107';
-                return `<div class="phone-message-item ${m.role==='self'?'right':'left'}"><div class="phone-message-avatar" style="background-color:${mcolor};${mavaBg}">${mavaTxt}</div><div class="phone-message-bubble">${escapeHtml(m.text)}</div></div>`;
-            }).join('')+'</div>';
-            document.getElementById('phoneDetailContent').innerHTML=h;
-            document.getElementById('phoneDetailPage').classList.add('active');
-            document.getElementById('phoneFullscreenApp').classList.remove('active');
-        });
+    getPhoneData(currentPhoneCharId).then(data => {
+        if (!data || !data.messages) return;
+
+        const chat = data.messages[idx];
+        if (!chat || !chat.contactName) return;
+
+        document.getElementById('phoneDetailTitle').textContent = chat.contactName;
+        document.getElementById('phoneDetailTitle').dataset.chatIdx = String(idx);
+        document.getElementById('phoneDetailTitle').dataset.appType = 'message';
+
+        const messageHtml = '<div class="phone-chat-messages" id="phoneChatMessagesBox">' + (chat.messages || []).map(m => {
+            const mava = m.avatar || '';
+            const mavaBg = mava ? `background-image:url('${mava}');background-size:cover;background-position:center;` : '';
+            const mavaTxt = mava ? '' : (m.name || chat.contactName || '?').charAt(0);
+            const mcolor = m.role === 'self' ? '#72c9bf' : '#ffc107';
+
+            return `
+                <div class="phone-message-item ${m.role === 'self' ? 'right' : 'left'}">
+                    <div class="phone-message-avatar" style="background-color:${mcolor};${mavaBg}">${escapeHtml(mavaTxt)}</div>
+                    <div class="phone-message-bubble">${escapeHtml(m.text)}</div>
+                </div>
+            `;
+        }).join('') + '</div>';
+
+        const inputHtml = chat.isPinned ? `
+            <div class="phone-chat-send-disabled">
+                置顶对话会同步当前主聊天，不能在这里伪装发送。
+            </div>
+        ` : `
+            <div class="phone-chat-send-area">
+                <input class="phone-chat-send-input" id="phoneChatSendInput" placeholder="用 Ta 的手机发消息..." maxlength="300">
+                <button class="phone-chat-send-btn" id="phoneChatSendBtn" title="发送">${phoneIcon('send')}</button>
+                <button class="phone-chat-ai-btn" id="phoneChatFetchReplyBtn" title="获取对方回复">${phoneIcon('refresh')}</button>
+            </div>
+        `;
+
+        document.getElementById('phoneDetailContent').innerHTML = `
+            <div class="phone-chat-detail-wrap">
+                ${messageHtml}
+                ${inputHtml}
+            </div>
+        `;
+
+        document.getElementById('phoneDetailPage').classList.add('active');
+        document.getElementById('phoneFullscreenApp').classList.remove('active');
+
+        const box = document.getElementById('phoneChatMessagesBox');
+        if (box) box.scrollTop = box.scrollHeight;
+
+        if (!chat.isPinned) {
+            const input = document.getElementById('phoneChatSendInput');
+            const sendBtn = document.getElementById('phoneChatSendBtn');
+            const fetchBtn = document.getElementById('phoneChatFetchReplyBtn');
+
+            sendBtn?.addEventListener('click', () => sendPhoneChatMessage(idx));
+            fetchBtn?.addEventListener('click', () => fetchPhoneContactReply(idx));
+
+            input?.addEventListener('keydown', e => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    sendPhoneChatMessage(idx);
+                }
+            });
+        }
+    });
+}
+
+async function sendPhoneChatMessage(chatIdx) {
+    const input = document.getElementById('phoneChatSendInput');
+    const text = input?.value?.trim();
+
+    if (!text) return;
+    if (!currentPhoneCharId) return;
+
+    const data = await getPhoneData(currentPhoneCharId);
+    const chat = data?.messages?.[chatIdx];
+
+    if (!chat || chat.isPinned) return;
+
+    if (!Array.isArray(chat.messages)) chat.messages = [];
+
+    chat.messages.push({
+        role: 'self',
+        text,
+        time: Date.now()
+    });
+
+    chat.time = '刚刚';
+
+    await savePhoneData(data);
+
+    await recordPhoneIntrusion({
+        type: 'send',
+        contactName: chat.contactName,
+        userText: text,
+        contactReply: ''
+    });
+
+    input.value = '';
+    openPhoneChatDetail(chatIdx);
+    renderPhoneMessages();
+}
+
+async function fetchPhoneContactReply(chatIdx) {
+    if (!currentPhoneCharId) return;
+
+    const data = await getPhoneData(currentPhoneCharId);
+    const chat = data?.messages?.[chatIdx];
+
+    if (!chat || chat.isPinned) return;
+
+    const fetchBtn = document.getElementById('phoneChatFetchReplyBtn');
+    if (fetchBtn) {
+        fetchBtn.disabled = true;
+        fetchBtn.innerHTML = phoneIcon('loading');
+        fetchBtn.classList.add('loading');
     }
+
+    try {
+        const prompt = await buildPhoneContactReplyPrompt(chat);
+
+        if (window.recordApiPending) window.recordApiPending();
+
+        const reply = await callLLM([
+            { role: 'user', content: prompt }
+        ], {
+            maxTokens: 800,
+            temperature: 0.85
+        });
+
+        const text = parsePhoneContactReply(reply);
+
+        if (!Array.isArray(chat.messages)) chat.messages = [];
+
+        chat.messages.push({
+            role: 'other',
+            text,
+            time: Date.now()
+        });
+
+        chat.time = '刚刚';
+
+        await savePhoneData(data);
+
+        const lastSelf = [...chat.messages].reverse().find(m => m.role === 'self');
+
+        await recordPhoneIntrusion({
+            type: 'reply',
+            contactName: chat.contactName,
+            userText: lastSelf?.text || '',
+            contactReply: text
+        });
+
+        openPhoneChatDetail(chatIdx);
+        renderPhoneMessages();
+
+    } catch (e) {
+        showLongPressHint('获取回复失败: ' + e.message);
+    } finally {
+        if (fetchBtn) {
+            fetchBtn.disabled = false;
+            fetchBtn.innerHTML = phoneIcon('refresh');
+            fetchBtn.classList.remove('loading');
+        }
+    }
+}
+
+async function buildPhoneContactReplyPrompt(chat) {
+    const char = await DB.get('characters', currentPhoneCharId);
+    const convId = window.currentConversationId;
+
+    let base = `你是"${chat.contactName}"。`;
+    base += `\n你正在和"${char?.name || '角色'}"的手机聊天。`;
+    base += `\n但是现在实际发消息的人不是${char?.name || '角色'}本人，而是用户偷偷拿到了${char?.name || '角色'}的手机。`;
+    base += `\n你不能直接知道这一点，除非聊天内容明显不符合${char?.name || '角色'}平时的说话方式。`;
+
+    if (convId) {
+        const cd = await DB.get('convDetails', convId);
+        if (cd?.charDetail) {
+            base += `\n\n【${char?.name || '角色'}的人设】\n${cd.charDetail}`;
+        } else if (char?.detail) {
+            base += `\n\n【${char?.name || '角色'}的人设】\n${char.detail}`;
+        }
+
+        if (cd?.relationship) {
+            base += `\n\n【${char?.name || '角色'}和用户的关系】\n${cd.relationship}`;
+        }
+
+        const chats = await DB.queryByIndex('chats', 'conversationId', convId);
+        const recent = chats
+            .filter(c => c.messageType !== 'innerVoice')
+            .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+            .slice(0, 8)
+            .reverse();
+
+        if (recent.length) {
+            base += `\n\n【用户和${char?.name || '角色'}最近的主对话】\n`;
+            recent.forEach(c => {
+                if (c.role === 'system') {
+                    base += `系统：${c.content}\n`;
+                } else {
+                    base += `${c.role === 'user' ? '用户' : char?.name || '角色'}：${c.content}\n`;
+                }
+            });
+        }
+    } else if (char?.detail) {
+        base += `\n\n【${char?.name || '角色'}的人设】\n${char.detail}`;
+    }
+
+    const history = (chat.messages || []).slice(-12).map(m => {
+        return `${m.role === 'self' ? char?.name || '角色' : chat.contactName}：${m.text}`;
+    }).join('\n');
+
+    return `${base}
+
+【你和${char?.name || '角色'}的聊天记录】
+${history || '暂无'}
+
+【回复要求】
+1. 你只能扮演"${chat.contactName}"。
+2. 你不知道手机被用户拿走，除非上一条消息非常异常。
+3. 如果你觉得对方不像${char?.name || '角色'}，可以试探、怀疑、反问。
+4. 回复要像真实即时通讯，短一些，自然一点。
+5. 只输出一句或两句回复，不要解释，不要 JSON，不要代码块。
+6. 禁止使用 emoji。
+7. 禁止使用括号动作描写。
+
+现在请以"${chat.contactName}"的口吻回复最后一条消息。`;
+}
+
+function parsePhoneContactReply(reply) {
+    if (!reply) return '你刚刚那句话有点奇怪。';
+
+    let text = String(reply)
+        .replace(/```[\s\S]*?```/g, '')
+        .replace(/^\s*["“]|["”]\s*$/g, '')
+        .trim();
+
+    // 容错：如果模型输出 JSON
+    try {
+        const j = JSON.parse(text);
+        if (j.reply) text = j.reply;
+        else if (j.text) text = j.text;
+        else if (j.message) text = j.message;
+    } catch (e) {}
+
+    text = text
+        .replace(/\[MSG\][^:：]*[:：]/g, '')
+        .replace(/[😀-🙏🌀-🗿🚀-🛿☀-⛿✀-➿]/gu, '')
+        .trim();
+
+    if (!text) text = '你刚刚那句话有点奇怪。';
+
+    return text.slice(0, 300);
+}
+
+async function recordPhoneIntrusion(payload) {
+    const convId = window.currentConversationId;
+    const charId = currentPhoneCharId || window.currentCharId;
+
+    if (!convId || !charId) return;
+
+    const contactName = payload.contactName || '某个联系人';
+    const userText = payload.userText || '';
+    const contactReply = payload.contactReply || '';
+
+    let content = '';
+
+    if (payload.type === 'send') {
+        content = `【查手机事件】用户偷偷使用你的手机，给你的联系人"${contactName}"发送了一条消息："${userText}"。你不一定立刻发现，但如果后续对话、手机通知或联系人反应暴露异常，你可能会察觉，并按你的性格调侃、追问或质问用户。`;
+    } else if (payload.type === 'reply') {
+        content = `【查手机事件】用户偷偷使用你的手机与联系人"${contactName}"聊天。用户之前发送："${userText}"。联系人"${contactName}"回复："${contactReply}"。你不一定立刻发现，但如果你察觉到手机被动过、聊天记录异常或联系人态度变化，你可以按你的性格调侃、追问或质问用户。`;
+    } else {
+        content = `【查手机事件】用户偷偷使用了你的手机。你不一定立刻发现，但之后可能察觉异常。`;
+    }
+
+    await DB.put('chats', {
+        role: 'system',
+        content,
+        messageType: 'phone_intrusion',
+        conversationId: convId,
+        charId,
+        timestamp: Date.now()
+    });
+
+    const conv = await DB.get('conversations', convId);
+    if (conv) {
+        conv.updatedAt = Date.now();
+        await DB.put('conversations', conv);
+    }
+}
 
     async function renderPhoneBrowser() {
         const data=await getPhoneData(currentPhoneCharId);
@@ -569,6 +880,7 @@ ${(()=>{
     async function clearSingleDiary(idx){if(!confirm('确定删除这篇日记？'))return;const data=await getPhoneData(currentPhoneCharId);if(data?.diaryEntries){data.diaryEntries.splice(idx,1);await savePhoneData(data);}closePhoneDetail();await renderPhoneDiary();await renderPhoneDesktop();}
     async function clearBrowserSearchCache(){const t=document.getElementById('phoneDetailTitle')?.textContent;if(!t)return;const data=await getPhoneData(currentPhoneCharId);if(data?.browserPosts){delete data.browserPosts[t];await savePhoneData(data);}closePhoneDetail();}
 
+
     console.log('📱 查手机模块脚本就绪');
 
     // ===== 新增：自动初始化（回退方案） =====
@@ -587,5 +899,350 @@ ${(()=>{
             }
         }, 500);
     }
+
+    // ==================== [NEW] 全局通知管理模块（重构高精版） ====================
+    const SVG_MSG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path></svg>`;
+    const SVG_GROUP = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a3 3 0 0 1 0 5.75"></path></svg>`;
+
+    const notificationQueue = [];
+    let isProcessingQueue = false;
+
+    function queueNotification(notification) {
+        notificationQueue.push(notification);
+        processQueue();
+    }
+
+    function processQueue() {
+        if (isProcessingQueue || notificationQueue.length === 0) return;
+        isProcessingQueue = true;
+
+        const next = notificationQueue.shift();
+        displayNotificationCard(next);
+
+        setTimeout(() => {
+            isProcessingQueue = false;
+            processQueue();
+        }, 1000);
+    }
+
+    function formatNotificationBody(content, type) {
+        if (!content) return '';
+        let text = String(content);
+
+        if (type === 'emoticon') {
+            if (text.startsWith('{')) {
+                try {
+                    const p = JSON.parse(text);
+                    return `[表情] ${p.text || ''}`;
+                } catch (e) {}
+            }
+            return `[表情]`;
+        }
+        if (type === 'image') return `[图片] ${text}`;
+        if (type === 'voice') return `[语音] ${text}`;
+        if (type === 'html_card') return `[卡片] 网页卡片`;
+        if (type === 'transfer') {
+            if (text.includes('gg-transfer-card')) {
+                const match = text.match(/¥([\d.]+)/);
+                return `[微信转账] ¥${match ? match[1] : '金额'}`;
+            }
+            return `[转账]`;
+        }
+        if (type === 'redpacket') {
+            if (text.includes('gg-redpacket-card')) {
+                const msgMatch = text.match(/<div class="gg-redpacket-msg">([^<]+)<\/div>/);
+                return `[微信红包] ${msgMatch ? msgMatch[1] : '恭喜发财'}`;
+            }
+            return `[红包]`;
+        }
+        if (type === 'offline_invite') return `[线下邀约] ${text}`;
+
+        return text;
+    }
+
+    function displayNotificationCard(notif) {
+        const phoneMock = document.querySelector('.phone-mock');
+        if (!phoneMock) return;
+
+        let container = phoneMock.querySelector('.h-notification-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'h-notification-container';
+            phoneMock.appendChild(container);
+        }
+
+        const card = document.createElement('div');
+        card.className = 'h-notification-card';
+
+        const appIcon = notif.type === 'group' ? SVG_GROUP : SVG_MSG;
+        const appLabel = notif.type === 'group' ? '群聊' : '讯息';
+
+        const avatarChar = (notif.fallbackCharName || '?').charAt(0);
+        const avatarColor = window.getAvatarColor ? window.getAvatarColor(notif.fallbackCharName) : '#72c9bf';
+        const avatarStyle = notif.avatar ? `background-image: url('${notif.avatar}'); background-color: transparent;` : `background-color: ${avatarColor};`;
+
+        card.innerHTML = `
+            <div class="h-notification-avatar" style="${avatarStyle}">
+                ${notif.avatar ? '' : avatarChar}
+            </div>
+            <div class="h-notification-content">
+                <div class="h-notification-header">
+                    <div class="h-notification-title">${window.escapeHtml ? window.escapeHtml(notif.title) : notif.title}</div>
+                    <div class="h-notification-app-info">
+                        <span class="h-notification-app-icon">${appIcon}</span>
+                        <span>${appLabel}</span>
+                    </div>
+                </div>
+                <div class="h-notification-body">${window.escapeHtml ? window.escapeHtml(notif.body) : notif.body}</div>
+            </div>
+        `;
+
+        container.appendChild(card);
+
+        requestAnimationFrame(() => {
+            card.classList.add('show');
+        });
+
+        // 自动隐藏定时器
+        const autoDismissTimeout = setTimeout(() => {
+            dismissCard(card);
+        }, 5000);
+
+        function dismissCard(c) {
+            clearTimeout(autoDismissTimeout);
+            if (c.parentNode) {
+                c.classList.add('slide-out');
+                setTimeout(() => {
+                    c.remove();
+                    if (container.children.length === 0) {
+                        container.remove();
+                    }
+                }, 300);
+            }
+        }
+
+        // 高精滑动手势与点击拦截绑定
+        bindSwipeDismiss(card, notif, () => {
+            card.remove();
+            if (container.children.length === 0) {
+                container.remove();
+            }
+        }, dismissCard);
+    }
+
+    function bindSwipeDismiss(card, notif, onRemove, dismissCard) {
+        let startX = 0;
+        let currentX = 0;
+        let startTime = 0;
+        let isDragging = false;
+        let hasMovedSignificantly = false;
+
+        const onStart = (clientX) => {
+            startX = clientX;
+            currentX = 0;
+            startTime = Date.now();
+            isDragging = true;
+            hasMovedSignificantly = false;
+            card.style.transition = 'none';
+        };
+
+        const onMove = (clientX) => {
+            if (!isDragging) return;
+            currentX = clientX - startX;
+            if (Math.abs(currentX) > 10) {
+                hasMovedSignificantly = true;
+            }
+            card.style.transform = `translateX(${currentX}px)`;
+            const opacity = Math.max(0, 1 - Math.abs(currentX) / 250);
+            card.style.opacity = opacity;
+        };
+
+        const onEnd = () => {
+            if (!isDragging) return;
+            isDragging = false;
+            card.style.transition = '';
+
+            const diffX = currentX;
+            const duration = Date.now() - startTime;
+
+            if (Math.abs(diffX) > 100 || (Math.abs(diffX) > 30 && duration < 250)) {
+                // 确实是左右滑走
+                const direction = diffX > 0 ? 'right' : 'left';
+                card.classList.add(direction === 'right' ? 'slide-out' : 'slide-out-left');
+                setTimeout(onRemove, 300);
+            } else {
+                // 如果在极短时间内释放，且位移没有超过10px，判定为极其准确的 Tap 点击
+                if (!hasMovedSignificantly && duration < 350) {
+                    triggerTapNavigation();
+                } else {
+                    // 仅小位移抖动，弹性拉回
+                    card.style.transform = '';
+                    card.style.opacity = '';
+                }
+            }
+            currentX = 0;
+        };
+
+        // 执行全局跳转核心导航
+        function triggerTapNavigation() {
+            const targetId = Number(notif.id);
+            if (notif.type === 'group') {
+                if (typeof window.openGroupConversation === 'function') {
+                    window.openGroupConversation(targetId);
+                }
+            } else {
+                if (typeof window.openConversation === 'function') {
+                    window.openConversation(targetId);
+                }
+            }
+            // 跳转后卡片淡出
+            dismissCard(card);
+        }
+
+        // 触屏端
+        card.addEventListener('touchstart', (e) => {
+            onStart(e.touches[0].clientX);
+        }, { passive: true });
+
+        card.addEventListener('touchmove', (e) => {
+            onMove(e.touches[0].clientX);
+        }, { passive: true });
+
+        card.addEventListener('touchend', (e) => {
+            onEnd();
+        });
+
+        // 鼠标端
+        let isMouseDown = false;
+        card.addEventListener('mousedown', (e) => {
+            isMouseDown = true;
+            onStart(e.clientX);
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isMouseDown) return;
+            onMove(e.clientX);
+        });
+
+        document.addEventListener('mouseup', (e) => {
+            if (!isMouseDown) return;
+            isMouseDown = false;
+            onEnd();
+        });
+
+        // 兜底原生 click 事件（防止部分环境下手势穿透）
+        card.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        });
+    }
+
+    async function triggerSingleChatNotification(obj) {
+        try {
+            const conv = await window.DB.get('conversations', obj.conversationId);
+            if (!conv) return;
+            const char = await window.DB.get('characters', conv.charId);
+            const detail = await window.DB.get('convDetails', obj.conversationId);
+
+            const name = detail?.charName || char?.name || '联系人';
+            const avatar = detail?.charAvatar || char?.avatar || '';
+
+            let contentText = formatNotificationBody(obj.content, obj.messageType);
+
+            queueNotification({
+                title: name,
+                body: contentText,
+                avatar: avatar,
+                type: 'single',
+                id: obj.conversationId,
+                fallbackCharName: name
+            });
+        } catch (e) {
+            console.error('Failed to trigger single chat notification:', e);
+        }
+    }
+
+    async function triggerGroupChatNotification(obj) {
+        try {
+            const group = await window.DB.get('groupChats', obj.groupId);
+            if (!group) return;
+
+            let senderName = obj.senderName || '群成员';
+            let avatar = '';
+
+            for (const mid of group.memberIds) {
+                const ch = await window.DB.get('characters', mid);
+                if (ch && ch.name === senderName) {
+                    const md = group.members?.find(m => String(m.id) === String(mid));
+                    avatar = md?.avatar || ch.avatar || '';
+                    break;
+                }
+            }
+            if (!avatar) {
+                const npcs = await window.DB.queryByIndex('groupNPCs', 'groupId', obj.groupId);
+                const npc = npcs.find(n => n.name === senderName);
+                if (npc) {
+                    avatar = npc.avatar || '';
+                }
+            }
+
+            let contentText = formatNotificationBody(obj.content, obj.messageType);
+
+            queueNotification({
+                title: group.name || '新群聊消息',
+                body: `${senderName}: ${contentText}`,
+                avatar: avatar,
+                type: 'group',
+                id: obj.groupId,
+                fallbackCharName: senderName
+            });
+        } catch (e) {
+            console.error('Failed to trigger group chat notification:', e);
+        }
+    }
+
+    function setupDatabaseNotificationHook() {
+        if (!window.DB) {
+            setTimeout(setupDatabaseNotificationHook, 200);
+            return;
+        }
+
+        const originalPut = window.DB.put;
+        window.DB.put = async function(store, obj) {
+            const result = await originalPut.apply(this, arguments);
+
+            if (store === 'chats') {
+                if (obj && obj.role === 'assistant' && obj.messageType !== 'innerVoice') {
+                    const now = Date.now();
+                    const msgTime = obj.timestamp || now;
+                    if (Math.abs(now - msgTime) < 15000) {
+                        const isActive = document.getElementById('page-conversation')?.classList.contains('active');
+                        const isSameConv = window.currentConversationId === obj.conversationId;
+                        if (!isActive || !isSameConv) {
+                            triggerSingleChatNotification(obj);
+                        }
+                    }
+                }
+            }
+
+            if (store === 'groupMessages') {
+                if (obj && (obj.role === 'assistant' || obj.senderId === 'char') && obj.messageType !== 'system') {
+                    const now = Date.now();
+                    const msgTime = obj.timestamp || now;
+                    if (Math.abs(now - msgTime) < 15000) {
+                        const isActive = document.getElementById('page-group-conversation')?.classList.contains('active');
+                        const isSameGroup = window.currentGroupId === obj.groupId;
+                        if (!isActive || !isSameGroup) {
+                            triggerGroupChatNotification(obj);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        };
+    }
+
+    setupDatabaseNotificationHook();
 
 })();

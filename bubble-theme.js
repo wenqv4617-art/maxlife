@@ -1,46 +1,43 @@
 /* ================================================================
- * bubble-theme.js - 对话气泡样式主题系统
+ * bubble-theme.js - 对话气泡与全局样式系统
  * 功能：
  * 1) CSS 输入 + 预览（模拟对话框）
  * 2) CSS 存档：保存/命名/编辑/删除
  * 3) 挂载：单聊 conversation / 群聊 group 分别挂载
- * 4) 作用域隔离：仅对目标对话页生效，不污染全局
+ * 4) 全局样式管理：可同时自定义首页第一/第二页、聊天室 UI 并持久化
  * 依赖：
  * window.DB, window.escapeHtml, window.showStatus
  * ================================================================ */
 
 (function () {
   "use strict";
-  console.log("🎨 bubble-theme 模块加载（icon+css）");
+  console.log("🎨 bubble-theme & global-theme 联合模块加载");
 
   const STORE_NAME = "bubbleThemes";
   const STYLE_PREFIX = "bt-style-";
   const PREVIEW_STYLE_ID = "bt-preview-style";
 
-  // B (新代码)
-const ICON_SCHEMA = [
-  { key: "expandMenuBtn", label: "" },
-  { key: "convSendBtn", label: "" },
-  { key: "convFetchBtn", label: "" },
+  const ICON_SCHEMA = [
+    { key: "expandMenuBtn", label: "" },
+    { key: "convSendBtn", label: "" },
+    { key: "convFetchBtn", label: "" },
+    { key: "userImage", label: "" },
+    { key: "userVoice", label: "" },
+    { key: "emoticon", label: "" },
+    { key: "innerVoice", label: "" },
+    { key: "voiceCall", label: "" },
+    { key: "sendDiary", label: "" },
+    { key: "toggleMode", label: "" },
+    { key: "transfer", label: "" },
+    { key: "sendRedPacket", label: "" },
+    { key: "openSummary", label: "" },
+    { key: "openDetail", label: "" },
+    { key: "checkPhone", label: "" },
+    { key: "focus", label: "" },
+    { key: "coupleSpace", label: "" }
+  ];
 
-  { key: "userImage", label: "" },
-  { key: "userVoice", label: "" },
-  { key: "emoticon", label: "" },
-  { key: "innerVoice", label: "" },
-  { key: "voiceCall", label: "" },
-  { key: "sendDiary", label: "" },
-  { key: "toggleMode", label: "" },
-  { key: "transfer", label: "" },
-  { key: "sendRedPacket", label: "" },
-  { key: "openSummary", label: "" },
-  { key: "openDetail", label: "" },
-  { key: "checkPhone", label: "" },
-  { key: "focus", label: "" },
-  { key: "coupleSpace", label: "" }
-];
-
-  // B (新代码)
-const DEFAULT_ICON_MAP = {
+  const DEFAULT_ICON_MAP = {
     expandMenuBtn: { type: "svg", value: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' },
     convSendBtn: { type: "svg", value: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>' },
     convFetchBtn: { type: "svg", value: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>' },
@@ -48,7 +45,7 @@ const DEFAULT_ICON_MAP = {
     userVoice: { type: "svg", value: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>' },
     emoticon: { type: "svg", value: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>' },
     innerVoice: { type: "svg", value: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>' },
-    voiceCall: { type: "svg", value: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>' },
+    voiceCall: { type: "svg", value: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79(19.79) 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>' },
     sendDiary: { type: "svg", value: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' },
     toggleMode: { type: "svg", value: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>' },
     transfer: { type: "svg", value: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>' },
@@ -58,7 +55,7 @@ const DEFAULT_ICON_MAP = {
     checkPhone: { type: "svg", value: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>' },
     focus: { type: "svg", value: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>' },
     coupleSpace: { type: "svg", value: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' }
-};
+  };
 
   let currentEditingIconMap = JSON.parse(JSON.stringify(DEFAULT_ICON_MAP));
 
@@ -122,123 +119,113 @@ const DEFAULT_ICON_MAP = {
     return s.startsWith("data:image/") ||
       s.includes(".svg") || s.includes(".png") || s.includes(".jpg") || s.includes(".jpeg") || s.includes(".webp") || s.includes(".gif");
   }
-  
+
   function isSvgMarkup(v) {
     if (!v) return false;
     return String(v).trim().startsWith("<svg");
-}
+  }
 
   function scopeCss(cssText, scopeSelector) {
     if (!cssText || !cssText.trim()) return "";
-    
+
     let text = cssText.replace(/\/\*[\s\S]*?\*\//g, "");
     const preserved = [];
 
-    // 先完整保护 @keyframes，避免被 split("}") 拆坏
-    text = text.replace(/@keyframes\s+[^{]+\{[\s\S]*?\n\}/g, function(match) {
-        const token = "__BT_KEYFRAMES_" + preserved.length + "__";
-        preserved.push(match);
-        return token;
+    text = text.replace(/@keyframes\s+[^{]+\{[\s\S]*?\n\}/g, function (match) {
+      const token = "__BT_KEYFRAMES_" + preserved.length + "__";
+      preserved.push(match);
+      return token;
     });
 
-    // 兼容无换行结尾的 keyframes
-    text = text.replace(/@keyframes\s+[^{]+\{(?:[^{}]|\{[^{}]*\})*\}/g, function(match) {
-        const token = "__BT_KEYFRAMES_" + preserved.length + "__";
-        preserved.push(match);
-        return token;
+    text = text.replace(/@keyframes\s+[^{]+\{(?:[^{}]|\{[^{}]*\})*\}/g, function (match) {
+      const token = "__BT_KEYFRAMES_" + preserved.length + "__";
+      preserved.push(match);
+      return token;
     });
 
     const chunks = text.split("}");
     let out = "";
 
     for (let i = 0; i < chunks.length; i++) {
-        const chunk = chunks[i].trim();
-        if (!chunk) continue;
+      const chunk = chunks[i].trim();
+      if (!chunk) continue;
 
-        if (chunk.startsWith("__BT_KEYFRAMES_")) {
-            out += chunk;
-            continue;
-        }
+      if (chunk.startsWith("__BT_KEYFRAMES_")) {
+        out += chunk;
+        continue;
+      }
 
-        const idx = chunk.indexOf("{");
-        if (idx === -1) continue;
+      const idx = chunk.indexOf("{");
+      if (idx === -1) continue;
 
-        const selectorPart = chunk.slice(0, idx).trim();
-        const bodyPart = chunk.slice(idx + 1);
+      const selectorPart = chunk.slice(0, idx).trim();
+      const bodyPart = chunk.slice(idx + 1);
 
-        if (selectorPart.startsWith("@")) {
-            out += selectorPart + "{" + bodyPart + "}";
-            continue;
-        }
+      if (selectorPart.startsWith("@")) {
+        out += selectorPart + "{" + bodyPart + "}";
+        continue;
+      }
 
-        const scopedSel = selectorPart
-            .split(",")
-            .map(s => s.trim())
-            .filter(Boolean)
-            .map(s => {
-                if (s.startsWith(scopeSelector)) return s;
-                return scopeSelector + " " + s;
-            })
-            .join(", ");
+      const scopedSel = selectorPart
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean)
+        .map(s => {
+          if (s.startsWith(scopeSelector)) return s;
+          return scopeSelector + " " + s;
+        })
+        .join(", ");
 
-        out += scopedSel + "{" + bodyPart + "}";
+      out += scopedSel + "{" + bodyPart + "}";
     }
 
     preserved.forEach((block, i) => {
-        out = out.replace("__BT_KEYFRAMES_" + i + "__", block);
+      out = out.replace("__BT_KEYFRAMES_" + i + "__", block);
     });
 
     return out;
-}
+  }
 
   function buildPreviewHtml() {
-  const imageSvg = DEFAULT_ICON_MAP.userImage.value;
-  const micSvg = DEFAULT_ICON_MAP.userVoice.value;
-  const phoneSvg = DEFAULT_ICON_MAP.voiceCall.value;
-  const quoteSvg = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11H6a2 2 0 0 0-2 2v5h6v-7z"/><path d="M20 11h-4a2 2 0 0 0-2 2v5h6v-7z"/><path d="M6 11V8a4 4 0 0 1 4-4"/><path d="M16 11V8a4 4 0 0 1 4-4"/></svg>';
+    const imageSvg = DEFAULT_ICON_MAP.userImage.value;
+    const micSvg = DEFAULT_ICON_MAP.userVoice.value;
+    const phoneSvg = DEFAULT_ICON_MAP.voiceCall.value;
+    const quoteSvg = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11H6a2 2 0 0 0-2 2v5h6v-7z"/><path d="M20 11h-4a2 2 0 0 0-2 2v5h6v-7z"/><path d="M6 11V8a4 4 0 0 1 4-4"/><path d="M16 11V8a4 4 0 0 1 4-4"/></svg>';
 
-  return [
-    '<div class="chat-header">',
-    '  <div class="chat-header-left"><button class="back-btn">←</button><h2 style="font-size:18px;">预览会话</h2></div>',
-    '  <div class="header-actions"><button class="header-btn">···</button></div>',
-    '</div>',
+    return [
+      '<div class="chat-header">',
+      '  <div class="chat-header-left"><button class="back-btn">←</button><h2 style="font-size:18px;">预览会话</h2></div>',
+      '  <div class="header-actions"><button class="header-btn">···</button></div>',
+      '</div>',
+      '<div class="expand-menu active" id="previewExpandMenu" style="display:flex;">',
+      '  <div class="expand-menu-item"><span class="expand-menu-icon" data-icon-key="userImage"></span><span class="expand-menu-label">图片</span></div>',
+      '  <div class="expand-menu-item"><span class="expand-menu-icon" data-icon-key="userVoice"></span><span class="expand-menu-label">语音</span></div>',
+      '  <div class="expand-menu-item"><span class="expand-menu-icon" data-icon-key="emoticon"></span><span class="expand-menu-label">表情</span></div>',
+      '  <div class="expand-menu-item"><span class="expand-menu-icon" data-icon-key="innerVoice"></span><span class="expand-menu-label">心声</span></div>',
+      '  <div class="expand-menu-item"><span class="expand-menu-icon" data-icon-key="voiceCall"></span><span class="expand-menu-label">通话</span></div>',
+      '  <div class="expand-menu-item"><span class="expand-menu-icon" data-icon-key="sendDiary"></span><span class="expand-menu-label">日记</span></div>',
+      '  <div class="expand-menu-item"><span class="expand-menu-icon" data-icon-key="toggleMode"></span><span class="expand-menu-label">见面</span></div>',
+      '  <div class="expand-menu-item"><span class="expand-menu-icon" data-icon-key="transfer"></span><span class="expand-menu-label">转账</span></div>',
+      '</div>',
+      '<div class="chat-messages" style="height:260px;overflow:auto;">',
+      '  <div class="group-system-msg">— 系统消息：示例系统提示 —</div>',
+      '  <div class="message-row other"><div class="message-avatar" style="background:#7aa;">C</div><div class="bubble">这是对方文字气泡</div></div>',
+      '  <div class="message-row self"><div class="bubble">这是我的文字气泡</div><div class="message-avatar" style="background:#c88;">U</div></div>',
+      '  <div class="message-row other"><div class="message-avatar" style="background:#7aa;">C</div><div class="bubble image-bubble"><span class="image-icon">' + imageSvg + '</span></div></div>',
+      '  <div class="message-row other"><div class="message-avatar" style="background:#7aa;">C</div><div class="bubble voice-bubble"><div class="voice-bubble-header"><span class="voice-icon">' + micSvg + '</span><span class="voice-duration">7"</span></div></div></div>',
+      '  <div class="message-row self"><div class="bubble voice-bubble"><div class="voice-bubble-header"><span class="voice-icon">' + micSvg + '</span><span class="voice-duration">7"</span></div></div><div class="message-avatar" style="background:#c88;">U</div></div>',
+      '  <div class="message-row other"><div class="message-avatar" style="background:#7aa;">C</div><div class="bubble call-record-bubble"><span class="call-record-icon">' + phoneSvg + '</span><span>语音通话已结束1分20秒</span></div></div>',
+      '  <div class="message-row self"><div class="bubble quoted-bubble"><div>这是带引用的回复正文</div><div class="quote-ref-footer"><div class="quote-ref-footer-title"><span>' + quoteSvg + '</span><span>引用</span></div><div class="quote-ref-footer-content">对方：这是被引用的那条消息</div></div></div><div class="message-avatar" style="background:#c88;">U</div></div>',
+      '</div>',
+      '<div class="chat-input-area">',
+      '  <div class="mini-btn"><span data-icon-key="expandMenuBtn"></span></div>',
+      '  <div class="input-wrapper"><input type="text" placeholder="输入框预览"></div>',
+      '  <div class="mini-btn"><span data-icon-key="convSendBtn"></span></div>',
+      '  <div class="mini-btn"><span data-icon-key="convFetchBtn"></span></div>',
+      '</div>'
+    ].join("");
+  }
 
-    '<div class="expand-menu active" id="previewExpandMenu" style="display:flex;">',
-    '  <div class="expand-menu-item"><span class="expand-menu-icon" data-icon-key="userImage"></span><span class="expand-menu-label">图片</span></div>',
-    '  <div class="expand-menu-item"><span class="expand-menu-icon" data-icon-key="userVoice"></span><span class="expand-menu-label">语音</span></div>',
-    '  <div class="expand-menu-item"><span class="expand-menu-icon" data-icon-key="emoticon"></span><span class="expand-menu-label">表情</span></div>',
-    '  <div class="expand-menu-item"><span class="expand-menu-icon" data-icon-key="innerVoice"></span><span class="expand-menu-label">心声</span></div>',
-    '  <div class="expand-menu-item"><span class="expand-menu-icon" data-icon-key="voiceCall"></span><span class="expand-menu-label">通话</span></div>',
-    '  <div class="expand-menu-item"><span class="expand-menu-icon" data-icon-key="sendDiary"></span><span class="expand-menu-label">日记</span></div>',
-    '  <div class="expand-menu-item"><span class="expand-menu-icon" data-icon-key="toggleMode"></span><span class="expand-menu-label">见面</span></div>',
-    '  <div class="expand-menu-item"><span class="expand-menu-icon" data-icon-key="transfer"></span><span class="expand-menu-label">转账</span></div>',
-    '</div>',
-
-    '<div class="chat-messages" style="height:260px;overflow:auto;">',
-    '  <div class="group-system-msg">— 系统消息：示例系统提示 —</div>',
-
-    '  <div class="message-row other"><div class="message-avatar" style="background:#7aa;">C</div><div class="bubble">这是对方文字气泡</div></div>',
-    '  <div class="message-row self"><div class="bubble">这是我的文字气泡</div><div class="message-avatar" style="background:#c88;">U</div></div>',
-
-    '  <div class="message-row other"><div class="message-avatar" style="background:#7aa;">C</div><div class="bubble image-bubble"><span class="image-icon">' + imageSvg + '</span></div></div>',
-
-'  <div class="message-row other"><div class="message-avatar" style="background:#7aa;">C</div><div class="bubble voice-bubble"><div class="voice-bubble-header"><span class="voice-icon">' + micSvg + '</span><span class="voice-duration">7"</span></div></div></div>',
-
-'  <div class="message-row self"><div class="bubble voice-bubble"><div class="voice-bubble-header"><span class="voice-icon">' + micSvg + '</span><span class="voice-duration">7"</span></div></div><div class="message-avatar" style="background:#c88;">U</div></div>',
-
-    '  <div class="message-row other"><div class="message-avatar" style="background:#7aa;">C</div><div class="bubble call-record-bubble"><span class="call-record-icon">' + phoneSvg + '</span><span>语音通话已结束1分20秒</span></div></div>',
-
-    '  <div class="message-row self"><div class="bubble quoted-bubble"><div>这是带引用的回复正文</div><div class="quote-ref-footer"><div class="quote-ref-footer-title"><span>' + quoteSvg + '</span><span>引用</span></div><div class="quote-ref-footer-content">对方：这是被引用的那条消息</div></div></div><div class="message-avatar" style="background:#c88;">U</div></div>',
-    '</div>',
-
-    '<div class="chat-input-area">',
-    '  <div class="mini-btn"><span data-icon-key="expandMenuBtn"></span></div>',
-    '  <div class="input-wrapper"><input type="text" placeholder="输入框预览"></div>',
-    '  <div class="mini-btn"><span data-icon-key="convSendBtn"></span></div>',
-    '  <div class="mini-btn"><span data-icon-key="convFetchBtn"></span></div>',
-    '</div>'
-  ].join("");
-}
   function setIconNode(el, iconDef) {
     if (!el || !iconDef) return;
     const value = iconDef.value || "";
@@ -251,7 +238,7 @@ const DEFAULT_ICON_MAP = {
     } else {
       el.textContent = value || "";
     }
-}
+  }
 
   function applyIconMapToPreview() {
     const root = document.getElementById("bubbleThemePreviewRoot");
@@ -264,7 +251,6 @@ const DEFAULT_ICON_MAP = {
   }
 
   function applyIconMapToConversationDOM(iconMap) {
-    // 输入栏3个
     const plus = document.querySelector("#expandMenuBtn");
     const send = document.querySelector("#convSendBtn");
     const fetch = document.querySelector("#convFetchBtn");
@@ -289,7 +275,6 @@ const DEFAULT_ICON_MAP = {
       fetch.appendChild(span);
     }
 
-    // 展开栏
     document.querySelectorAll("#expandMenu .expand-menu-item").forEach(item => {
       const action = item.getAttribute("data-action");
       const iconEl = item.querySelector(".expand-menu-icon");
@@ -342,7 +327,6 @@ const DEFAULT_ICON_MAP = {
       fetch.appendChild(span);
     }
 
-    // 群展开栏 action 名称不同
     document.querySelectorAll("#groupExpandMenu .expand-menu-item").forEach(item => {
       const action = item.getAttribute("data-action");
       const iconEl = item.querySelector(".expand-menu-icon");
@@ -365,15 +349,18 @@ const DEFAULT_ICON_MAP = {
     });
   }
 
-  async function getAllThemes() {
+  async function getAllThemes(type = "bubble") {
     const list = await window.DB.getAll(STORE_NAME);
-    return (list || []).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-}
+    return (list || []).filter(t => {
+      if (type === "global") return t.type === "global";
+      return !t.type || t.type === "bubble";
+    }).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+  }
 
   async function renderArchiveList() {
     const box = document.getElementById("bubbleThemeArchiveList");
     if (!box) return;
-    const list = await getAllThemes();
+    const list = await getAllThemes("bubble");
 
     if (!list.length) {
       box.innerHTML = '<div class="bubble-theme-empty">暂无样式存档</div>';
@@ -398,7 +385,7 @@ const DEFAULT_ICON_MAP = {
   async function renderMountThemeSelect() {
     const sel = document.getElementById("bubbleThemeMountSelect");
     if (!sel) return;
-    const list = await getAllThemes();
+    const list = await getAllThemes("bubble");
 
     if (!list.length) {
       sel.innerHTML = `<option value="">暂无存档</option>`;
@@ -451,18 +438,17 @@ const DEFAULT_ICON_MAP = {
     box.innerHTML = ICON_SCHEMA.map(item => {
       const def = currentEditingIconMap[item.key] || DEFAULT_ICON_MAP[item.key];
       let preview;
-if (def.type === "svg" || isSvgMarkup(def.value)) {
-    preview = `<span style="display:flex;align-items:center;justify-content:center;width:20px;height:20px;">${def.value}</span>`;
-} else if (def.type === "image" || isImageValue(def.value)) {
-    preview = `<img src="${esc(def.value)}" style="width:20px;height:20px;object-fit:contain;">`;
-} else {
-    preview = `<span>${esc(def.value)}</span>`;
-}
+      if (def.type === "svg" || isSvgMarkup(def.value)) {
+        preview = `<span style="display:flex;align-items:center;justify-content:center;width:20px;height:20px;">${def.value}</span>`;
+      } else if (def.type === "image" || isImageValue(def.value)) {
+        preview = `<img src="${esc(def.value)}" style="width:20px;height:20px;object-fit:contain;">`;
+      } else {
+        preview = `<span>${esc(def.value)}</span>`;
+      }
       return `<div class="theme-icon-edit-row" data-icon-key="${item.key}" style="padding:10px 8px;margin-bottom:6px;">
         <div class="theme-icon-preview" style="width:40px;height:40px;border-radius:10px;background:#f8f8f8;">${preview}</div>
         <div class="theme-icon-info">
           <div class="theme-icon-name">${esc(item.label)}</div>
-
         </div>
         <div class="theme-icon-actions">
           <button class="theme-icon-action-btn bt-icon-text">文本/URL</button>
@@ -578,6 +564,127 @@ if (def.type === "svg" || isSvgMarkup(def.value)) {
     applyIconMapToGroupDOM(normalizeIconMap(theme.iconMap));
   }
 
+  // ================================================================
+  // 全局样式系统
+  // ================================================================
+  const GLOBAL_APPLIED_STYLE_ID = "gt-style-applied";
+
+  function initGlobalThemePanel() {
+    renderGlobalArchiveList();
+  }
+
+  async function saveGlobalSnapshot() {
+    const input = document.getElementById("globalCssInput");
+    const cssText = (input?.value || "").trim();
+
+    if (!cssText) {
+      toast("请输入 CSS 后再保存", "error");
+      return;
+    }
+
+    const name = prompt("请输入全局样式存档名称：", "我的全局样式");
+    if (!name || !name.trim()) return;
+
+    const theme = {
+      id: uid(),
+      name: name.trim(),
+      cssText,
+      type: "global",
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+
+    await window.DB.put(STORE_NAME, theme);
+    await renderGlobalArchiveList();
+    toast("全局样式存档已保存", "success");
+  }
+
+  async function applyGlobalTheme(themeId) {
+    const theme = await window.DB.get(STORE_NAME, themeId);
+    if (!theme) return;
+
+    await window.DB.setSetting("activeGlobalThemeId", themeId);
+
+    const styleEl = getStyleEl(GLOBAL_APPLIED_STYLE_ID);
+    styleEl.textContent = theme.cssText || "";
+
+    toast("已应用全局样式：" + theme.name, "success");
+    await renderGlobalArchiveList();
+  }
+
+  async function removeActiveGlobalTheme() {
+    await window.DB.setSetting("activeGlobalThemeId", "");
+    removeStyleEl(GLOBAL_APPLIED_STYLE_ID);
+    toast("已卸载全局样式", "info");
+    await renderGlobalArchiveList();
+  }
+
+  async function restoreGlobalDefault() {
+    if (!confirm("确定恢复默认全局样式吗？当前已应用的全局样式会被卸载。")) return;
+
+    await window.DB.setSetting("activeGlobalThemeId", "");
+    removeStyleEl(GLOBAL_APPLIED_STYLE_ID);
+
+    const input = document.getElementById("globalCssInput");
+    if (input) input.value = "";
+
+    await renderGlobalArchiveList();
+    toast("已恢复默认", "success");
+  }
+
+  async function renderGlobalArchiveList() {
+  const box = document.getElementById("globalThemeArchiveList");
+  if (!box) return;
+
+  const list = await getAllThemes("global");
+  const activeId = await window.DB.getSetting("activeGlobalThemeId", "");
+
+  if (!list.length) {
+    box.innerHTML = '<div class="bubble-theme-empty">暂无样式存档</div>';
+    return;
+  }
+
+  box.innerHTML = list.map(theme => {
+    const isActive = theme.id === activeId;
+
+    return `
+      <div class="bubble-theme-row global-theme-row ${isActive ? 'active' : ''}" data-id="${theme.id}">
+        <div class="bubble-theme-row-main">
+          <div class="bubble-theme-row-name">
+            ${esc(theme.name)}
+            ${isActive ? '<span class="global-theme-active-tag">应用中</span>' : ''}
+          </div>
+          <div class="bubble-theme-row-time">
+            ${new Date(theme.updatedAt || Date.now()).toLocaleString("zh-CN")}
+          </div>
+        </div>
+
+        <div class="bubble-theme-row-actions">
+          <button class="small-btn gt-apply ${isActive ? 'is-active' : ''}" ${isActive ? 'disabled' : ''}>
+            ${isActive ? '已应用' : '应用'}
+          </button>
+          <button class="small-btn gt-load">载入</button>
+          <button class="small-btn gt-del">删除</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+  async function applyActiveGlobalThemeOnStartup() {
+    try {
+      const activeThemeId = await window.DB.getSetting("activeGlobalThemeId", "");
+      if (!activeThemeId) return;
+
+      const theme = await window.DB.get(STORE_NAME, activeThemeId);
+      if (!theme || !theme.cssText) return;
+
+      getStyleEl(GLOBAL_APPLIED_STYLE_ID).textContent = theme.cssText;
+    } catch (e) {
+      console.error("加载全局主题失败:", e);
+    }
+  }
+
   function bindDelegatedEventsOnce() {
     if (window.__btDelegatedBound) return;
     window.__btDelegatedBound = true;
@@ -585,9 +692,60 @@ if (def.type === "svg" || isSvgMarkup(def.value)) {
     document.addEventListener("click", async (e) => {
       const t = e.target;
 
+      // 气泡预览
       if (t.id === "bubblePreviewBtn") return runPreview();
       if (t.id === "bubbleClearPreviewBtn") return clearPreview();
       if (t.id === "bubbleSaveSnapshotBtn") return saveSnapshot();
+
+      // 全局样式
+      if (t.id === "globalSaveSnapshotBtn") return saveGlobalSnapshot();
+      if (t.id === "globalRestoreDefaultBtn") return restoreGlobalDefault();
+
+      // 全局样式存档点击代理：应用 / 载入 / 删除
+const gtRow = t.closest(".global-theme-row");
+
+if (gtRow) {
+  const id = gtRow.getAttribute("data-id");
+  if (!id) return;
+
+  if (t.classList.contains("gt-apply")) {
+    if (t.disabled || t.classList.contains("is-active")) return;
+
+    await applyGlobalTheme(id);
+    return;
+  }
+
+  if (t.classList.contains("gt-load")) {
+    const theme = await window.DB.get(STORE_NAME, id);
+    if (!theme) return;
+
+    const input = document.getElementById("globalCssInput");
+    if (input) {
+      input.value = theme.cssText || "";
+      input.scrollTop = 0;
+    }
+
+    toast("已载入存档到输入框", "success");
+    return;
+  }
+
+  if (t.classList.contains("gt-del")) {
+    if (!confirm("确定删除这个全局样式存档吗？")) return;
+
+    const activeId = await window.DB.getSetting("activeGlobalThemeId", "");
+
+    if (id === activeId) {
+      await window.DB.setSetting("activeGlobalThemeId", "");
+      removeStyleEl(GLOBAL_APPLIED_STYLE_ID);
+    }
+
+    await window.DB.delete(STORE_NAME, id);
+    await renderGlobalArchiveList();
+
+    toast("已删除存档", "success");
+    return;
+  }
+}
 
       const row = t.closest(".bubble-theme-row");
       if (row && t.classList.contains("bt-load")) {
@@ -748,6 +906,11 @@ if (def.type === "svg" || isSvgMarkup(def.value)) {
     applyBubbleThemeForConversation,
     applyBubbleThemeForGroup,
     scopeCss
+  };
+
+  window.globalThemeModule = {
+    initGlobalThemePanel,
+    applyActiveGlobalThemeOnStartup
   };
 
   bindDelegatedEventsOnce();
