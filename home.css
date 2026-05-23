@@ -559,3 +559,117 @@
     opacity: 0.45;
     pointer-events: none;
 }
+/* ========== iOS Safari / PWA 适配补丁 ========== */
+
+html.is-ios,
+html.is-ios body {
+    height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
+    min-height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
+    overflow: hidden !important;
+}
+
+html.is-ios body {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    margin: 0;
+}
+
+/* 主容器使用 iOS 真实可见高度 */
+html.is-ios .phone-mock {
+    height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
+    max-height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
+    box-sizing: border-box;
+}
+
+/* 首页和子页面都不要撑出额外空白 */
+html.is-ios .home-main,
+html.is-ios .app-main,
+html.is-ios .page {
+    min-height: 0 !important;
+}
+
+/* 锁屏高度修正 */
+html.is-ios .lockscreen {
+    height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
+    min-height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
+    padding-top: calc(80px + env(safe-area-inset-top, 0px)) !important;
+    box-sizing: border-box;
+}
+
+/* 锁屏提示避开底部 Home Indicator */
+html.is-ios .lockscreen-hint {
+    bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* 首页每一页避开顶部安全区，防止被 Safari / 刘海吞掉 */
+html.is-ios .home-page {
+    padding-top: calc(16px + env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* Dock 已经有 safe-area，这里只微调，防止底部空白过大 */
+html.is-ios .home-dock {
+    bottom: calc(28px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* 底部 Tab 和聊天输入区避开 iOS 底部 */
+html.is-ios .tab-bar {
+    height: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: max(6px, env(safe-area-inset-bottom, 0px)) !important;
+    flex-shrink: 0 !important;
+}
+
+html.is-ios .chat-input-area {
+    padding-bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
+    flex-shrink: 0 !important;
+}
+
+/* ========== iOS Safari 修正补丁：取消 fixed body，改为 fixed phone-mock ========== */
+
+/* 撤销之前对 body 的 fixed，避免真实 iOS 下内部页面滚动失效 */
+html.is-ios body {
+    position: static !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
+    min-height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+}
+
+/* 让真正的 App 外壳固定在 iOS 可视区域内 */
+html.is-ios .phone-mock {
+    position: fixed !important;
+    top: 0 !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+
+    width: 375px;
+    max-width: 100%;
+
+    height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
+    max-height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
+
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+/* 保证 flex 子级可以正常把滚动交给内部容器 */
+html.is-ios .app-main,
+html.is-ios .home-main,
+html.is-ios .page,
+html.is-ios .chat-messages,
+html.is-ios .home-pages-track,
+html.is-ios .page1-flex,
+html.is-ios .page2-flex {
+    min-height: 0 !important;
+}
+
+/* iOS 惯性滚动，解决内部滚动发涩 */
+html.is-ios .page,
+html.is-ios .chat-messages,
+html.is-ios [style*="overflow-y:auto"],
+html.is-ios [style*="overflow-y: auto"] {
+    -webkit-overflow-scrolling: touch;
+}
