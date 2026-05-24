@@ -375,3 +375,117 @@ async function init() {
         refreshIcons: renderAllIcons
     };
 };
+
+
+/* =========================================================
+   手机外壳模式补丁
+   直接追加到 bubble-theme.js 最末尾
+========================================================= */
+(function () {
+    'use strict';
+
+    const STORE_KEY = 'halo_phone_frame_enabled';
+    const DB_STORE = 'themeSettings';
+    const DB_KEY = 'phoneFrame';
+
+    function isEnabledFromLocal() {
+        return localStorage.getItem(STORE_KEY) === '1';
+    }
+
+    function saveEnabledToLocal(enabled) {
+        localStorage.setItem(STORE_KEY, enabled ? '1' : '0');
+    }
+
+    function applyPhoneFrameMode(enabled) {
+        document.documentElement.classList.toggle('phone-frame-enabled', !!enabled);
+
+        const sw = document.getElementById('phoneFrameSwitch');
+        if (sw) sw.classList.toggle('on', !!enabled);
+
+        // 切换后触发一次 resize，让 iOS /补 setTimeout(function () {
+            window.dispatchEvent(new Event('resize'));
+        }, 60);
+    }
+
+    async function getPhoneFrameEnabled() {
+        // 先用 localStorage，确保冷启动第一时间生效
+        const localEnabled = isEnabledFromLocal();
+
+        // DB 可用时，以 DB 为准，并同步 localStorage
+        try {
+            if (window.DB && typeof window.DB.get === 'function') {
+ await window);
+ }
+(enabled') {
+                await window.DB.put(DB_STORE, {
+                    key: DB_KEY,
+                    value: enabled
+                });
+            }
+        } catch (e) {
+            console.warn('[手机外壳模式] 保存到 DB 失败，已使用 localStorage 兜底:', e);
+        }
+    }
+
+    function ensurePhoneFrameToggleCard() {
+        const themeHomeView = document.getElementById('themeHome');
+Home false.getphoneCard {
+            return true        const cardphone.idFrameToggleCard';
+
+        card.innerHTML =>
+ class">模式divphone开会手机壳避底白边
+                </div>
+            </div>
+           div class="phone-frame-switch" id="phoneFrameSwitch" role="switch" aria-label="手机外壳模式"></div>
+       EntryHome.query-themescreen (Entry lockNode === themeHomeView) lockscreenEntry        } else {
+        ensurePhoneFrameToggleCard();
+
+        const sw = document.getElementById('phoneFrameSwitch');
+        if (sw) sw.classList.toggle('on', enabled);
+    }
+
+    function startObserver() {
+        const observer = new MutationObserver(function () {
+            if (ensurePhoneFrameToggleCard()) {
+                const enabled = document.documentElement.classList.contains('phone-frame-enabled');
+                const sw = document.getElementById('phoneFrameSwitch');
+                if (sw) sw.classList.toggle('on', enabled);
+            }
+        });
+
+        observer.observe(document.documentElement, {
+            childList: true,
+            subtree: true
+        });
+    }
+
+    // 尽早应用 localStorage 状态，避免页面先铺满后闪一下
+    applyPhoneFrameMode(isEnabledFromLocal());
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () {
+            initPhoneFramePatch();
+            startObserver();
+        });
+    } else {
+        initPhoneFramePatch();
+        startObserver();
+    }
+
+    // 暴露给控制台调试
+    window.phoneFrameMode = {
+        enable: function () {
+            return setPhoneFrameEnabled(true);
+        },
+        disable: function () {
+            return setPhoneFrameEnabled(false);
+        },
+        toggle: async function () {
+            const current = document.documentElement.classList.contains('phone-frame-enabled');
+            return setPhoneFrameEnabled(!current);
+        },
+        isEnabled: function () {
+            return document.documentElement.classList.contains('phone-frame-enabled');
+        }
+    };
+})();
