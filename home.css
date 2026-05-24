@@ -559,8 +559,9 @@
     opacity: 0.45;
     pointer-events: none;
 }
-/* ========== iOS Safari / PWA 适配补丁 ========== */
+/* ========== iOS Safari / PWA 适配一揽子解决方案 ========== */
 
+/* 只作用于 iOS / iPadOS。安卓不会有 .is-ios，所以不受影响。 */
 html.is-ios,
 html.is-ios body {
     height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
@@ -569,83 +570,20 @@ html.is-ios body {
 }
 
 html.is-ios body {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    margin: 0;
-}
-
-/* 主容器使用 iOS 真实可见高度 */
-html.is-ios .phone-mock {
-    height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
-    max-height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
-    box-sizing: border-box;
-}
-
-/* 首页和子页面都不要撑出额外空白 */
-html.is-ios .home-main,
-html.is-ios .app-main,
-html.is-ios .page {
-    min-height: 0 !important;
-}
-
-/* 锁屏高度修正 */
-html.is-ios .lockscreen {
-    height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
-    min-height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
-    padding-top: calc(80px + env(safe-area-inset-top, 0px)) !important;
-    box-sizing: border-box;
-}
-
-/* 锁屏提示避开底部 Home Indicator */
-html.is-ios .lockscreen-hint {
-    bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
-}
-
-/* 首页每一页避开顶部安全区，防止被 Safari / 刘海吞掉 */
-html.is-ios .home-page {
-    padding-top: calc(16px + env(safe-area-inset-top, 0px)) !important;
-    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
-}
-
-/* Dock 已经有 safe-area，这里只微调，防止底部空白过大 */
-html.is-ios .home-dock {
-    bottom: calc(28px + env(safe-area-inset-bottom, 0px)) !important;
-}
-
-/* 底部 Tab 和聊天输入区避开 iOS 底部 */
-html.is-ios .tab-bar {
-    height: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
-    padding-bottom: max(6px, env(safe-area-inset-bottom, 0px)) !important;
-    flex-shrink: 0 !important;
-}
-
-html.is-ios .chat-input-area {
-    padding-bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
-    flex-shrink: 0 !important;
-}
-
-/* ========== iOS Safari 修正补丁：取消 fixed body，改为 fixed phone-mock ========== */
-
-/* 撤销之前对 body 的 fixed，避免真实 iOS 下内部页面滚动失效 */
-html.is-ios body {
     position: static !important;
     inset: auto !important;
     width: 100% !important;
-    height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
-    min-height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
-    overflow: hidden !important;
     margin: 0 !important;
 }
 
-/* 让真正的 App 外壳固定在 iOS 可视区域内 */
+/* App 外壳固定在 iOS 可见区域内，防止底部白边。 */
 html.is-ios .phone-mock {
     position: fixed !important;
     top: 0 !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
 
-    width: 375px;
+    width: min(100%, 375px);
     max-width: 100%;
 
     height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
@@ -655,7 +593,21 @@ html.is-ios .phone-mock {
     box-sizing: border-box !important;
 }
 
-/* 保证 flex 子级可以正常把滚动交给内部容器 */
+/* iPad / 大屏 iOS 保留你的平板宽度效果，不强制锁成 375px。 */
+@media (min-width: 768px) {
+    html.is-ios .phone-mock {
+        width: 90vw;
+        max-width: 700px;
+    }
+}
+
+@media (min-width: 1024px) {
+    html.is-ios .phone-mock {
+        max-width: 800px;
+    }
+}
+
+/* 保证 flex 子级可以把滚动交给内部容器，不要撑出额外高度。 */
 html.is-ios .app-main,
 html.is-ios .home-main,
 html.is-ios .page,
@@ -666,7 +618,70 @@ html.is-ios .page2-flex {
     min-height: 0 !important;
 }
 
-/* iOS 惯性滚动，解决内部滚动发涩 */
+/* 锁屏高度修正。 */
+html.is-ios .lockscreen {
+    height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
+    min-height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
+    padding-top: calc(80px + env(safe-area-inset-top, 0px)) !important;
+    box-sizing: border-box !important;
+}
+
+/* 锁屏提示避开底部 Home Indicator。 */
+html.is-ios .lockscreen-hint {
+    bottom: calc(60px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* 首页每一页避开顶部安全区，防止被刘海 / 灵动岛吞掉。 */
+html.is-ios .home-page {
+    padding-top: calc(16px + env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* 顶部 Header 避开 iOS 状态栏。 */
+html.is-ios .chat-header {
+    padding-top: calc(8px + env(safe-area-inset-top, 0px)) !important;
+}
+
+html.is-ios .contacts-header {
+    padding-top: calc(8px + env(safe-area-inset-top, 0px)) !important;
+}
+
+html.is-ios .profile-header {
+    padding-top: calc(24px + env(safe-area-inset-top, 0px)) !important;
+}
+
+html.is-ios .forum-top-nav {
+    padding-top: calc(8px + env(safe-area-inset-top, 0px)) !important;
+}
+
+html.is-ios .phone-app-header {
+    padding-top: calc(8px + env(safe-area-inset-top, 0px)) !important;
+}
+
+/* 逛逛页如果之后给顶部栏加了 gg-top-header，也自动适配。 */
+html.is-ios .gg-top-header {
+    padding-top: calc(8px + env(safe-area-inset-top, 0px)) !important;
+}
+
+/* Dock 避开底部 Home Indicator，同时避免下巴空白过大。 */
+html.is-ios .home-dock {
+    bottom: calc(28px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* 底部 Tab 避开 iOS 底部。 */
+html.is-ios .tab-bar {
+    height: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: max(6px, env(safe-area-inset-bottom, 0px)) !important;
+    flex-shrink: 0 !important;
+}
+
+/* 聊天输入框避开 Home Indicator。 */
+html.is-ios .chat-input-area {
+    padding-bottom: max(10px, env(safe-area-inset-bottom, 0px)) !important;
+    flex-shrink: 0 !important;
+}
+
+/* iOS 惯性滚动，解决内部滚动发涩。 */
 html.is-ios .page,
 html.is-ios .chat-messages,
 html.is-ios [style*="overflow-y:auto"],

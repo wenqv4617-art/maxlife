@@ -1138,3 +1138,192 @@ if (gtRow) {
     setEnabled
   };
 })();
+/* ================================================================
+ * 手机外壳模式开关
+ * 追加在 bubble-theme.js 末尾
+ * 功能：
+ * 1) 在 美化 首页注入“手机外壳模式”开关卡片
+ * 2) 保存到 DB settings：phoneFrameEnabled
+ * 3) 给 html 添加/移除 .phone-frame-enabled
+ * 4) iOS / 安卓 / 桌面都可用，但默认关闭，不影响原效果
+ * ================================================================ */
+
+(function () {
+  "use strict";
+
+  const SETTING_KEY = "phoneFrameEnabled";
+
+  let entryInjected = false;
+  let eventsBound = false;
+  let booted = false;
+
+  function toast(msg, type) {
+    if (window.showStatus) {
+      window.showStatus(msg, type || "info");
+    } else {
+      console.log(msg);
+    }
+  }
+
+  function normalizeEnabled(value) {
+    return value === true || value === "true" || value === 1 || value === "1";
+  }
+
+  async function waitForReady() {
+    const max = 80;
+    let count = 0;
+
+    return new Promise(resolve => {
+      const timer = setInterval(() => {
+        count++;
+
+        const ready =
+          window.DB &&
+          typeof window.DB.getSetting === "function" &&
+          typeof window.DB.setSetting === "function" &&
+          document.getElementById("themeHomeView");
+
+        if (ready || count >= max) {
+          clearInterval(timer);
+          resolve(!!ready);
+        }
+      }, 100);
+    });
+  }
+
+  async function getEnabled() {
+    if (!window.DB || !window.DB.getSetting) return false;
+
+    const value = await window.DB.getSetting(SETTING_KEY, false);
+    return normalizeEnabled(value);
+  }
+
+  async function setEnabled(enabled) {
+    enabled = !!enabled;
+
+    if (window.DB && window.DB.setSetting) {
+      await window.DB.setSetting(SETTING_KEY, enabled);
+    }
+
+    applyPhoneFrameMode(enabled);
+    updateSwitch(enabled);
+  }
+
+  function applyPhoneFrameMode(enabled) {
+    document.documentElement.classList.toggle("phone-frame-enabled", !!enabled);
+
+    // 切换后触发一次 resize，让你现有的 --app-height / --ios-app-height 逻辑重新跑一遍
+    setTimeout(() => {
+      try {
+        window.dispatchEvent(new Event("resize"));
+      } catch (e) {}
+    }, 80);
+  }
+
+  function updateSwitch(enabled) {
+    const sw = document.getElementById("phoneFrameEnabledSwitch");
+    if (sw) {
+      sw.classList.toggle("on", !!enabled);
+    }
+  }
+
+  function injectEntry() {
+    if (entryInjected) return;
+
+    const homeView = document.getElementById("themeHomeView");
+    if (!homeView) return;
+
+    if (document.getElementById("phoneFrameToggleCard")) {
+      entryInjected = true;
+      return;
+    }
+
+    const card = document.createElement("div");
+    card.id = "phoneFrameToggleCard";
+    card.className = "theme-entry-card";
+    card.style.cssText = [
+      "background:white",
+      "border-radius:16px",
+      "padding:20px",
+      "margin-bottom:12px",
+      "display:flex",
+      "align-items:center",
+      "justify-content:space-between",
+      "border:1px solid #d4cdc2",
+      "cursor:pointer",
+      "gap:12px"
+    ].join(";");
+
+    card.innerHTML = `
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:17px;font-weight:600;color:#4a5568;">手机外壳模式</div>
+        <div style="font-size:12px;color:#8ba3c7;margin-top:4px;line-height:1.45;">
+          打开后，应用会在更小的手机壳里运行，避开刘海、底部白边和边缘误差
+        </div>
+      </div>
+      <div class="phone-frame-switch" id="phoneFrameEnabledSwitch"></div>
+    `;
+
+    // 放到“API 悬浮窗”前面或最后都可以；这里直接追加到美化首页末尾
+    homeView.appendChild(card);
+
+    entryInjected = true;
+  }
+
+  function bindEvents() {
+    if (eventsBound) return;
+    eventsBound = true;
+
+    document.addEventListener("click", async function (e) {
+      const card = e.target.closest("#phoneFrameToggleCard");
+      if (!card) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      const current = await getEnabled();
+      const next = !current;
+
+      await setEnabled(next);
+      toast(next ? "手机外壳模式已开启" : "手机外壳模式已关闭", "success");
+    }, true);
+  }
+
+  async function initPhoneFrameToggle() {
+    if (booted) return;
+    booted = true;
+
+    const ready = await waitForReady();
+    if (!ready) {
+      console.warn("手机外壳模式初始化失败：DB 或 themeHomeView 未就绪");
+      return;
+    }
+
+    injectEntry();
+    bindEvents();
+
+    const enabled = await getEnabled();
+    applyPhoneFrameMode(enabled);
+    updateSwitch(enabled);
+  }
+
+  function boot() {
+    initPhoneFrameToggle().catch(err => {
+      console.warn("手机外壳模式初始化失败", err);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+
+  window.phoneFrameToggleModule = {
+    init: initPhoneFrameToggle,
+    getEnabled,
+    setEnabled,
+    apply: applyPhoneFrameMode
+  };
+})();

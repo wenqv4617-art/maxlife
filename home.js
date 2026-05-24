@@ -5,29 +5,49 @@
         /iP(ad|hone|od)/.test(navigator.userAgent) ||
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
+    // 非 iOS 直接退出，不影响安卓和桌面。
     if (!isIOS) return;
 
     document.documentElement.classList.add('is-ios');
 
+    var isStandalone =
+        window.navigator.standalone ||
+        window.matchMedia('(display-mode: standalone)').matches;
+
+    if (isStandalone) {
+        document.documentElement.classList.add('is-pwa');
+    }
+
     function setIOSAppHeight() {
+        // iOS PWA 独立模式：
+        // 用 100vh，不用 innerHeight / visualViewport，避免冷启动高度偏小。
+        if (isStandalone) {
+            document.documentElement.style.setProperty('--ios-app-height', '100vh');
+            document.documentElement.style.setProperty('--app-height', '100vh');
+            return;
+        }
+
+        // 普通 iOS Safari：
+        // 用 visualViewport 适配地址栏展开/收起。
         var vv = window.visualViewport;
         var h = vv ? vv.height : window.innerHeight;
 
         h = Math.round(h);
 
         document.documentElement.style.setProperty('--ios-app-height', h + 'px');
-
-        // 顺便覆盖主文件里正在使用的 --app-height
         document.documentElement.style.setProperty('--app-height', h + 'px');
     }
 
     function refreshIOSAppHeight() {
         setIOSAppHeight();
 
-        // iOS Safari 地址栏动画结束后高度会二次变化，所以多刷几次
-        setTimeout(setIOSAppHeight, 60);
-        setTimeout(setIOSAppHeight, 300);
-        setTimeout(setIOSAppHeight, 800);
+        // 只有普通 Safari 需要多次刷新。
+        // PWA standalone 不重复测量，避免 cold start 被错误值覆盖。
+        if (!isStandalone) {
+            setTimeout(setIOSAppHeight, 60);
+            setTimeout(setIOSAppHeight, 300);
+            setTimeout(setIOSAppHeight, 800);
+        }
     }
 
     refreshIOSAppHeight();
