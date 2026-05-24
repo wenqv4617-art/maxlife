@@ -630,3 +630,25 @@
     display: inline-flex;
     align-items: center;
 }
+
+/* ===== 修复展开栏图标被截断 ===== */
+.expand-menu-item {
+    overflow: visible !important;  /* 关键：防止父容器裁剪子元素 */
+}
+
+.expand-menu-item .expand-menu-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+/* 确保 SVG 图标完整显示 */
+.expand-menu-item svg {
+    display: block;
+    width: 20px !important;   /* 或者你想要的尺寸 */
+    height: 20px !important;
+    max-width: none;
+    max-height: none;
+}

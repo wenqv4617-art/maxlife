@@ -915,3 +915,226 @@ if (gtRow) {
 
   bindDelegatedEventsOnce();
 })();
+
+/* ================================================================
+ * API 悬浮窗开关
+ * 追加在 bubble-theme.js 末尾即可
+ * ================================================================ */
+
+(function () {
+  "use strict";
+
+  const SETTING_KEY = "apiFloatEnabled";
+  let panelInjected = false;
+  let entryInjected = false;
+  let eventsBound = false;
+
+  function svgIcon() {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>';
+  }
+
+  function toast(msg, type) {
+    if (window.showStatus) {
+      window.showStatus(msg, type || "info");
+    } else {
+      console.log(msg);
+    }
+  }
+
+  function normalizeEnabled(value) {
+    return value !== false && value !== "false" && value !== 0 && value !== "0";
+  }
+
+  async function getEnabled() {
+    if (!window.DB || !window.DB.getSetting) return true;
+    const value = await window.DB.getSetting(SETTING_KEY, true);
+    return normalizeEnabled(value);
+  }
+
+  async function setEnabled(enabled) {
+    if (window.DB && window.DB.setSetting) {
+      await window.DB.setSetting(SETTING_KEY, !!enabled);
+    }
+    applyApiFloatVisibility(enabled);
+  }
+
+  function applyApiFloatVisibility(enabled) {
+    document.body.classList.toggle("api-float-disabled", !enabled);
+
+    const card = document.getElementById("apiStatusCard");
+    if (!enabled && card) {
+      card.classList.remove("show");
+    }
+
+    const sw = document.getElementById("apiFloatEnabledSwitch");
+    if (sw) {
+      sw.classList.toggle("on", !!enabled);
+    }
+  }
+
+  function injectEntry() {
+    if (entryInjected) return;
+
+    const homeView = document.getElementById("themeHomeView");
+    if (!homeView) return;
+
+    if (homeView.querySelector('[data-theme-page="apiFloat"]')) {
+      entryInjected = true;
+      return;
+    }
+
+    const card = document.createElement("div");
+    card.className = "theme-entry-card clickable";
+    card.setAttribute("data-theme-page", "apiFloat");
+    card.style.cssText = [
+      "background:white",
+      "border-radius:16px",
+      "padding:20px",
+      "margin-bottom:12px",
+      "display:flex",
+      "align-items:center",
+      "border:1px solid #d4cdc2",
+      "cursor:pointer"
+    ].join(";");
+
+    card.innerHTML = '<div style="font-size:17px;font-weight:600;color:#4a5568;">API 悬浮窗</div>';
+
+    homeView.appendChild(card);
+    entryInjected = true;
+  }
+
+  function injectPanel() {
+    if (panelInjected) return;
+
+    const detailView = document.getElementById("themeDetailView");
+    if (!detailView) return;
+
+    if (document.getElementById("themePanelApiFloat")) {
+      panelInjected = true;
+      return;
+    }
+
+    const panel = document.createElement("div");
+    panel.id = "themePanelApiFloat";
+    panel.style.display = "none";
+
+    panel.innerHTML = `
+      <div class="api-float-theme-section">
+        <div class="api-float-theme-title">API 悬浮窗</div>
+        <div class="api-float-theme-desc">
+          控制右下角 API 状态悬浮窗是否显示。关闭后，悬浮按钮和状态卡片都会隐藏。
+        </div>
+
+        <div class="api-float-toggle-row">
+          <div class="api-float-toggle-label">
+            ${svgIcon()}
+            <span>显示 API 悬浮窗</span>
+          </div>
+          <div class="api-float-switch on" id="apiFloatEnabledSwitch"></div>
+        </div>
+
+        <div class="api-float-note">
+          此设置会自动保存。重新打开应用后仍会保持当前状态。
+        </div>
+      </div>
+    `;
+
+    detailView.appendChild(panel);
+    panelInjected = true;
+  }
+
+  function hideAllThemePanels() {
+    const ids = [
+      "themePanelWallpaper",
+      "themePanelIcon",
+      "themePanelBubble",
+      "themePanelLockscreen",
+      "themePanelGlobal",
+      "themePanelApiFloat"
+    ];
+
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = "none";
+    });
+  }
+
+  async function openApiFloatPanel() {
+    injectEntry();
+    injectPanel();
+
+    const homeView = document.getElementById("themeHomeView");
+    const detailView = document.getElementById("themeDetailView");
+    const titleEl = document.getElementById("themeDetailTitle");
+    const panel = document.getElementById("themePanelApiFloat");
+
+    if (homeView) homeView.style.display = "none";
+    if (detailView) detailView.style.display = "block";
+    if (titleEl) titleEl.textContent = "API 悬浮窗";
+
+    hideAllThemePanels();
+
+    if (panel) panel.style.display = "";
+
+    const enabled = await getEnabled();
+    applyApiFloatVisibility(enabled);
+  }
+
+  function bindEvents() {
+    if (eventsBound) return;
+    eventsBound = true;
+
+    document.addEventListener("click", async function (e) {
+      const apiEntry = e.target.closest('[data-theme-page="apiFloat"]');
+
+      if (apiEntry) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        await openApiFloatPanel();
+        return;
+      }
+
+      const otherThemeEntry = e.target.closest(".theme-entry-card[data-theme-page]");
+      if (otherThemeEntry && otherThemeEntry.getAttribute("data-theme-page") !== "apiFloat") {
+        const panel = document.getElementById("themePanelApiFloat");
+        if (panel) panel.style.display = "none";
+      }
+
+      const sw = e.target.closest("#apiFloatEnabledSwitch");
+      if (sw) {
+        const next = !sw.classList.contains("on");
+        await setEnabled(next);
+        toast(next ? "API 悬浮窗已开启" : "API 悬浮窗已关闭", "success");
+      }
+    }, true);
+  }
+
+  async function initApiFloatToggle() {
+    injectEntry();
+    injectPanel();
+    bindEvents();
+
+    const enabled = await getEnabled();
+    applyApiFloatVisibility(enabled);
+  }
+
+  function boot() {
+    initApiFloatToggle().catch(err => {
+      console.warn("API 悬浮窗开关初始化失败", err);
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+
+  window.apiFloatToggleModule = {
+    init: initApiFloatToggle,
+    apply: applyApiFloatVisibility,
+    getEnabled,
+    setEnabled
+  };
+})();
