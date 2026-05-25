@@ -2557,3 +2557,587 @@
 #page-couple-space .dt-input-row textarea.dt-input {
   flex: 1;
 }
+
+/* ============================================================
+ * 约会大作战 · 快穿商城 Neon UI
+ * ============================================================ */
+
+.dt-mall-entry {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 14px 0 4px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  background:
+    linear-gradient(135deg, rgba(12,16,36,0.96), rgba(30,8,46,0.96)),
+    radial-gradient(circle at 20% 20%, rgba(0,245,255,0.24), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(255,0,160,0.24), transparent 45%);
+  border: 1px solid rgba(0,245,255,0.38);
+  box-shadow:
+    0 0 16px rgba(0,245,255,0.18),
+    0 0 28px rgba(255,0,160,0.14),
+    inset 0 0 20px rgba(255,255,255,0.03);
+}
+
+.dt-mall-entry:active {
+  transform: scale(0.98);
+}
+
+.dt-mall-entry-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  transform: translateX(-120%);
+  animation: dtMallScan 3.4s linear infinite;
+}
+
+@keyframes dtMallScan {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+
+.dt-mall-entry-icon {
+  position: relative;
+  z-index: 1;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00f5ff;
+  background: rgba(0,245,255,0.08);
+  border: 1px solid rgba(0,245,255,0.35);
+  box-shadow: 0 0 12px rgba(0,245,255,0.28);
+  flex-shrink: 0;
+}
+
+.dt-mall-entry-main {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+}
+
+.dt-mall-entry-title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(0,245,255,0.5);
+}
+
+.dt-mall-entry-sub {
+  font-size: 12px;
+  color: rgba(210,235,255,0.72);
+  margin-top: 4px;
+}
+
+.dt-mall-entry-points {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #ffdc7a;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(255,220,122,0.08);
+  border: 1px solid rgba(255,220,122,0.35);
+  box-shadow: 0 0 12px rgba(255,220,122,0.18);
+}
+
+/* 商城页 */
+
+.dt-mall-page {
+  min-height: 100%;
+  padding-bottom: 24px;
+  color: #eaf8ff;
+}
+
+.dt-mall-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  padding: 20px 18px;
+  margin-bottom: 14px;
+  background:
+    linear-gradient(135deg, rgba(8,12,32,0.98), rgba(42,8,56,0.98)),
+    radial-gradient(circle at 18% 20%, rgba(0,245,255,0.24), transparent 36%),
+    radial-gradient(circle at 82% 76%, rgba(255,0,160,0.26), transparent 42%);
+  border: 1px solid rgba(0,245,255,0.42);
+  box-shadow:
+    0 0 20px rgba(0,245,255,0.18),
+    0 0 40px rgba(255,0,160,0.14);
+}
+
+.dt-mall-hero-glow {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  right: -50px;
+  top: -60px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,245,255,0.22), transparent 70%);
+  pointer-events: none;
+}
+
+.dt-mall-title-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-bottom: 18px;
+}
+
+.dt-mall-title-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 17px;
+  color: #00f5ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,245,255,0.08);
+  border: 1px solid rgba(0,245,255,0.4);
+  box-shadow: 0 0 16px rgba(0,245,255,0.25);
+}
+
+.dt-mall-title {
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: #fff;
+  text-shadow:
+    0 0 8px rgba(0,245,255,0.55),
+    0 0 12px rgba(255,0,160,0.35);
+}
+
+.dt-mall-subtitle {
+  margin-top: 2px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: rgba(210,235,255,0.64);
+  text-transform: uppercase;
+}
+
+.dt-mall-point-card {
+  position: relative;
+  z-index: 1;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dt-mall-point-label {
+  color: rgba(230,245,255,0.72);
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+.dt-mall-point-value {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #ffdc7a;
+  font-size: 24px;
+  font-weight: 800;
+  font-family: 'SF Mono', Monaco, monospace;
+  text-shadow: 0 0 10px rgba(255,220,122,0.32);
+}
+
+.dt-mall-action-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.dt-mall-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 12px 10px;
+  border: 1px solid rgba(0,245,255,0.35);
+  border-radius: 15px;
+  color: #dffaff;
+  background: linear-gradient(135deg, rgba(10,16,38,0.92), rgba(30,10,48,0.92));
+  box-shadow: 0 0 12px rgba(0,245,255,0.12);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.dt-mall-action-btn:active {
+  transform: scale(0.97);
+}
+
+.dt-mall-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #eaf8ff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin: 14px 4px 10px;
+}
+
+.dt-mall-section-note {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(210,235,255,0.55);
+  letter-spacing: 1.5px;
+}
+
+.dt-mall-goods-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dt-mall-empty {
+  padding: 28px 16px;
+  text-align: center;
+  color: rgba(210,235,255,0.58);
+  background: rgba(10,16,38,0.76);
+  border: 1px dashed rgba(0,245,255,0.32);
+  border-radius: 16px;
+}
+
+/* 商品卡片 */
+
+.dt-goods-card,
+.dt-bag-item {
+  position: relative;
+  overflow: hidden;
+  padding: 14px 15px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(8,12,32,0.96), rgba(30,8,46,0.92));
+  border: 1px solid rgba(0,245,255,0.28);
+  box-shadow: inset 0 0 18px rgba(255,255,255,0.03);
+}
+
+.dt-goods-top,
+.dt-bag-item-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 9px;
+}
+
+.dt-level-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #fff;
+  background: rgba(255,255,255,0.16);
+  border: 1px solid rgba(255,255,255,0.18);
+}
+
+.dt-level-D .dt-level-badge { color: #d8e2ee; border-color: rgba(180,200,220,0.32); }
+.dt-level-C .dt-level-badge { color: #00f5ff; border-color: rgba(0,245,255,0.38); }
+.dt-level-B .dt-level-badge { color: #7aa7ff; border-color: rgba(122,167,255,0.42); }
+.dt-level-A .dt-level-badge { color: #ff6bd6; border-color: rgba(255,107,214,0.42); }
+.dt-level-S .dt-level-badge {
+  color: #ffdc7a;
+  border-color: rgba(255,220,122,0.55);
+  text-shadow: 0 0 8px rgba(255,220,122,0.45);
+}
+
+.dt-goods-type,
+.dt-bag-item-type {
+  font-size: 11px;
+  color: rgba(210,235,255,0.58);
+  border: 1px solid rgba(210,235,255,0.14);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.dt-goods-name,
+.dt-bag-item-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 1px;
+  margin-bottom: 7px;
+}
+
+.dt-goods-desc,
+.dt-bag-item-effect {
+  font-size: 12px;
+  color: rgba(225,245,255,0.72);
+  line-height: 1.55;
+  margin-bottom: 10px;
+}
+
+.dt-goods-effect {
+  padding: 9px 10px;
+  border-radius: 12px;
+  background: rgba(0,245,255,0.055);
+  border-left: 3px solid rgba(0,245,255,0.45);
+  margin-bottom: 12px;
+}
+
+.dt-goods-effect span {
+  display: block;
+  font-size: 10px;
+  color: rgba(0,245,255,0.78);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
+}
+
+.dt-goods-effect p {
+  margin: 0;
+  color: rgba(235,250,255,0.82);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.dt-goods-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dt-goods-cost {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #ffdc7a;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.dt-buy-btn,
+.dt-use-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 13px;
+  border: none;
+  border-radius: 999px;
+  color: #041018;
+  background: linear-gradient(135deg, #00f5ff, #ff6bd6);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow:
+    0 0 12px rgba(0,245,255,0.24),
+    0 0 16px rgba(255,107,214,0.18);
+}
+
+.dt-buy-btn:active,
+.dt-use-btn:active {
+  transform: scale(0.94);
+}
+
+/* 背包 */
+
+.dt-bag-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0 10px;
+}
+
+.dt-bag-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  padding: 11px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(0,245,255,0.32);
+  background: linear-gradient(135deg, rgba(8,12,32,0.95), rgba(34,10,48,0.95));
+  color: #eaf8ff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 0 12px rgba(0,245,255,0.12);
+}
+
+.dt-bag-count {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgba(255,220,122,0.12);
+  border: 1px solid rgba(255,220,122,0.32);
+  color: #ffdc7a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+
+.dt-bag-pending {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 10px;
+  border-radius: 12px;
+  color: #fff;
+  background: rgba(255,107,214,0.1);
+  border: 1px solid rgba(255,107,214,0.32);
+}
+
+.dt-pending-label {
+  color: rgba(255,255,255,0.62);
+  font-size: 11px;
+}
+
+.dt-pending-name {
+  flex: 1;
+  min-width: 0;
+  color: #ffdcff;
+  font-size: 12px;
+  font-weight: 700;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.dt-pending-clear {
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* 背包弹窗 */
+
+.dt-bag-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2,4,14,0.62);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.dt-bag-panel {
+  width: 100%;
+  max-width: 380px;
+  max-height: 82vh;
+  overflow-y: auto;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(8,12,32,0.98), rgba(34,10,48,0.98));
+  border: 1px solid rgba(0,245,255,0.34);
+  box-shadow:
+    0 0 24px rgba(0,245,255,0.18),
+    0 0 46px rgba(255,0,160,0.13);
+  padding: 16px;
+}
+
+.dt-bag-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.dt-bag-head-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px rgba(0,245,255,0.4);
+}
+
+.dt-bag-close {
+  border: none;
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.72);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.dt-bag-points {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  color: rgba(230,245,255,0.72);
+  background: rgba(255,255,255,0.055);
+  border: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+
+.dt-bag-points b {
+  margin-left: auto;
+  color: #ffdc7a;
+  font-size: 18px;
+  font-family: 'SF Mono', Monaco, monospace;
+}
+
+.dt-bag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dt-bag-empty {
+  padding: 28px 16px;
+  text-align: center;
+  color: rgba(210,235,255,0.56);
+  border: 1px dashed rgba(0,245,255,0.28);
+  border-radius: 14px;
+}
+
+.dt-use-btn {
+  width: 100%;
+}
+
+.dt-round-score {
+  margin-top: 10px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #ffdc7a;
+  background: rgba(255,220,122,0.08);
+  border: 1px solid rgba(255,220,122,0.25);
+  box-shadow: 0 0 10px rgba(255,220,122,0.08);
+}

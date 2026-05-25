@@ -429,11 +429,11 @@
                     .sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))
                     .slice(0, 8)
                     .map((r, i) => `
-                      <div class="cl-rank-row">
-                        <div class="cl-rank-index">${String(i + 1).padStart(2, "0")}</div>
-                        <div class="cl-rank-name">${esc(r.name)}</div>
-                        <div class="cl-rank-money">${Number(r.amount || 0).toLocaleString()}</div>
-                      </div>
+                      <div class="cl-rank-row cl-rank-clickable" data-cl-rank-name="${esc(r.name)}">
+  <div class="cl-rank-index">${String(i + 1).padStart(2, "0")}</div>
+  <div class="cl-rank-name">${esc(r.name)}</div>
+  <div class="cl-rank-money">${Number(r.amount || 0).toLocaleString()}</div>
+</div>
                     `).join("")
                 : `<div class="cl-empty">NO RANK DATA</div>`
             }
@@ -592,6 +592,15 @@
 
     minEl?.addEventListener("change", saveNums);
     maxEl?.addEventListener("change", saveNums);
+    
+    document.querySelectorAll(".cl-rank-row[data-cl-rank-name]").forEach(row => {
+  row.addEventListener("click", async () => {
+    const name = row.dataset.clRankName;
+    if (!name) return;
+    await openRankUserThread(convId, name);
+  });
+});
+    
   }
 
   function bindWorldbookEvents(convId) {
@@ -836,6 +845,45 @@ ${worldbook || "无"}
       });
     });
   }
+  
+  async function openRankUserThread(convId, fanName) {
+  const cfg = await getCfg(convId);
+  const info = await getConvInfo(convId);
+
+  cfg.userInbox = cfg.userInbox || [];
+
+  let thread = cfg.userInbox.find(t => t.name === fanName);
+
+  if (!thread) {
+    thread = {
+      id: "user_rank_dm_" + Date.now() + "_" + Math.random().toString(36).slice(2),
+      name: fanName,
+      target: "user",
+      source: "rank",
+      updatedAt: Date.now(),
+      messages: [
+        {
+          role: "fan",
+          content: `你居然点我私信？我刚还在榜上刷礼物呢。`,
+          ts: Date.now()
+        }
+      ]
+    };
+
+    cfg.userInbox.unshift(thread);
+  } else {
+    thread.updatedAt = Date.now();
+  }
+
+  await saveCfg(convId, cfg);
+
+  window.showStatus && window.showStatus(
+    `已打开与 ${fanName} 的私信`,
+    "success"
+  );
+
+  await openThread(convId, "user", thread.id);
+}
 
   function lastMsg(t) {
     const m = (t.messages || [])[t.messages.length - 1];
@@ -904,6 +952,8 @@ ${worldbook || "无"}
 你正在模拟直播系统里的网友私信。
 
 目标收信人：${targetName}
+
+${buildViewerDmIdentityRules(info, targetName)}
 
 要求：
 - 强网感
@@ -1100,6 +1150,8 @@ ${worldbook || "无"}
 目标回复者：${speaker}
 私信对象：${thread.name}
 
+${buildSelfReplyDmIdentityRules(info, box, thread.name)}
+
 核心风格：
 - 网感强
 - 像真实私信
@@ -1188,6 +1240,8 @@ ${history}
 
 网友昵称：${thread.name}
 私信对象：${targetName}
+
+${buildFanReplyDmIdentityRules(info, box, thread.name)}
 
 核心风格：
 - 强网感
@@ -1603,6 +1657,53 @@ gift 必须带 amount 数字。
     return mounted
       .map(w => `--- ${w.title || "未命名"} ---\n${w.content || ""}`)
       .join("\n\n");
+  }
+  
+    function buildViewerDmIdentityRules(info, targetName) {
+    return `
+【私信身份边界 · 最高优先级】
+- 你正在生成的是直播系统里的网友私信。
+- 发信人是直播间的路人、粉丝、观众或打赏者，不是 ${info.charName}，也不是 ${info.userName}。
+- 发信人只知道直播中公开发生过的内容，以及私信历史里出现过的信息。
+- 发信人不能拥有现实关系中的记忆，不能像恋人、朋友、家人、同事一样说话。
+- 发信人可以嗑CP、拱火、八卦、质疑、打赏后找存在感，但本质上仍然是围观者。
+- 私信对象是 ${targetName}。
+- 禁止把网友写成现实剧情里的重要角色。
+- 禁止让网友自称和 ${info.charName} 或 ${info.userName} 有线下旧识，除非直播世界书明确写了这个设定。
+`;
+  }
+
+  function buildSelfReplyDmIdentityRules(info, box, fanName) {
+    const selfName = box === "char" ? info.charName : info.userName;
+    const otherMainName = box === "char" ? info.userName : info.charName;
+
+    return `
+【私信回复身份边界 · 最高优先级】
+- 你是 ${selfName}，正在回复直播系统里网友「${fanName}」发来的私信。
+- 这是直播间私信，不是你和 ${otherMainName} 的主线对话。
+- 私信对象「${fanName}」是直播间观众 / 粉丝 / 打赏者，不是你的恋人、朋友、家人或现实旧识。
+- 你可以意识到自己正在被直播间围观，也可以意识到对方是网友。
+- 你的回复应符合你的人设，但要保持“回复网友私信”的语境。
+- 不要把网友当成 ${otherMainName}。
+- 不要把这段私信写成现实见面或主线剧情。
+- 可以礼貌、冷淡、调侃、反问、拉开距离、顺势营业，取决于你的性格。
+`;
+  }
+
+  function buildFanReplyDmIdentityRules(info, box, fanName) {
+    const targetName = box === "char" ? info.charName : info.userName;
+
+    return `
+【网友私信身份边界 · 最高优先级】
+- 你是直播间网友「${fanName}」，正在给 ${targetName} 回私信。
+- 你不是 ${info.charName}，也不是 ${info.userName}。
+- 你不是现实关系里的朋友、恋人、亲人、同事。
+- 你只是直播间观众 / 粉丝 / 打赏者 / 路人。
+- 你只知道直播公开内容和这段私信历史，不知道现实私密信息。
+- 你的语气可以很有网感，可以嗑CP、拱火、阴阳怪气、追问、打赏后找存在感。
+- 禁止突然拥有现实关系记忆。
+- 禁止用主线角色口吻说话。
+`;
   }
 
   /* ------------------------------------------------------------

@@ -583,8 +583,8 @@ html.is-ios .phone-mock {
     left: 50% !important;
     transform: translateX(-50%) !important;
 
-    width: min(100%, 375px);
-    max-width: 100%;
+    width: 100vw !important;
+    max-width: 480px !important;
 
     height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
     max-height: var(--ios-app-height, var(--app-height, 100dvh)) !important;
@@ -687,4 +687,28 @@ html.is-ios .chat-messages,
 html.is-ios [style*="overflow-y:auto"],
 html.is-ios [style*="overflow-y: auto"] {
     -webkit-overflow-scrolling: touch;
+}
+
+/* ========== iOS：修复自定义页面页头被状态栏吞 ========== */
+
+/* 逛逛 */
+html.is-ios #page-guangguang > div:first-child,
+html.is-ios #gg-detail > div:first-child,
+html.is-ios #gg-purchase > div:first-child,
+html.is-ios #gg-msg-detail > div:first-child {
+    padding-top: calc(8px + env(safe-area-inset-top, 0px)) !important;
+    box-sizing: border-box !important;
+}
+
+/* 记账主页面 */
+html.is-ios #page-accounting .chat-header {
+    padding-top: calc(8px + env(safe-area-inset-top, 0px)) !important;
+    box-sizing: border-box !important;
+}
+
+/* 记账浮层页面 */
+html.is-ios .accounting-transition-panel,
+html.is-ios .accounting-detail-panel {
+    padding-top: calc(20px + env(safe-area-inset-top, 0px)) !important;
+    box-sizing: border-box !important;
 }

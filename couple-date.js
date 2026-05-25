@@ -29,16 +29,37 @@
     expand: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>',
     send:   '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>'
   };
+  
+  const MALL_SVG = {
+  shop: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h16l-1 10H5L4 10Z"/><path d="M7 10V7a5 5 0 0 1 10 0v3"/><path d="M9 14h6"/></svg>',
+  coin: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/><path d="M4 12v6c0 1.66 3.58 3 8 3s8-1.34 8-3v-6"/></svg>',
+  refresh: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>',
+  bag: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l1 14H5L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>',
+  buy: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
+  use: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h8l-1 8 10-12h-8l1-8Z"/></svg>',
+  close: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+};
+
+const MALL_LEVEL_COST = {
+  D: 10,
+  C: 40,
+  B: 100,
+  A: 300,
+  S: 800
+};
+
+const MALL_LEVELS = ["D", "C", "B", "A", "S"];
 
   const state = {
-    convId: null,
-    view: "home",
-    setupType: null,
-    setupCfg: {},
-    currentWorldId: null,
-    expandStory: false,
-    theme: null
-  };
+  convId: null,
+  view: "home",
+  setupType: null,
+  setupCfg: {},
+  currentWorldId: null,
+  expandStory: false,
+  theme: null,
+  pendingItem: null
+};
 
   /* utils */
   function esc(s) {
@@ -61,19 +82,127 @@
 
   /* data */
   async function loadData(convId) {
-    const data = await window.DB.getSetting("date_" + convId, null);
-    if (!data) {
-      const initial = { worlds: [], customTags: { sweet: [], mystery: [], horror: [] }, lastCfg: {} };
-      await saveData(convId, initial);
-      return initial;
-    }
-    if (!data.worlds) data.worlds = [];
-    if (!data.customTags) data.customTags = { sweet: [], mystery: [], horror: [] };
-    if (!data.lastCfg) data.lastCfg = {};
-    return data;
+  const data = await window.DB.getSetting("date_" + convId, null);
+  if (!data) {
+    const initial = {
+      worlds: [],
+      customTags: { sweet: [], mystery: [], horror: [] },
+      lastCfg: {},
+      points: 0,
+      inventory: [],
+      shopItems: [],
+      mallMeta: {}
+    };
+    await saveData(convId, initial);
+    return initial;
   }
+
+  if (!data.worlds) data.worlds = [];
+  if (!data.customTags) data.customTags = { sweet: [], mystery: [], horror: [] };
+  if (!data.lastCfg) data.lastCfg = {};
+
+  // 快穿商城数据
+  if (typeof data.points !== "number") data.points = 0;
+  if (!Array.isArray(data.inventory)) data.inventory = [];
+  if (!Array.isArray(data.shopItems)) data.shopItems = [];
+  if (!data.mallMeta) data.mallMeta = {};
+
+  return data;
+}
   async function saveData(convId, data) {
     await window.DB.setSetting("date_" + convId, data);
+  }
+  
+    function applyRoundRewardToData(data, result) {
+    if (!data || !result) return;
+
+    const amount = Math.max(0, Math.min(120, parseInt(result.points, 10) || 0));
+    const reason = result.pointReason || "";
+
+    if (typeof data.points !== "number") data.points = 0;
+    if (!data.mallMeta) data.mallMeta = {};
+
+    data.points += amount;
+    data.mallMeta.lastReward = {
+      amount,
+      reason,
+      time: Date.now()
+    };
+
+    if (amount > 0) {
+      toast("获得 " + amount + " 积分", "success");
+    }
+  }
+
+  function getMallItemUsageText(item) {
+    if (!item) return "";
+    return `【使用道具】${item.name}（${item.level}级）：${item.effect}`;
+  }
+
+  async function consumePendingItem() {
+    if (!state.pendingItem || !state.convId) return;
+
+    const data = await loadData(state.convId);
+    const item = data.inventory.find(x => x.id === state.pendingItem.id && !x.usedAt);
+
+    if (item) {
+      item.usedAt = Date.now();
+      await saveData(state.convId, data);
+    }
+
+    state.pendingItem = null;
+  }
+
+  function normalizeMallItem(raw) {
+    const level = MALL_LEVELS.includes(raw.level) ? raw.level : "D";
+    const fallbackCost = MALL_LEVEL_COST[level] || 10;
+
+    return {
+      id: uid("mall_item"),
+      name: String(raw.name || "未命名道具").slice(0, 20),
+      level,
+      type: String(raw.type || "道具").slice(0, 16),
+      cost: Math.max(1, parseInt(raw.cost, 10) || fallbackCost),
+      description: String(raw.description || "").slice(0, 120),
+      effect: String(raw.effect || "").slice(0, 180),
+      boughtAt: null,
+      usedAt: null
+    };
+  }
+
+  function parseMallItemsJson(reply) {
+    let text = String(reply || "").trim();
+    text = text.replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
+
+    const start = text.indexOf("[");
+    const end = text.lastIndexOf("]");
+    if (start >= 0 && end > start) {
+      text = text.slice(start, end + 1);
+    }
+
+    const arr = JSON.parse(text);
+    return Array.isArray(arr) ? arr : [];
+  }
+
+  async function buildMallContext() {
+    const data = await loadData(state.convId);
+    const world = [...(data.worlds || [])].reverse().find(w => w.chosenNodeId) || [...(data.worlds || [])].reverse()[0];
+
+    if (!world) return "用户尚未进入小世界，请生成通用快穿道具。";
+
+    const latestRound = world.rounds && world.rounds.length
+      ? world.rounds[world.rounds.length - 1]
+      : null;
+
+    return `
+小世界名称：${world.name || ""}
+小世界类型：${world.type || ""}
+世界元素：${(world.worldTags || []).join("、")}
+主线目标：${world.mainGoal || ""}
+用户身份：${world.userIdentity || ""}
+对方身份：${world.charIdentity || ""}
+最新剧情：${latestRound ? latestRound.narration : "尚未开始"}
+`;
   }
 
   async function buildContext(convId) {
@@ -130,7 +259,8 @@
       btn = fresh;
     }
     btn.onclick = () => {
-      if (state.view === "setup") { state.view = "home"; applyTheme(null); render(); return; }
+  if (state.view === "mall") { state.view = "home"; applyTheme(null); render(); return; }
+  if (state.view === "setup") { state.view = "home"; applyTheme(null); render(); return; }
       if (state.view === "select-node") {
         if (!confirm("放弃这个小世界？还没开始的世界不会被保留。")) return;
         // 删掉刚生成但没选节点的世界
@@ -185,16 +315,35 @@
         }).join("");
 
     scroll.innerHTML = `
-      <div class="dt-section-title">选择小世界类型</div>
-      <div class="dt-type-grid">${typeCardsHtml}</div>
-      <div class="dt-section-title" style="margin-top:18px;">穿越记录</div>
-      <div class="dt-world-list">${worldsHtml}</div>
-    `;
+  <div class="dt-section-title">选择小世界类型</div>
+  <div class="dt-type-grid">${typeCardsHtml}</div>
+
+  <div class="dt-mall-entry clickable" id="dtMallEntry">
+    <div class="dt-mall-entry-bg"></div>
+    <div class="dt-mall-entry-icon">${MALL_SVG.shop}</div>
+    <div class="dt-mall-entry-main">
+      <div class="dt-mall-entry-title">快穿商城</div>
+      <div class="dt-mall-entry-sub">购买道具，改变小世界走向</div>
+    </div>
+    <div class="dt-mall-entry-points">
+      ${MALL_SVG.coin}
+      <span>${data.points || 0}</span>
+    </div>
+  </div>
+
+  <div class="dt-section-title" style="margin-top:18px;">穿越记录</div>
+  <div class="dt-world-list">${worldsHtml}</div>
+`;
     bindHomeEvents();
   }
 
   function bindHomeEvents() {
     const scroll = document.getElementById("csScroll");
+    scroll.querySelector("#dtMallEntry")?.addEventListener("click", () => {
+  state.view = "mall";
+  applyTheme(null);
+  renderMall();
+});
     scroll.querySelectorAll("[data-dt-type]").forEach(el => {
       el.onclick = async () => {
         state.setupType = el.dataset.dtType;
@@ -235,6 +384,232 @@
         render();
         toast("已删除", "success");
       };
+    });
+  }
+  
+    async function renderMall() {
+    const scroll = document.getElementById("csScroll");
+    const data = await loadData(state.convId);
+
+    const itemsHtml = data.shopItems.length
+      ? data.shopItems.map(renderMallItemCard).join("")
+      : `<div class="dt-mall-empty">暂无商品，请刷新商城</div>`;
+
+    scroll.innerHTML = `
+      <div class="dt-mall-page">
+        <div class="dt-mall-hero">
+          <div class="dt-mall-hero-glow"></div>
+          <div class="dt-mall-title-row">
+            <div class="dt-mall-title-icon">${MALL_SVG.shop}</div>
+            <div>
+              <div class="dt-mall-title">快穿商城</div>
+              <div class="dt-mall-subtitle">Neon Transit Market</div>
+            </div>
+          </div>
+          <div class="dt-mall-point-card">
+            <div class="dt-mall-point-label">当前积分</div>
+            <div class="dt-mall-point-value">${MALL_SVG.coin}<span>${data.points || 0}</span></div>
+          </div>
+        </div>
+
+        <div class="dt-mall-action-row">
+          <button class="dt-mall-action-btn" id="dtRefreshMallBtn">${MALL_SVG.refresh}<span>刷新商品</span></button>
+          <button class="dt-mall-action-btn" id="dtOpenMallBagBtn">${MALL_SVG.bag}<span>查看背包</span></button>
+        </div>
+
+        <div class="dt-mall-section-head">
+          <span>在售道具</span>
+          <span class="dt-mall-section-note">D / C / B / A / S</span>
+        </div>
+
+        <div class="dt-mall-goods-list">${itemsHtml}</div>
+      </div>
+    `;
+
+    scroll.querySelector("#dtRefreshMallBtn")?.addEventListener("click", refreshMallItems);
+    scroll.querySelector("#dtOpenMallBagBtn")?.addEventListener("click", renderBagModal);
+
+    scroll.querySelectorAll("[data-buy-item]").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        await buyMallItem(btn.dataset.buyItem);
+      });
+    });
+  }
+
+  function renderMallItemCard(item) {
+    return `
+      <div class="dt-goods-card dt-level-${esc(item.level)}">
+        <div class="dt-goods-top">
+          <span class="dt-level-badge">${esc(item.level)}</span>
+          <span class="dt-goods-type">${esc(item.type || "道具")}</span>
+        </div>
+        <div class="dt-goods-name">${esc(item.name)}</div>
+        <div class="dt-goods-desc">${esc(item.description)}</div>
+        <div class="dt-goods-effect">
+          <span>效果</span>
+          <p>${esc(item.effect)}</p>
+        </div>
+        <div class="dt-goods-bottom">
+          <div class="dt-goods-cost">${MALL_SVG.coin}<span>${Number(item.cost || 0)}</span></div>
+          <button class="dt-buy-btn" data-buy-item="${esc(item.id)}">${MALL_SVG.buy}<span>购买</span></button>
+        </div>
+      </div>
+    `;
+  }
+
+  async function refreshMallItems() {
+    if (window.recordApiPending) window.recordApiPending();
+    toast("正在刷新商城", "info");
+
+    try {
+      const context = await buildMallContext();
+
+      const prompt = `这是一个虚构创作系统中的快穿商城。请生成一批适合当前小世界使用的商城道具。
+
+【当前快穿背景】
+${context}
+
+【道具等级规则】
+D级：很弱或偏搞笑，价格约 10-30 积分
+C级：有明确辅助效果，价格约 30-80 积分
+B级：能明显改变局势，价格约 80-160 积分
+A级：强力改变剧情走向，价格约 200-400 积分
+S级：接近规则级或命运级道具，价格约 600-1000 积分
+
+【道具类型】
+可以包含光环、丹药、设备、契约、身份卡、一次性技能、天降NPC、线索生成器、伪装道具、剧情干涉器等。
+道具应当有趣，并适合甜蜜、推理或恐怖剧情。
+
+【输出要求】
+只输出 JSON，不要解释，不要代码块。
+格式如下：
+[
+  {
+    "name": "道具名",
+    "level": "D/C/B/A/S",
+    "type": "道具类型",
+    "cost": 数字,
+    "description": "商品描述",
+    "effect": "使用后对剧情的具体影响"
+  }
+]
+
+请生成 8 个道具，等级要混合，至少包含 1 个 S 级和 1 个 D 级。`;
+
+      const reply = await window.callLLM([{ role: "user", content: prompt }], {
+        maxTokens: 1800,
+        temperature: 0.9
+      });
+
+      const arr = parseMallItemsJson(reply);
+      if (!arr.length) throw new Error("商城返回为空");
+
+      const data = await loadData(state.convId);
+      data.shopItems = arr.map(normalizeMallItem);
+      data.mallMeta.lastRefresh = Date.now();
+      await saveData(state.convId, data);
+
+      toast("商城已刷新", "success");
+      renderMall();
+
+    } catch (e) {
+      toast("刷新失败：" + e.message, "error");
+    }
+  }
+
+  async function buyMallItem(itemId) {
+    const data = await loadData(state.convId);
+    const item = data.shopItems.find(x => x.id === itemId);
+    if (!item) return;
+
+    if ((data.points || 0) < item.cost) {
+      toast("积分不足", "error");
+      return;
+    }
+
+    data.points -= item.cost;
+
+    data.inventory.push({
+      ...item,
+      id: uid("owned_item"),
+      sourceItemId: item.id,
+      boughtAt: Date.now(),
+      usedAt: null
+    });
+
+    await saveData(state.convId, data);
+    toast("购买成功", "success");
+    renderMall();
+  }
+
+  async function renderBagModal() {
+    const old = document.getElementById("dtBagModal");
+    if (old) old.remove();
+
+    const data = await loadData(state.convId);
+    const inventory = (data.inventory || []).filter(x => !x.usedAt);
+
+    const modal = document.createElement("div");
+    modal.id = "dtBagModal";
+    modal.className = "dt-bag-modal";
+    modal.innerHTML = `
+      <div class="dt-bag-panel">
+        <div class="dt-bag-head">
+          <div class="dt-bag-head-title">${MALL_SVG.bag}<span>道具背包</span></div>
+          <button class="dt-bag-close" id="dtBagCloseBtn">${MALL_SVG.close}</button>
+        </div>
+
+        <div class="dt-bag-points">
+          ${MALL_SVG.coin}
+          <span>当前积分</span>
+          <b>${data.points || 0}</b>
+        </div>
+
+        <div class="dt-bag-list">
+          ${
+            inventory.length
+              ? inventory.map(item => `
+                <div class="dt-bag-item dt-level-${esc(item.level)}">
+                  <div class="dt-bag-item-top">
+                    <span class="dt-level-badge">${esc(item.level)}</span>
+                    <span class="dt-bag-item-type">${esc(item.type || "道具")}</span>
+                  </div>
+                  <div class="dt-bag-item-name">${esc(item.name)}</div>
+                  <div class="dt-bag-item-effect">${esc(item.effect)}</div>
+                  <button class="dt-use-btn" data-use-item="${esc(item.id)}">${MALL_SVG.use}<span>选择使用</span></button>
+                </div>
+              `).join("")
+              : `<div class="dt-bag-empty">背包为空</div>`
+          }
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    modal.querySelector("#dtBagCloseBtn")?.addEventListener("click", () => modal.remove());
+    modal.addEventListener("click", e => {
+      if (e.target === modal) modal.remove();
+    });
+
+    modal.querySelectorAll("[data-use-item]").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const item = inventory.find(x => x.id === btn.dataset.useItem);
+        if (!item) return;
+
+        state.pendingItem = item;
+
+        const input = document.getElementById("dtCustomInput");
+        if (input) {
+          const usage = getMallItemUsageText(item);
+          input.value = input.value.trim() ? input.value.trim() + "\n" + usage : usage;
+          input.focus();
+        }
+
+        modal.remove();
+        toast("已选择道具", "success");
+        render();
+      });
     });
   }
 
@@ -595,14 +970,20 @@ ${cfg.extraRequirement.trim()}
       const ctx = await buildContext(state.convId);
       const result = await generateRound(ctx, w, true);
       const fresh = await loadData(state.convId);
-      const fw = fresh.worlds.find(x => x.id === w.id);
-      fw.rounds.push({
-        number: 1,
-        userAction: null,
-        narration: result.narration,
-        choices: result.choices
-      });
-      await saveData(state.convId, fresh);
+const fw = fresh.worlds.find(x => x.id === w.id);
+
+applyRoundRewardToData(fresh, result);
+
+fw.rounds.push({
+  number: 1,
+  userAction: null,
+  narration: result.narration,
+  choices: result.choices,
+  points: result.points || 0,
+  pointReason: result.pointReason || ""
+});
+
+await saveData(state.convId, fresh);
       state.view = "world";
       hideLoadingMask();
       render();
@@ -633,6 +1014,9 @@ ${cfg.extraRequirement.trim()}
       pastHtml += `<div class="dt-round-num">第 ${r.number} 段</div>`;
       pastHtml += `<div class="dt-narration">${formatContent(r.narration)}</div>`;
       if (r.userAction) pastHtml += `<div class="dt-user-act">→ ${esc(r.userAction)}</div>`;
+      if (r.points !== undefined) {
+  pastHtml += `<div class="dt-round-score">本轮积分 +${esc(r.points)} · ${esc(r.pointReason || "")}</div>`;
+}
       pastHtml += `</div>`;
     }
 
@@ -664,11 +1048,31 @@ ${cfg.extraRequirement.trim()}
       </details>
       ${pastHtml}
       <div class="dt-round-block dt-round-current">
-        <div class="dt-round-num dt-round-num-current">第 ${cur.number} 段</div>
-        <div class="dt-narration">${formatContent(cur.narration)}</div>
-      </div>
-      <div class="dt-act-title">你接下来…</div>
-      <div class="dt-choices">${choicesHtml}</div>
+  <div class="dt-round-num dt-round-num-current">第 ${cur.number} 段</div>
+  <div class="dt-narration">${formatContent(cur.narration)}</div>
+  ${cur.points !== undefined ? `<div class="dt-round-score">本轮积分 +${esc(cur.points)} · ${esc(cur.pointReason || "")}</div>` : ""}
+</div>
+
+<div class="dt-act-title">你接下来…</div>
+
+<div class="dt-bag-bar">
+  <button class="dt-bag-btn" id="dtOpenBagBtn">
+    ${MALL_SVG.bag}
+    <span>道具背包</span>
+    <span class="dt-bag-count">${(await loadData(state.convId)).inventory.filter(x => !x.usedAt).length}</span>
+  </button>
+  ${
+    state.pendingItem
+      ? `<div class="dt-bag-pending">
+          <span class="dt-pending-label">待使用</span>
+          <span class="dt-pending-name">${esc(state.pendingItem.name)}</span>
+          <button class="dt-pending-clear" id="dtClearPendingItem">${MALL_SVG.close}</button>
+        </div>`
+      : ""
+  }
+</div>
+
+<div class="dt-choices">${choicesHtml}</div>
 <div class="dt-input-row" style="align-items:flex-end;">
   <textarea id="dtCustomInput" class="dt-input" placeholder="或自由输入行动…&#10;支持回车换行，只有点击发送才会提交。" style="min-height:64px;max-height:150px;resize:vertical;line-height:1.6;"></textarea>
   <button class="dt-icon-btn" id="dtCustomSendBtn">${SVG.send}</button>
@@ -690,22 +1094,44 @@ ${cfg.extraRequirement.trim()}
 
   function bindWorldEvents(w) {
     const scroll = document.getElementById("csScroll");
-    scroll.querySelectorAll("[data-choice-idx]").forEach(el => {
-      el.onclick = () => {
-        const idx = parseInt(el.dataset.choiceIdx);
-        const cur = w.rounds[w.rounds.length - 1];
-        const c = cur.choices[idx];
-        if (c) onUserAct(c);
-      };
-    });
+    scroll.querySelector("#dtOpenBagBtn")?.addEventListener("click", renderBagModal);
+
+scroll.querySelector("#dtClearPendingItem")?.addEventListener("click", () => {
+  state.pendingItem = null;
+  render();
+});
+
+scroll.querySelectorAll("[data-choice-idx]").forEach(el => {
+  el.onclick = async () => {
+    const idx = parseInt(el.dataset.choiceIdx);
+    const cur = w.rounds[w.rounds.length - 1];
+    let c = cur.choices[idx];
+
+    if (c && state.pendingItem) {
+      c = c + "\n" + getMallItemUsageText(state.pendingItem);
+      await consumePendingItem();
+    }
+
+    if (c) onUserAct(c);
+  };
+});
     const inp = scroll.querySelector("#dtCustomInput");
 
-const send = () => {
-  const v = (inp?.value || "").trim();
+const send = async () => {
+  let v = (inp?.value || "").trim();
   if (!v) {
     toast("写点什么吧", "info");
     return;
   }
+
+  if (state.pendingItem && !v.includes("【使用道具】")) {
+    v += "\n" + getMallItemUsageText(state.pendingItem);
+  }
+
+  if (state.pendingItem) {
+    await consumePendingItem();
+  }
+
   onUserAct(v);
 };
 
@@ -742,14 +1168,20 @@ if (inp) {
       const ctx = await buildContext(state.convId);
       const result = await generateRound(ctx, w, false);
       const fresh = await loadData(state.convId);
-      const fw = fresh.worlds.find(x => x.id === w.id);
-      fw.rounds.push({
-        number: fw.rounds.length + 1,
-        userAction: null,
-        narration: result.narration,
-        choices: result.choices
-      });
-      await saveData(state.convId, fresh);
+const fw = fresh.worlds.find(x => x.id === w.id);
+
+applyRoundRewardToData(fresh, result);
+
+fw.rounds.push({
+  number: fw.rounds.length + 1,
+  userAction: null,
+  narration: result.narration,
+  choices: result.choices,
+  points: result.points || 0,
+  pointReason: result.pointReason || ""
+});
+
+await saveData(state.convId, fresh);
       hideLoadingMask();
       render();
     } catch (e) {
@@ -838,6 +1270,17 @@ ${charRoleObj.key === "side" ? `${ctx.charName} 是配角，戏份穿插出现�
 
 字数：约 ${wc} 字。
 
+【积分判定】
+本轮叙事结束后，你必须根据剧情、介入难度和主线目标推进程度，给 ${ctx.userName} 发放快穿积分。
+
+积分标准：
+- 明显推进主线目标、改变关键人物命运、发现关键线索：30-80 分
+- 有风险、有代价、对局势产生中等影响：15-40 分
+- 普通互动、试探、观察、铺垫：5-20 分
+- 行动无效、偏离主线、拖延剧情：0-10 分
+- 不要过度慷慨，积分必须与本轮剧情贡献匹配。
+- 第一次介入小世界时，也应根据开局难度和信息获取量发放积分。
+
 【输出格式】
 ---叙述---
 （约 ${wc} 字的剧情描写）
@@ -846,7 +1289,11 @@ ${charRoleObj.key === "side" ? `${ctx.charName} 是配角，戏份穿插出现�
 ---选项2---
 （不同方向的行动）
 ---选项3---
-（不同方向的行动）`
+（不同方向的行动）
+---积分---
+一个整数，范围 0 到 120
+---积分理由---
+一句话说明为什么发放这些积分`
       }], { maxTokens: maxTok }));
     }
 
@@ -872,6 +1319,17 @@ ${lastAction}
 
 字数：约 ${wc} 字。
 
+【积分判定】
+本轮叙事结束后，你必须根据 ${ctx.userName} 刚刚的行动、剧情变化和主线目标推进程度，给 ${ctx.userName} 发放快穿积分。
+
+积分标准：
+- 明显推进主线目标、改变关键人物命运、发现关键线索：30-80 分
+- 有风险、有代价、对局势产生中等影响：15-40 分
+- 普通互动、试探、观察、铺垫：5-20 分
+- 行动无效、偏离主线、拖延剧情：0-10 分
+- 如果使用了道具，应根据道具效果与剧情收益综合判定积分。
+- 不要过度慷慨，积分必须与本轮剧情贡献匹配。
+
 【输出格式】
 ---叙述---
 （约 ${wc} 字）
@@ -880,25 +1338,89 @@ ${lastAction}
 ---选项2---
 （不同方向的行动）
 ---选项3---
-（不同方向的行动）`
+（不同方向的行动）
+---积分---
+一个整数，范围 0 到 120
+---积分理由---
+一句话说明为什么发放这些积分`
     }], { maxTokens: maxTok }));
   }
 
   function parseRoundReply(reply) {
-    const m1 = reply.match(/---叙述---([\s\S]*?)---选项1---/);
-    const m2 = reply.match(/---选项1---([\s\S]*?)---选项2---/);
-    const m3 = reply.match(/---选项2---([\s\S]*?)---选项3---/);
-    const m4 = reply.match(/---选项3---([\s\S]*?)$/);
-    return {
-      narration: m1 ? m1[1].trim() : (reply.split("---选项1---")[0] || reply).trim(),
-      choices: [
-        m2 ? m2[1].trim() : "继续观察",
-        m3 ? m3[1].trim() : "主动出击",
-        m4 ? m4[1].trim() : "另寻办法"
-      ]
-    };
+  const text = String(reply || "").trim();
+
+  function getBetween(startLabel, endLabels) {
+    const start = text.indexOf(startLabel);
+    if (start < 0) return "";
+
+    const from = start + startLabel.length;
+    let end = text.length;
+
+    for (const label of endLabels) {
+      const idx = text.indexOf(label, from);
+      if (idx >= 0 && idx < end) end = idx;
+    }
+
+    return text.slice(from, end).trim();
   }
 
+  const narration = getBetween("---叙述---", [
+    "---选项1---",
+    "---选项2---",
+    "---选项3---",
+    "---积分---",
+    "---积分理由---"
+  ]);
+
+  const option1 = getBetween("---选项1---", [
+    "---选项2---",
+    "---选项3---",
+    "---积分---",
+    "---积分理由---"
+  ]);
+
+  const option2 = getBetween("---选项2---", [
+    "---选项3---",
+    "---积分---",
+    "---积分理由---"
+  ]);
+
+  const option3 = getBetween("---选项3---", [
+    "---积分---",
+    "---积分理由---"
+  ]);
+
+  const pointRaw = getBetween("---积分---", [
+    "---积分理由---"
+  ]);
+
+  const pointReason = getBetween("---积分理由---", [
+    "---叙述---",
+    "---选项1---",
+    "---选项2---",
+    "---选项3---"
+  ]);
+
+  let points = parseInt(String(pointRaw).replace(/[^\d-]/g, ""), 10);
+
+  // 模型漏写时给保底，避免完全不涨分
+  if (Number.isNaN(points)) {
+    points = 10;
+  }
+
+  points = Math.max(0, Math.min(120, points));
+
+  return {
+    narration: narration || (text.split("---选项1---")[0] || text).trim(),
+    choices: [
+      option1 || "继续观察局势",
+      option2 || "主动推进主线",
+      option3 || "另寻突破口"
+    ],
+    points,
+    pointReason: pointReason || "系统根据本轮剧情推进发放积分"
+  };
+}
   /* ============= loading ============= */
   function showLoadingMask(text) {
     let el = document.getElementById("dtLoadingMask");
@@ -925,3 +1447,5 @@ ${lastAction}
   window.coupleDateModule = { open: openDate };
   console.log("✅ couple-date 模块就绪");
 })();
+
+

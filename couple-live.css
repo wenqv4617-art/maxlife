@@ -681,3 +681,23 @@
   width: 44px;
   flex-shrink: 0;
 }
+
+.cl-rank-clickable {
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, transform 0.12s;
+}
+
+.cl-rank-clickable:hover {
+  background: #111;
+  color: #fff;
+}
+
+.cl-rank-clickable:active {
+  transform: scale(0.98);
+}
+
+.cl-rank-clickable:hover .cl-rank-index,
+.cl-rank-clickable:hover .cl-rank-name,
+.cl-rank-clickable:hover .cl-rank-money {
+  color: #fff;
+}

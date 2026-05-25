@@ -69,19 +69,24 @@
     }
 
     .phone-mock {
-        width: 375px;
-        max-width: 100%;
+    /* 改成 100% 而不是固定像素 */
+    width: 100%; 
+    /* 限制最大宽度，防止在 iPad 或电脑上变得太宽 */
+    max-width: 480px; 
+    
+    height: var(--app-height, 100dvh);
+    max-height: var(--app-height, 100dvh);
 
-        height: var(--app-height, 100dvh);
-        max-height: var(--app-height, 100dvh);
-
-        background-color: #faf9f6;
-        box-shadow: none;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        position: relative;
-    }
+    background-color: #faf9f6;
+    box-shadow: none;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    
+    /* 这一行很重要：让它在屏幕上居中 */
+    margin: 0 auto; 
+}
 
     .app-main {
         flex: 1;
