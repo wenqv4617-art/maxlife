@@ -712,3 +712,24 @@ html.is-ios .accounting-detail-panel {
     padding-top: calc(20px + env(safe-area-inset-top, 0px)) !important;
     box-sizing: border-box !important;
 }
+
+
+/* ==================== APK键盘黑条修复补丁 ==================== */
+/* 1. 将 html 和 body 根节点的背景色设为与应用主背景色（#faf9f6）一致。
+   这样即使 WebView 缩放或重绘出现短暂延迟，露出的背景也是应用主题色，而不是黑色的原生窗口底色 */
+html {
+    background-color: #faf9f6 !important;
+}
+
+body {
+    background-color: #faf9f6 !important;
+    /* 避免高度过渡时产生生硬闪烁 */
+    transition: background-color 0.2s ease;
+}
+
+/* 2. 优化主要容器，防止高度在变化期间因挤压导致子元素排版严重变形 */
+.phone-mock {
+    background-color: #faf9f6 !important;
+    position: relative;
+    min-height: 0;
+}

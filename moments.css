@@ -16,8 +16,15 @@
 #page-moments {
   background: var(--mm-bg);
   height: 100%;
-  display: flex;
+  display: flex; /* ─── 恢复：使用原本能稳定加载的默认 display: flex ─── */
   flex-direction: column;
+}
+
+/* ─── 核心约束补丁 ───
+   当容器内有任何其他页面处于活跃激活状态（.page.active）时，
+   利用兄弟选择器强行将排在后面的朋友圈隐藏，防止其在键盘弹起或高度变化时堆叠露出 */
+.page.active ~ #page-moments {
+  display: none !important;
 }
 
 .moments-header {

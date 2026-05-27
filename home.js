@@ -395,3 +395,83 @@ async function init() {
         refreshIcons: renderAllIcons
     };
 };
+
+
+/* ==================== APK键盘黑条修复补丁 ==================== */
+(function() {
+    "use strict";
+
+    let baseHeight = window.innerHeight;
+    let isKeyboardOpen = false;
+
+    // 探测当前是否有活跃的输入框
+    function checkInputFocused() {
+        const activeEl = document.activeElement;
+        return activeEl && (
+            activeEl.tagName === 'INPUT' || 
+            activeEl.tagName === 'TEXTAREA' || 
+            activeEl.hasAttribute('contenteditable') ||
+            activeEl.closest('[contenteditable]')
+        );
+    }
+
+    // 记录非输入状态下的正常视口高度
+    function updateBaseHeight() {
+        if (!checkInputFocused()) {
+            baseHeight = window.innerHeight;
+        }
+    }
+
+    window.addEventListener('resize', () => {
+        const activeEl = document.activeElement;
+        const isFocused = checkInputFocused();
+
+        if (isFocused) {
+            isKeyboardOpen = true;
+            // 键盘弹起时，强制维持原先的页面可视高度，防止 --app-height 突变坍塌
+            document.documentElement.style.setProperty('--app-height', baseHeight + 'px');
+            
+            // 延迟将输入框平滑滚动至可视区域中央，防止其被软键盘完全遮挡
+            setTimeout(() => {
+                activeEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            }, 150);
+        } else {
+            isKeyboardOpen = false;
+            updateBaseHeight();
+            document.documentElement.style.setProperty('--app-height', baseHeight + 'px');
+        }
+    });
+
+    // 监听全局焦点进入事件
+    document.addEventListener('focusin', (e) => {
+        const target = e.target;
+        const isInput = target && (
+            target.tagName === 'INPUT' || 
+            target.tagName === 'TEXTAREA' || 
+            target.hasAttribute('contenteditable') || 
+            target.closest('[contenteditable]')
+        );
+
+        if (isInput) {
+            isKeyboardOpen = true;
+            // 立即锁定容器高度，不给系统缩水 WebView 并产生黑底的机会
+            document.documentElement.style.setProperty('--app-height', baseHeight + 'px');
+            
+            setTimeout(() => {
+                target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            }, 80);
+        }
+    });
+
+    // 监听全局焦点离开事件
+    document.addEventListener('focusout', () => {
+        isKeyboardOpen = false;
+        setTimeout(() => {
+            // 稍作延迟，确认没有新的输入框获得焦点后，恢复真实的屏幕尺寸计算
+            if (!checkInputFocused()) {
+                baseHeight = window.innerHeight;
+                document.documentElement.style.setProperty('--app-height', baseHeight + 'px');
+            }
+        }, 150);
+    });
+})();
