@@ -1,0 +1,653 @@
+/* ============================================
+   记账与月经预测模块 - accounting.css
+   极浅粉蓝科技风色系 (No Emoji)
+   ============================================ */
+
+:root {
+    --tech-blue-light: #edf5fe;
+    --tech-blue-primary: #aacbf2;
+    --tech-blue-glow: rgba(170, 203, 242, 0.4);
+    --tech-pink-light: #fdf1f4;
+    --tech-pink-primary: #f5bccb;
+    --tech-pink-glow: rgba(245, 188, 203, 0.4);
+    
+    --tech-text-dark: #3a4d63;
+    --tech-text-muted: #78909c;
+    --tech-border-blue: rgba(170, 203, 242, 0.25);
+    --tech-border-pink: rgba(245, 188, 203, 0.25);
+    
+    --tech-card-bg: rgba(255, 255, 255, 0.65);
+    --tech-glass-blur: blur(16px);
+}
+
+/* 页面背景 */
+#page-accounting {
+    background: linear-gradient(135deg, var(--tech-blue-light) 0%, var(--tech-pink-light) 100%) !important;
+    color: var(--tech-text-dark) !important;
+}
+
+#page-accounting .accounting-wrapper {
+    padding: 16px 14px;
+}
+
+#page-accounting .app-card {
+    background: var(--tech-card-bg) !important;
+    backdrop-filter: var(--tech-glass-blur) !important;
+    -webkit-backdrop-filter: var(--tech-glass-blur) !important;
+    border: 1px solid var(--tech-border-blue) !important;
+    border-radius: 28px !important;
+    padding: 20px 16px !important;
+    box-shadow: 0 12px 32px rgba(170, 203, 242, 0.15) !important;
+}
+
+/* 顶部栏与导航 */
+#page-accounting .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#page-accounting .top-bar-icon svg {
+    color: var(--tech-blue-primary);
+    filter: drop-shadow(0 0 6px var(--tech-blue-glow));
+}
+
+#page-accounting .month-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid var(--tech-border-blue);
+    padding: 4px 10px;
+    border-radius: 40px;
+}
+
+#page-accounting .month-nav button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--tech-text-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+#page-accounting .month-nav button:hover {
+    background: var(--tech-blue-light);
+    color: var(--tech-blue-primary);
+}
+
+#page-accounting .month-nav .today-btn {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 12px;
+    border: 1px solid var(--tech-border-blue);
+    background: var(--tech-card-bg);
+}
+
+/* 预算面板 */
+#page-accounting .budget-summary {
+    background: linear-gradient(135deg, rgba(170, 203, 242, 0.15) 0%, rgba(245, 188, 203, 0.15) 100%) !important;
+    border: 1px solid var(--tech-border-blue) !important;
+    border-radius: 24px !important;
+    padding: 16px !important;
+    box-shadow: none !important;
+}
+
+#page-accounting .budget-grid {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+#page-accounting .summary-label {
+    font-size: 12px;
+    color: var(--tech-text-muted) !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#page-accounting .summary-number {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--tech-text-dark) !important;
+    font-family: monospace;
+}
+
+#page-accounting .set-budget-btn {
+    background: var(--tech-card-bg) !important;
+    border: 1px solid var(--tech-border-blue) !important;
+    color: var(--tech-blue-primary) !important;
+    border-radius: 50% !important;
+    width: 42px !important;
+    height: 42px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 日历网格 */
+#page-accounting .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin: 12px 0;
+}
+
+#page-accounting .calendar-grid.weekdays {
+    border-bottom: 1px solid var(--tech-border-blue);
+    padding-bottom: 8px;
+}
+
+#page-accounting .weekday {
+    font-size: 12px;
+    color: var(--tech-text-muted);
+    font-weight: 600;
+    text-align: center;
+}
+
+/* 日历格子的区分设计 */
+#page-accounting .calendar-day {
+    background: rgba(255, 255, 255, 0.5) !important;
+    border: 1.5px solid rgba(220, 224, 230, 0.4) !important;
+    border-radius: 14px !important;
+    min-height: 56px !important;
+    padding: 6px 4px 4px !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.2s !important;
+}
+
+#page-accounting .calendar-day:hover {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border-color: var(--tech-blue-primary) !important;
+}
+
+#page-accounting .day-number {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tech-text-dark) !important;
+}
+
+#page-accounting .day-indicators {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+#page-accounting .day-income {
+    font-size: 8px;
+    font-weight: 600;
+    color: #4db6ac !important;
+    font-family: monospace;
+}
+
+#page-accounting .day-expense {
+    font-size: 8px;
+    font-weight: 600;
+    color: #e57373 !important;
+    font-family: monospace;
+}
+
+/* -------------------- 经期多维度色彩分级渲染 -------------------- */
+#page-accounting .calendar-day.period-actual {
+    box-shadow: 0 0 10px rgba(245, 188, 203, 0.2) !important;
+}
+
+/* 1. 流量：少 (极淡粉色) */
+#page-accounting .calendar-day.period-actual-low {
+    background-color: #fff0f2 !important;
+    border: 1.5px solid #fbc6d3 !important;
+}
+#page-accounting .calendar-day.period-actual-low .day-number {
+    color: #8c5361 !important;
+}
+
+/* 2. 流量：中 (标准粉色) */
+#page-accounting .calendar-day.period-actual-medium {
+    background-color: #fdbccb !important;
+    border: 1.5px solid #f79cb2 !important;
+}
+#page-accounting .calendar-day.period-actual-medium .day-number {
+    color: #732a39 !important;
+}
+
+/* 3. 流量：多 (高饱和深玫红) */
+#page-accounting .calendar-day.period-actual-heavy {
+    background-color: #f595ac !important;
+    border: 1.5px solid #e35a78 !important;
+}
+#page-accounting .calendar-day.period-actual-heavy .day-number {
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* 4. 预测行经期 */
+#page-accounting .calendar-day.period-predicted {
+    background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(245, 188, 203, 0.08) 100%) !important;
+    border: 1.5px dashed var(--tech-pink-primary) !important;
+}
+
+/* 5. 排卵期 (薰衣草紫描边) */
+#page-accounting .calendar-day.period-ovulation {
+    background-color: rgba(246, 236, 252, 0.25) !important;
+    border: 1.5px solid #d9b8f5 !important;
+}
+#page-accounting .calendar-day.period-ovulation .day-number {
+    color: #794bb0 !important;
+    font-weight: 600;
+}
+
+/* 6. 黄体期 (秋叶暖澄橙描边) */
+#page-accounting .calendar-day.period-luteal {
+    background-color: rgba(253, 245, 235, 0.25) !important;
+    border: 1.5px solid #f2c799 !important;
+}
+#page-accounting .calendar-day.period-luteal .day-number {
+    color: #b06822 !important;
+    font-weight: 600;
+}
+
+/* -------------------- 非本月日期框样式淡化 -------------------- */
+#page-accounting .calendar-day.other-month {
+    background: rgba(244, 245, 246, 0.25) !important;
+    border: 1.5px solid rgba(220, 224, 230, 0.1) !important;
+    opacity: 0.55;
+    box-shadow: none !important;
+}
+
+#page-accounting .calendar-day.other-month .day-number {
+    color: var(--tech-text-muted) !important;
+    font-weight: 400 !important;
+}
+
+/* 今日/选中高亮 */
+#page-accounting .today-cell {
+    border: 2px solid var(--tech-blue-primary) !important;
+    background: var(--tech-blue-light) !important;
+}
+
+/* 收藏室入口 */
+#page-accounting .collection-entrance {
+    background: rgba(255, 255, 255, 0.35) !important;
+    border: 1px solid var(--tech-border-blue) !important;
+    border-radius: 20px !important;
+    padding: 14px 16px !important;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#page-accounting .collection-icon svg {
+    color: var(--tech-blue-primary);
+}
+
+#page-accounting .collection-info h3 {
+    font-size: 15px;
+    font-weight: 700;
+}
+
+#page-accounting .collection-info p {
+    font-size: 12px;
+    color: var(--tech-text-muted);
+}
+
+#page-accounting .entrance-arrow svg {
+    color: var(--tech-text-muted);
+}
+
+/* 详情与二级面板通用全屏定位 */
+.accounting-transition-panel {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000 !important;
+    overflow-y: auto !important;
+    padding: 20px 16px !important;
+    display: none;
+    background: linear-gradient(135deg, var(--tech-blue-light) 0%, var(--tech-pink-light) 100%) !important;
+    color: var(--tech-text-dark) !important;
+}
+
+.accounting-detail-panel {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1100 !important;
+    overflow-y: auto !important;
+    padding: 20px 16px !important;
+    display: none;
+    background: linear-gradient(135deg, var(--tech-blue-light) 0%, var(--tech-pink-light) 100%) !important;
+    color: var(--tech-text-dark) !important;
+}
+
+.accounting-transition-content,
+.accounting-detail-content {
+    background: var(--tech-card-bg) !important;
+    backdrop-filter: var(--tech-glass-blur) !important;
+    -webkit-backdrop-filter: var(--tech-glass-blur) !important;
+    border: 1px solid var(--tech-border-blue) !important;
+    border-radius: 28px !important;
+    padding: 24px 16px !important;
+    margin: 20px auto !important;
+    max-width: 440px !important;
+    box-shadow: 0 16px 40px rgba(170, 203, 242, 0.12) !important;
+}
+
+/* 侧边返回 */
+.accounting-back-btn {
+    background: none;
+    border: 1px solid var(--tech-border-blue);
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 13px;
+    color: var(--tech-text-dark);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.accounting-back-btn:hover {
+    background: rgba(255,255,255,0.4);
+}
+
+/* 过渡面板 */
+.accounting-transition-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.accounting-transition-card {
+    background: rgba(255, 255, 255, 0.45) !important;
+    border: 1px solid var(--tech-border-blue) !important;
+    border-radius: 20px !important;
+    padding: 16px !important;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.accounting-transition-card:hover {
+    background: rgba(255, 255, 255, 0.7) !important;
+    border-color: var(--tech-blue-primary) !important;
+    transform: translateY(-2px);
+}
+
+.accounting-transition-card .accounting-card-icon svg {
+    color: var(--tech-blue-primary);
+}
+
+/* 经期板块卡片 */
+.period-settings-card,
+.period-status-card,
+.period-log-card,
+.period-predictions-card {
+    background: rgba(255, 255, 255, 0.45);
+    border: 1px solid var(--tech-border-pink);
+    border-radius: 20px;
+    padding: 16px;
+    margin-bottom: 14px;
+}
+
+.period-setting-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--tech-text-dark);
+    margin-bottom: 12px;
+    border-left: 3px solid var(--tech-pink-primary);
+    padding-left: 8px;
+}
+
+.period-setting-fields {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+.setting-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.setting-field label {
+    font-size: 11px;
+    color: var(--tech-text-muted);
+}
+
+.setting-field input {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--tech-border-pink);
+    border-radius: 12px;
+    padding: 8px 10px;
+    font-size: 13px;
+    color: var(--tech-text-dark);
+    outline: none;
+    width: 100%;
+}
+
+.menstrual-action-btn {
+    background: linear-gradient(135deg, var(--tech-pink-primary) 0%, #ebb0b0 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    border-radius: 14px;
+    padding: 10px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.menstrual-action-btn:active {
+    opacity: 0.8;
+}
+
+/* 今日行经 Toggle */
+.status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-date-label {
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.switch-container {
+    position: relative;
+    display: inline-block;
+}
+
+.switch-container input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+}
+
+.switch-container .slider {
+    background-color: var(--tech-text-muted);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.switch-container input:checked + .slider {
+    background-color: var(--tech-pink-primary);
+    filter: drop-shadow(0 0 4px var(--tech-pink-glow));
+}
+
+/* 行经打分 */
+.log-field {
+    margin-bottom: 12px;
+}
+
+.log-field label {
+    display: block;
+    font-size: 12px;
+    color: var(--tech-text-muted);
+    margin-bottom: 6px;
+}
+
+.select-group {
+    display: flex;
+    gap: 6px;
+}
+
+.select-group .select-btn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--tech-border-pink);
+    border-radius: 12px;
+    padding: 8px 0;
+    font-size: 13px;
+    color: var(--tech-text-dark);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.select-group .select-btn.active {
+    background: var(--tech-pink-light);
+    border-color: var(--tech-pink-primary);
+    color: var(--tech-pink-dark);
+    font-weight: bold;
+}
+
+/* 行经备忘 */
+#menstrualDailyLogText {
+    width: 100%;
+    height: 64px;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--tech-border-pink);
+    border-radius: 14px;
+    padding: 10px;
+    font-size: 13px;
+    resize: none;
+    outline: none;
+    color: var(--tech-text-dark);
+}
+
+/* 分析分析与预测 */
+.prediction-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.prediction-item {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed var(--tech-border-pink);
+}
+
+.prediction-item.future-highlight {
+    color: var(--tech-pink-dark);
+    font-weight: 700;
+    border-bottom: none;
+}
+
+/* 输入框、按钮 */
+.accounting-form-control,
+#accountingNewTodoInput {
+    background: rgba(255, 255, 255, 0.5) !important;
+    border: 1px solid var(--tech-border-blue) !important;
+    border-radius: 16px !important;
+    color: var(--tech-text-dark) !important;
+    padding: 10px 14px !important;
+    outline: none;
+}
+
+.accounting-btn-add,
+.accounting-btn-primary {
+    background: linear-gradient(135deg, var(--tech-blue-primary) 0%, #8bb2de 100%) !important;
+    border: none !important;
+    border-radius: 16px !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+/* 收藏卡片选项卡 */
+.accounting-collection-tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--tech-border-blue) !important;
+    margin-bottom: 16px !important;
+}
+
+.accounting-collection-tab-btn {
+    background: none !important;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    color: var(--tech-text-muted) !important;
+    font-weight: 600 !important;
+    border-radius: 0 !important;
+}
+
+.accounting-collection-tab-btn.active {
+    color: var(--tech-blue-primary) !important;
+    border-bottom-color: var(--tech-blue-primary) !important;
+}
+
+/* 收支明细项目与待办项 */
+.accounting-transaction-item,
+.accounting-todo-item {
+    background: rgba(255, 255, 255, 0.45);
+    border: 1px solid var(--tech-border-blue);
+    border-radius: 16px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.accounting-todo-completed .accounting-todo-text {
+    text-decoration: line-through;
+    color: var(--tech-text-muted);
+    opacity: 0.7;
+}
+
+.accounting-delete-btn,
+.accounting-todo-delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--tech-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.accounting-delete-btn:hover,
+.accounting-todo-delete-btn:hover {
+    background: var(--tech-pink-light);
+    color: #e57373;
+}
