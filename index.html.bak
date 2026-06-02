@@ -6244,7 +6244,7 @@
             }
 
             const DB_NAME = "CompanionDB_V18";
-            const DB_VERSION = 31;
+            const DB_VERSION = 30;
             let db = null;
             window.groupCollapsed = window.groupCollapsed || {};
 
