@@ -42,7 +42,7 @@
             recordApiPending = window.recordApiPending || function() {};
         }
 
-        console.log('🌟 重逢模块已加载');
+        console.log('[模块] 重逢模块已加载');
         
         // 重置状态
         reunionCurrentDim = 'personality';
@@ -65,6 +65,10 @@
         document.querySelectorAll('.reunion-panel').forEach(p => {
             p.classList.toggle('active', p.id === 'reunionGeneratePanel');
         });
+
+        // 确保世界书面板默认隐藏
+        const wbPanel = document.getElementById('reunionWorldbookPanel');
+        if (wbPanel) wbPanel.classList.remove('active');
 
         // 清空备注
         const noteInput = document.getElementById('reunionGenerateNote');
@@ -129,12 +133,12 @@
         const allSelected = reunionSelectedTags.personality && reunionSelectedTags.world && reunionSelectedTags.plot;
         btn.disabled = !allSelected;
         if (allSelected) {
-            btn.textContent = '✨ 生成 NPC';
+            btn.innerHTML = '<svg class="reunion-inline-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg> 生成 NPC';
             btn.style.background = 'linear-gradient(135deg, #7a9e7e 0%, #8bae8b 100%)';
             btn.style.color = 'white';
             btn.style.fontWeight = '600';
         } else {
-            btn.textContent = '✨ 生成 NPC';
+            btn.innerHTML = '<svg class="reunion-inline-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg> 生成 NPC';
             btn.style.background = '#c9c1b6';
             btn.style.color = '#fff';
             btn.style.fontWeight = '500';
@@ -155,7 +159,7 @@
                 ${escapeHtml(tag.name)}
             </span>`;
         });
-        html += '<span class="manage-tags-btn" id="reunionManageTagsBtn">⚙️</span>';
+        html += '<span class="manage-tags-btn" id="reunionManageTagsBtn"><svg class="reunion-inline-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>';
         container.innerHTML = html;
 
         container.querySelectorAll('.tag-chip[data-tag-action="select"]').forEach(chip => {
@@ -177,7 +181,7 @@
         const container = document.getElementById('reunionSelectedTagsRow');
         if (!container) return;
 
-        const labels = { personality: '😊', world: '🌍', plot: '📖' };
+        const labels = { personality: '<svg class="reunion-inline-icon reunion-label-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg>', world: '<svg class="reunion-inline-icon reunion-label-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>', plot: '<svg class="reunion-inline-icon reunion-label-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>' };
         const labelNames = { personality: '性格', world: '世界观', plot: '剧本' };
         let html = '';
         let hasAny = false;
@@ -193,7 +197,7 @@
         }
 
         if (!hasAny) {
-            html = '<span class="no-tags-hint">👆 请从上方选择标签（三个维度各选一个）</span>';
+            html = '<span class="no-tags-hint"><svg class="reunion-inline-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 13l5 5 5-5M12 4v14"/></svg> 请从上方选择标签（三个维度各选一个）</span>';
         }
 
         container.innerHTML = html;
@@ -238,7 +242,7 @@
 
 写成一段完整的角色速写，像在笔记本上随手记录人物灵感一样。不要使用编号或列表。${noteSection}`;
 
-        showStatus('✍️ 正在创作角色...', 'info');
+        showStatus('✎ 正在创作角色...', 'info');
         if (recordApiPending) recordApiPending();
 
         try {
@@ -278,9 +282,9 @@
             showReunionFlipCard(npc);
             await reunionRenderNPCList();
             await reunionRenderFilterBar();
-            showStatus('✅ 角色创作完成！', 'success');
+            showStatus('✓ 角色创作完成！', 'success');
         } catch (e) {
-            showStatus(`❌ 创作失败: ${e.message}`, 'error');
+            showStatus(`✗ 创作失败: ${e.message}`, 'error');
         }
     }
 
@@ -335,7 +339,7 @@
         if (filtered.length === 0) {
             container.innerHTML = `
                 <div class="npc-empty">
-                    <div class="npc-empty-icon">🌟</div>
+                    <div class="npc-empty-icon"><svg class="reunion-inline-icon reunion-empty-icon" viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg></div>
                     <p>${cat === 'all' ? '还没有生成的NPC' : '该筛选条件下没有NPC'}</p>
                     <p style="font-size:12px;margin-top:4px;">选择标签后点击「生成 NPC」开始</p>
                 </div>`;
@@ -352,15 +356,15 @@
                     <div class="npc-card-info">
                         <div class="npc-card-name">${escapeHtml(npc.name)}</div>
                         <div class="npc-card-tags">
-                            <span class="npc-card-tag">😊 ${escapeHtml(npc.personality)}</span>
-                            <span class="npc-card-tag">🌍 ${escapeHtml(npc.worldSetting)}</span>
-                            <span class="npc-card-tag">📖 ${escapeHtml(npc.storyline)}</span>
+                            <span class="npc-card-tag"><svg class="reunion-inline-icon reunion-card-tag-icon" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg> ${escapeHtml(npc.personality)}</span>
+                            <span class="npc-card-tag"><svg class="reunion-inline-icon reunion-card-tag-icon" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> ${escapeHtml(npc.worldSetting)}</span>
+                            <span class="npc-card-tag"><svg class="reunion-inline-icon reunion-card-tag-icon" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> ${escapeHtml(npc.storyline)}</span>
                         </div>
                     </div>
                     <div class="npc-card-actions">
-                        <button class="npc-card-action-btn export-btn" data-action="export" data-npc-id="${npc.id}">📤 导入通讯录</button>
-                        <button class="npc-card-action-btn" data-action="edit" data-npc-id="${npc.id}">✏️</button>
-                        <button class="npc-card-action-btn delete-btn" data-action="delete" data-npc-id="${npc.id}">🗑️</button>
+                        <button class="npc-card-action-btn export-btn" data-action="export" data-npc-id="${npc.id}"><svg class="reunion-inline-icon reunion-action-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> 导入通讯录</button>
+                        <button class="npc-card-action-btn" data-action="edit" data-npc-id="${npc.id}"><svg class="reunion-inline-icon reunion-action-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                        <button class="npc-card-action-btn delete-btn" data-action="delete" data-npc-id="${npc.id}"><svg class="reunion-inline-icon reunion-action-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
                     </div>
                 </div>`;
         });
@@ -436,7 +440,7 @@
                 group: '重逢',
                 detail: detail
             });
-            showStatus(`✅「${npc.name}」已导入通讯录（重逢分组）`, 'success');
+            showStatus(`✓「${npc.name}」已导入通讯录（重逢分组）`, 'success');
         }
     }
 
@@ -447,7 +451,7 @@
             await DB.delete('reunionNPCs', npcId);
             await reunionRenderNPCList(reunionCurrentFilter, reunionCurrentFilterValue);
             await reunionRenderFilterBar();
-            showStatus('✅ NPC 已删除', 'success');
+            showStatus('✓ NPC 已删除', 'success');
         }
     }
 
@@ -480,7 +484,7 @@
         document.getElementById('reunionEditNPCModal').classList.remove('active');
         await reunionRenderNPCList(reunionCurrentFilter, reunionCurrentFilterValue);
         await reunionRenderFilterBar();
-        showStatus('✅ NPC 已更新', 'success');
+        showStatus('✓ NPC 已更新', 'success');
     }
 
     // ==================== 标签仓库 ====================
@@ -489,9 +493,9 @@
         if (!container) return;
         
         const categories = [
-            { key: 'personality', icon: '😊', label: '性格' },
-            { key: 'world', icon: '🌍', label: '世界观' },
-            { key: 'plot', icon: '📖', label: '剧本' }
+            { key: 'personality', icon: '<svg class="reunion-inline-icon reunion-wh-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg>', label: '性格' },
+            { key: 'world', icon: '<svg class="reunion-inline-icon reunion-wh-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>', label: '世界观' },
+            { key: 'plot', icon: '<svg class="reunion-inline-icon reunion-wh-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>', label: '剧本' }
         ];
 
         let html = '';
@@ -626,11 +630,201 @@
                         document.getElementById('reunionNPCPoolPanel').classList.add('active');
                         if (topArea) topArea.style.display = 'none';
                         reunionRenderNPCList(reunionCurrentFilter, reunionCurrentFilterValue);
+                    } else if (panelId === 'worldbook') {
+                        document.getElementById('reunionWorldbookPanel').classList.add('active');
+                        if (topArea) topArea.style.display = 'none';
+                        reunionWorldbookRenderNPCList();
                     }
                 });
             }
         });
+
+        // 开盲盒按钮
+        const luckBtn = document.getElementById('reunionLuckBtn');
+        if (luckBtn && !luckBtn.dataset.reunionBound) {
+            luckBtn.dataset.reunionBound = '1';
+            luckBtn.addEventListener('click', reunionLuckDraw);
+        }
+
+        // 世界书生成按钮
+        const wbGenBtn = document.getElementById('reunionWorldbookGenerateBtn');
+        if (wbGenBtn && !wbGenBtn.dataset.reunionBound) {
+            wbGenBtn.dataset.reunionBound = '1';
+            wbGenBtn.addEventListener('click', reunionGenerateWorldbook);
+        }
+
+        // 世界书 NPC 列表 checkbox 委托点击
+        const wbNpcList = document.getElementById('reunionWorldbookNPCList');
+        if (wbNpcList && !wbNpcList.dataset.reunionBound) {
+            wbNpcList.dataset.reunionBound = '1';
+            wbNpcList.addEventListener('click', (e) => {
+                const item = e.target.closest('.worldbook-npc-checkbox');
+                if (item) {
+                    item.classList.toggle('checked');
+                    const cb = item.querySelector('input[type="checkbox"]');
+                    if (cb) cb.checked = !cb.checked;
+                }
+            });
+        }
     }
 
-    console.log('🌟 重逢模块脚本已就绪，等待 initReunionModule() 调用');
+    // ==================== 开盲盒 ====================
+    async function reunionLuckDraw() {
+        showStatus('>> 正在开盲盒，随机抽取标签...', 'info');
+        try {
+            const categories = ['personality', 'world', 'plot'];
+            const picked = {};
+
+            for (const cat of categories) {
+                const tags = await reunionGetTagsByCategory(cat);
+                if (tags.length === 0) {
+                    showStatus(`✗ "${cat}" 分类下没有可用标签`, 'error');
+                    return;
+                }
+                const randomTag = tags[Math.floor(Math.random() * tags.length)];
+                picked[cat] = randomTag.name;
+            }
+
+            // 设定选中的标签
+            reunionSelectedTags.personality = picked.personality;
+            reunionSelectedTags.world = picked.world;
+            reunionSelectedTags.plot = picked.plot;
+            reunionRenderSelectedTags();
+            reunionUpdateGenerateBtn();
+            reunionRenderTagSelection();
+
+            showStatus(`>> 抽中：${picked.personality} · ${picked.world} · ${picked.plot}，正在生成...`, 'info');
+
+            // 直接调用 NPC 生成（自动使用已选中的标签）
+            await reunionGenerateNPC();
+        } catch (e) {
+            showStatus(`✗ 开盲盒失败: ${e.message}`, 'error');
+        }
+    }
+
+    // ==================== 世界书生成 ====================
+    async function reunionWorldbookRenderNPCList() {
+        const container = document.getElementById('reunionWorldbookNPCList');
+        if (!container) return;
+
+        const allNPCs = await DB.getAll('reunionNPCs');
+        allNPCs.sort((a, b) => b.createdAt - a.createdAt);
+
+        if (allNPCs.length === 0) {
+            container.innerHTML = '<div class="worldbook-empty-hint">还没有NPC，先去生成一些吧</div>';
+            return;
+        }
+
+        let html = '';
+        allNPCs.forEach(npc => {
+            const escapedName = escapeHtml(npc.name);
+            html += `<span class="worldbook-npc-checkbox" data-npc-id="${npc.id}">
+                <span class="check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                ${escapedName}
+            </span>`;
+        });
+        container.innerHTML = html;
+    }
+
+    async function reunionGenerateWorldbook() {
+        // 收集选中的 NPC
+        const checkedItems = document.querySelectorAll('#reunionWorldbookNPCList .worldbook-npc-checkbox.checked');
+        const selectedNPCIds = Array.from(checkedItems).map(el => el.dataset.npcId);
+
+        const tagsInput = document.getElementById('reunionWorldbookTagsInput');
+        const descInput = document.getElementById('reunionWorldbookDescInput');
+        const titleInput = document.getElementById('reunionWorldbookTitleInput');
+
+        const tagsText = tagsInput ? tagsInput.value.trim() : '';
+        const descText = descInput ? descInput.value.trim() : '';
+        const titleText = titleInput ? titleInput.value.trim() : '';
+
+        if (!titleText) {
+            showStatus('请填写世界书标题', 'error');
+            return;
+        }
+
+        if (selectedNPCIds.length === 0 && !tagsText && !descText) {
+            showStatus('请至少选择一个NPC，或填写关键词/描述', 'error');
+            return;
+        }
+
+        showStatus('[书] 正在创作世界书...', 'info');
+        if (recordApiPending) recordApiPending();
+
+        try {
+            // 获取选中 NPC 的信息
+            let npcInfoText = '';
+            if (selectedNPCIds.length > 0) {
+                const npcPromises = selectedNPCIds.map(id => DB.get('reunionNPCs', id));
+                const npcs = await Promise.all(npcPromises);
+                const validNPCs = npcs.filter(n => n);
+                if (validNPCs.length > 0) {
+                    npcInfoText = '\n\n【已选角色】\n' + validNPCs.map(n =>
+                        `- ${n.name}（性格：${n.personality}，背景：${n.backstory?.substring(0, 100) || '无'})`
+                    ).join('\n');
+                }
+            }
+
+            let extraSection = '';
+            if (tagsText) extraSection += `\n【关键词】${tagsText}`;
+            if (descText) extraSection += `\n【描述】${descText}`;
+
+            const prompt = `你是一位小说家，正在创作一部新作品的"世界书"设定。
+
+世界书标题：${titleText}
+${extraSection}${npcInfoText}
+
+请严格按照以下格式输出（只输出内容，不要任何额外说明）：
+
+【世界背景】
+（描述这个世界的基本设定、时代背景、地理环境等，200-300字）
+
+【核心规则】
+（这个世界运行的独特规则、魔法/科技体系、社会结构等，150-200字）
+
+【主要冲突】
+（这个世界中正在酝酿或已经存在的核心矛盾/冲突，100-150字）
+
+【氛围与基调】
+（描述这个世界的情感氛围和叙事基调，50-100字）`;
+
+            const response = await callLLM(
+                [{ role: 'user', content: prompt }],
+                { maxTokens: 800, temperature: 0.9 }
+            );
+
+            const worldbookId = 'wb_' + Date.now();
+            const worldbook = {
+                id: worldbookId,
+                title: titleText,
+                tags: tagsText,
+                description: descText,
+                selectedNPCIds: selectedNPCIds,
+                fullContent: response,
+                group: '重逢',
+                createdAt: Date.now()
+            };
+
+            // 存入 worldbooks 集合
+            await DB.put('worldbooks', worldbook);
+
+            showStatus('✓ 世界书创作完成！', 'success');
+
+            // 清理输入
+            if (tagsInput) tagsInput.value = '';
+            if (descInput) descInput.value = '';
+            if (titleInput) titleInput.value = '';
+            document.querySelectorAll('#reunionWorldbookNPCList .worldbook-npc-checkbox.checked').forEach(el => {
+                el.classList.remove('checked');
+                const cb = el.querySelector('input[type="checkbox"]');
+                if (cb) cb.checked = false;
+            });
+
+        } catch (e) {
+            showStatus(`✗ 世界书创作失败: ${e.message}`, 'error');
+        }
+    }
+
+    console.log('[模块] 重逢模块脚本已就绪，等待 initReunionModule() 调用');
 })();

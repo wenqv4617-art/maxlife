@@ -4345,9 +4345,9 @@
                 <div class="reunion-container">
                     <div class="reunion-top">
                         <div class="dimension-tabs">
-                            <button class="dimension-tab active" data-dim="personality">😊 性格</button>
-                            <button class="dimension-tab" data-dim="world">🌍 世界观</button>
-                            <button class="dimension-tab" data-dim="plot">📖 剧本</button>
+                            <button class="dimension-tab active" data-dim="personality"><svg class="reunion-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></svg> 性格</button>
+                            <button class="dimension-tab" data-dim="world"><svg class="reunion-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> 世界观</button>
+                            <button class="dimension-tab" data-dim="plot"><svg class="reunion-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 剧本</button>
                         </div>
                         <div class="tag-scroll-container" id="reunionTagSelection">
                         </div>
@@ -4358,20 +4358,25 @@
                             <div class="generate-area">
                                 <div class="generate-area-title">已选标签组合</div>
                                 <div class="selected-tags-row" id="reunionSelectedTagsRow">
-                                    <span class="no-tags-hint">👆 请从上方选择标签（三个维度各选一个）</span>
+                                    <span class="no-tags-hint"><svg class="reunion-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> 请从上方选择标签（三个维度各选一个）</span>
                                 </div>
 
-                                <textarea class="generate-note-input" id="reunionGenerateNote" placeholder="💡 额外备注（可选）：如角色关系、特殊设定、外貌描述等..."
+                                <textarea class="generate-note-input" id="reunionGenerateNote" placeholder="注: 额外备注（可选）：如角色关系、特殊设定、外貌描述等..."
                                     maxlength="200"></textarea>
 
                                 <div class="generate-btn-row">
                                     <button class="generate-btn" id="reunionGenerateBtn" disabled>
-                                        ✨ 生成 NPC
+                                        <svg class="reunion-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> 生成 NPC
                                     </button>
                                 </div>
                             </div>
+                            <!-- 开盲盒按钮 -->
+                            <div class="reunion-luck-btn-row">
+                                <button class="reunion-luck-btn" id="reunionLuckBtn">
+                                    <span class="luck-icon"><svg class="reunion-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h.01M15 9h.01M9 15h.01M15 15h.01"/></svg></span> 开盲盒 · 随机生成
+                                </button>
+                            </div>
                         </div>
-
                         <div class="reunion-panel" id="reunionNPCPoolPanel">
                             <div class="npc-pool-area">
                                 <div class="npc-filter-bar" id="reunionFilterBar">
@@ -4379,19 +4384,42 @@
                                 </div>
                                 <div class="npc-list-container" id="reunionNPCList">
                                     <div class="npc-empty">
-                                        <div class="npc-empty-icon">🌟</div>
+                                        <div class="npc-empty-icon"><svg class="reunion-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
                                         <p>还没有生成的NPC</p>
                                         <p style="font-size:12px;margin-top:4px;">选择标签后点击「生成 NPC」开始</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        <div class="reunion-panel" id="reunionWorldbookPanel">
+                            <div class="worldbook-npc-selection">
+                                <div class="worldbook-npc-section-title"><svg class="reunion-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> 选择NPC（可选）</div>
+                                <div class="worldbook-npc-list" id="reunionWorldbookNPCList">
+                                    <div class="worldbook-empty-hint">加载中...</div>
+                                </div>
+                            </div>
+                            <div class="worldbook-input-group">
+                                <div class="worldbook-input-label"><svg class="reunion-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> 标签关键词（可选，逗号分隔）</div>
+                                <input class="worldbook-tags-input" id="reunionWorldbookTagsInput" placeholder="如：魔法、宫廷、悬疑" />
+                            </div>
+                            <div class="worldbook-input-group">
+                                <div class="worldbook-input-label"><svg class="reunion-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> 自然语言描述（可选）</div>
+                                <textarea class="worldbook-desc-textarea" id="reunionWorldbookDescInput" placeholder="描述你想要的这个世界的感觉、风格、氛围..." maxlength="300"></textarea>
+                            </div>
+                            <div class="worldbook-input-group">
+                                <div class="worldbook-input-label"><svg class="reunion-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> 世界书标题</div>
+                                <input class="worldbook-title-input" id="reunionWorldbookTitleInput" placeholder="输入世界书的标题..." />
+                            </div>
+                            <button class="worldbook-generate-btn" id="reunionWorldbookGenerateBtn">
+                                <svg class="reunion-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> 生成世界书
+                            </button>
+                        </div>
                     </div>
-
                     <div class="reunion-bottom-tabs">
-                        <button class="reunion-bottom-tab active" data-panel="generate">✨ 生成</button>
-                        <button class="reunion-bottom-tab" data-panel="npcpool">📋 NPC池</button>
-                    </div>
+                        <button class="reunion-bottom-tab active" data-panel="generate"><svg class="reunion-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/></svg> 生成</button>
+                        <button class="reunion-bottom-tab" data-panel="npcpool"><svg class="reunion-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> NPC池</button>
+                        <button class="reunion-bottom-tab" data-panel="worldbook"><svg class="reunion-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M12 6v7M9 9h6"/></svg> 世界书</button>
+</div>
                 </div>
             </div>
 
@@ -4496,8 +4524,8 @@
                     <div class="forum-nav-right">
                         <button class="forum-nav-btn" id="forumSettingsBtn" title="论坛设置">
     <svg viewBox="0 0 24 24" class="forum-svg-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2l1.09 4.26a7.9 7.9 0 0 1 2.42 1.4l4.09-1.22 1.5 3.8-3.31 2.73a7.9 7.9 0 0 1 0 2.82l3.31 2.73-1.5 3.8-4.09-1.22a7.9 7.9 0 0 1-2.42 1.4L12 22l-1.09-4.26a7.9 7.9 0 0 1-2.42-1.4l-4.09 1.22-1.5-3.8 3.31-2.73a7.9 7.9 0 0 1 0-2.82L2.9 7.84l1.5-3.8 4.09 1.22A7.9 7.9 0 0 1 10.91 2z"></path>
         <circle cx="12" cy="12" r="3"></circle>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09A1.65 1.65 0 0 0 15 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.32.22.66.22 1s-.08.68-.22 1z"></path>
     </svg>
 </button>
                     </div>
@@ -6586,7 +6614,7 @@ if (window.wbE) {
         if (mountedWorldbooks.length > 0) {
             worldbookSection = '\n\n';
             mountedWorldbooks.forEach(wb => {
-                worldbookSection += `--- ${wb.title} ---\n${wb.content}\n\n`;
+                worldbookSection += `--- ${wb.title} ---\n${wb.fullContent || wb.content}\n\n`;
             });
         }
     }
@@ -9935,8 +9963,99 @@ if (filteredMessages.length === 0) {
     updateFloatCurrentDisplay();
 }
 
+            /**
+             * 判断是否运行在 HBuilderX 打包的原生 Android APK 中
+             */
+            function isNativeAndroidApp() {
+                return typeof window.plus !== 'undefined' && window.plus !== null;
+            }
+
+            /**
+             * 判断是否通过 WebView JS Bridge 暴露了 saveFile 接口
+             */
+            function hasAndroidFileBridge() {
+                return typeof window.Android !== 'undefined' && window.Android !== null &&
+                    typeof window.Android.saveFile === 'function';
+            }
+
+            /**
+             * 通过 HBuilderX plus.io 接口保存文件到用户选择的目录
+             */
+            async function exportViaPlusIo(backupJson, fileName) {
+                return new Promise((resolve, reject) => {
+                    // 弹出目录选择器让用户选择保存位置
+                    plus.io.requestFileSystem(plus.io.PUBLIC_DOWNLOADS, function(fs) {
+                        // 默认保存到 Downloads 目录
+                        fs.root.getFile(fileName, { create: true }, function(fileEntry) {
+                            // 写入文件
+                            fileEntry.createWriter(function(writer) {
+                                writer.onwriteend = function() {
+                                    resolve('✅ 数据导出成功\n保存位置: ' + fileEntry.fullPath);
+                                };
+                                writer.onerror = function(e) {
+                                    reject(new Error('文件写入失败: ' + e.message));
+                                };
+                                writer.write(backupJson);
+                            }, function(e) {
+                                reject(new Error('创建文件写入器失败: ' + e.message));
+                            });
+                        }, function(e) {
+                            // 如果直接创建失败，尝试弹出选择器让用户选目录
+                            reject(new Error('创建文件失败: ' + e.message));
+                        });
+                    }, function(e) {
+                        reject(new Error('访问文件系统失败: ' + e.message));
+                    });
+                });
+            }
+
+            /**
+             * 通过 Android WebView JS Bridge 保存文件
+             * 要求原生层暴露了 window.Android.saveFile(fileName, base64Content) 方法
+             * 或者使用更常用的方式：通过 prompt / JavaScriptInterface
+             */
+            async function exportViaAndroidBridge(backupJson, fileName) {
+                return new Promise((resolve, reject) => {
+                    try {
+                        if (hasAndroidFileBridge()) {
+                            // 方式1：原生暴露了 saveFile 方法
+                            const base64 = btoa(unescape(encodeURIComponent(backupJson)));
+                            window.Android.saveFile(fileName, base64);
+                            resolve('✅ 数据导出成功（通过原生接口）');
+                        } else if (typeof window.JSInterface !== 'undefined' && window.JSInterface !== null) {
+                            // 方式2：JSInterface 接口
+                            const base64 = btoa(unescape(encodeURIComponent(backupJson)));
+                            window.JSInterface.saveFile(fileName, base64);
+                            resolve('✅ 数据导出成功（通过原生接口）');
+                        } else if (typeof window.WebViewJavascriptBridge !== 'undefined') {
+                            // 方式3：WebViewJavascriptBridge
+                            window.WebViewJavascriptBridge.callHandler('saveFile', {
+                                fileName: fileName,
+                                content: backupJson
+                            }, function(response) {
+                                resolve('✅ 数据导出成功（通过Bridge）');
+                            });
+                        } else {
+                            // 以上都不支持时，使用 prompt hack 方式
+                            // 原生 WebView 可通过 shouldOverrideUrlLoading 或 onJsPrompt 拦截
+                            const base64 = btoa(unescape(encodeURIComponent(backupJson)));
+                            const result = prompt('SAVE_FILE::' + fileName + '::' + base64);
+                            if (result === 'OK') {
+                                resolve('✅ 数据导出成功');
+                            } else {
+                                reject(new Error('原生接口未响应'));
+                            }
+                        }
+                    } catch (e) {
+                        reject(new Error('原生保存失败: ' + e.message));
+                    }
+                });
+            }
+
             async function exportAllData() {
                 try {
+                    showStatus('⏳ 正在收集数据...', 'info');
+
                     const stores = ['settings', 'characters', 'chats', 'userProfiles', 'memories', 'conversations',
     'worldbooks', 'convDetails', 'reunionNPCs', 'reunionTags', 'themeSettings',
     'navIconSettings', 'diaryEntries', 'forum', 'forumPresets', 'phoneData','groupChats', 'groupMessages', 'groupNPCs', 'groupMemories',
@@ -9981,11 +10100,39 @@ if (filteredMessages.length === 0) {
                         localStorage: localData
                     };
 
-                    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+                    const jsonStr = JSON.stringify(backup, null, 2);
+                    const fileName = `companion_backup_${new Date().toISOString().slice(0,10)}.json`;
+
+                    // ========== 原生 APK 环境判断 ==========
+                    if (isNativeAndroidApp()) {
+                        // HBuilderX 打包环境：使用 plus.io 保存到用户选择的目录
+                        try {
+                            const msg = await exportViaPlusIo(jsonStr, fileName);
+                            showStatus(msg, 'success');
+                            return;
+                        } catch (e) {
+                            // plus.io 失败时回退到浏览器下载
+                            console.warn('plus.io 保存失败，回退到浏览器下载:', e.message);
+                        }
+                    }
+
+                    if (hasAndroidFileBridge()) {
+                        // WebView 原生暴露了接口
+                        try {
+                            const msg = await exportViaAndroidBridge(jsonStr, fileName);
+                            showStatus(msg, 'success');
+                            return;
+                        } catch (e) {
+                            console.warn('原生桥接保存失败，回退到浏览器下载:', e.message);
+                        }
+                    }
+
+                    // ========== 浏览器下载逻辑（原有逻辑保持不变） ==========
+                    const blob = new Blob([jsonStr], { type: 'application/json' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `companion_backup_${new Date().toISOString().slice(0,10)}.json`;
+                    a.download = fileName;
                     a.click();
                     URL.revokeObjectURL(url);
 
@@ -10270,7 +10417,7 @@ const charCount = (wb.mountChars || []).length;
                         <span class="worldbook-card-title">${escapeHtml(wb.title)}</span>
                         <span class="worldbook-card-group">${escapeHtml(wb.group || '未分组')}</span>
                     </div>
-                    <div class="worldbook-card-preview">${escapeHtml((wb.content || '').substring(0, 100))}${wb.content?.length > 100 ? '...' : ''}</div>
+                    <div class="worldbook-card-preview">${escapeHtml((wb.fullContent || wb.content || '').substring(0, 100))}${(wb.fullContent || wb.content || '').length > 100 ? '...' : ''}</div>
                     <div class="worldbook-card-meta">
     ${persistentBadge}
     ${!isPersistent ? (scenes || '<span class="wb-meta-chip"><span>未设置场景</span></span>') : ''}
@@ -10301,7 +10448,7 @@ if (window.wbE) {
     document.getElementById('worldbookDetailTitle').textContent = wb.title || '编辑世界书';
     document.getElementById('wbTitleInput').value = wb.title || '';
     document.getElementById('wbGroupInput').value = wb.group || '';
-    document.getElementById('wbContentInput').value = wb.content || '';
+    document.getElementById('wbContentInput').value = wb.fullContent || wb.content || '';
 
     // 设置挂载类型单选
     const isPersistent = wb.mountCategory === 'persistent';
@@ -10692,7 +10839,7 @@ try {
                     <div style="flex:1;min-width:0;">
                         <div class="wb-mount-title">${escapeHtml(wb.title || '未命名世界书')}</div>
                         <div class="wb-mount-preview">
-                            ${escapeHtml((wb.content || '').substring(0, 70))}${(wb.content || '').length > 70 ? '...' : ''}
+                            ${escapeHtml((wb.fullContent || wb.content || '').substring(0, 70))}${(wb.fullContent || wb.content || '').length > 70 ? '...' : ''}
                         </div>
                         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
                             <span class="wb-badge-depth">${escapeHtml(depth)}</span>

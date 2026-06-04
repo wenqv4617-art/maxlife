@@ -229,6 +229,10 @@
     cursor: pointer;
     transition: all 0.2s;
     letter-spacing: 1px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 
 .generate-btn:active {
@@ -429,6 +433,13 @@
     font-size: 40px;
     margin-bottom: 10px;
     opacity: 0.5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.npc-empty-icon .reunion-tab-icon {
+    width: 18px;
+    height: 18px;
 }
 
 .flip-modal {
@@ -662,7 +673,314 @@
     font-size: 14px;
     resize: vertical;
 }
-
 .npc-edit-field textarea {
     min-height: 80px;
+}
+
+/* ===== 重逢模块 SVG 动态图标（由 reunion.js 生成） ===== */
+.reunion-inline-icon {
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+.reunion-label-icon {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+.reunion-empty-icon {
+    width: 40px;
+    height: 40px;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+.reunion-card-tag-icon {
+    width: 12px;
+    height: 12px;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+.reunion-action-icon {
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    flex-shrink: 0;
+    margin-right: 2px;
+}
+.reunion-wh-icon {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    flex-shrink: 0;
+    margin-right: 3px;
+}
+
+/* ===== 重逢模块 SVG Tab 图标 ===== */
+.reunion-tab-icon {
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+    margin-right: 4px;
+    flex-shrink: 0;
+}
+
+/* ===== 开盲盒按钮 ===== */
+.reunion-luck-btn-row {
+    flex-shrink: 0;
+    padding: 0 14px 10px;
+}
+
+.reunion-luck-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #d4a574 0%, #e8b88a 100%);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 8px rgba(212, 165, 116, 0.3);
+}
+
+.reunion-luck-btn:active {
+    transform: scale(0.97);
+    opacity: 0.9;
+}
+
+.reunion-luck-btn:disabled {
+    background: #c9c1b6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.reunion-luck-btn .luck-icon {
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.reunion-luck-btn .luck-icon .reunion-tab-icon {
+    width: 18px;
+    height: 18px;
+}
+
+/* ===== 世界书生成面板 ===== */
+#reunionWorldbookPanel {
+    padding: 10px 14px;
+    overflow-y: auto;
+}
+
+.worldbook-npc-selection {
+    background: white;
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    border: 1px solid #d4cdc2;
+}
+
+.worldbook-npc-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #3a4a3e;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.worldbook-npc-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-height: 160px;
+    overflow-y: auto;
+}
+
+.worldbook-npc-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    background: #f5f3ef;
+    border: 1px solid #d4cdc2;
+    border-radius: 14px;
+    font-size: 12px;
+    color: #3a4a3e;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s;
+}
+
+.worldbook-npc-checkbox input[type="checkbox"] {
+    display: none;
+}
+
+.worldbook-npc-checkbox .check-icon {
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid #b0a89a;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+
+.worldbook-npc-checkbox .check-icon svg {
+    width: 10px;
+    height: 10px;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.worldbook-npc-checkbox.checked {
+    background: #d9e0d5;
+    border-color: #7a9e7e;
+}
+
+.worldbook-npc-checkbox.checked .check-icon {
+    background: #7a9e7e;
+    border-color: #7a9e7e;
+}
+
+.worldbook-npc-checkbox.checked .check-icon svg {
+    opacity: 1;
+    stroke: white;
+}
+
+.worldbook-input-group {
+    background: white;
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    border: 1px solid #d4cdc2;
+}
+
+.worldbook-input-label {
+    font-size: 12px;
+    color: #7a8a7e;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.worldbook-tags-input {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #c9bfae;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+    font-family: inherit;
+}
+
+.worldbook-tags-input:focus {
+    border-color: #7a9e7e;
+}
+
+.worldbook-tags-input::placeholder {
+    color: #b0a89a;
+}
+
+.worldbook-desc-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #c9bfae;
+    font-size: 13px;
+    resize: vertical;
+    min-height: 70px;
+    outline: none;
+    transition: border-color 0.15s;
+    font-family: inherit;
+}
+
+.worldbook-desc-textarea:focus {
+    border-color: #7a9e7e;
+}
+
+.worldbook-desc-textarea::placeholder {
+    color: #b0a89a;
+}
+
+.worldbook-title-input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #c9bfae;
+    font-size: 15px;
+    font-weight: 600;
+    outline: none;
+    transition: border-color 0.15s;
+    font-family: inherit;
+}
+
+.worldbook-title-input:focus {
+    border-color: #7a9e7e;
+}
+
+.worldbook-title-input::placeholder {
+    color: #b0a89a;
+}
+
+.worldbook-generate-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, #6b8a7e 0%, #8aae9e 100%);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.worldbook-generate-btn:active {
+    transform: scale(0.97);
+    opacity: 0.9;
+}
+
+.worldbook-generate-btn:disabled {
+    background: #c9c1b6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.worldbook-empty-hint {
+    text-align: center;
+    padding: 20px;
+    color: #a0a8a2;
+    font-size: 13px;
+}
+
+/* ===== 底部 tab SVG 图标自适应 ===== */
+.reunion-bottom-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+.reunion-bottom-tab .reunion-tab-icon {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    margin-right: 3px;
+    flex-shrink: 0;
 }

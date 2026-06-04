@@ -84,7 +84,11 @@
     color: #000;
     padding: 4px 8px;
 }
-
+#page-forum .forum-nav-btn .forum-svg-icon {
+    width: 24px;
+    height: 24px;
+    display: block;
+}
 #page-forum .forum-tab-bar {
     display: flex;
     border-bottom: 1px solid #eee;
