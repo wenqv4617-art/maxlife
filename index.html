@@ -3887,16 +3887,36 @@
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                             <label class="wb-form-label">
     <span class="wb-label-icon">
-        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72-1.72"/></svg>
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.72"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.72 1.72"/></svg>
     </span>
-    挂载设置
+    挂载类型
 </label>
                         </div>
 
                         <div class="mount-section">
-                            <div style="font-size: 14px; color: #8ba3c7; margin-bottom: 10px;">挂载场景</div>
-                            <div class="mount-options" id="wbSceneOptions">
-                                <label class="mount-checkbox wb-mount-checkbox">
+                            <div style="display:flex;gap:12px;margin-top:4px;">
+                                <label class="mount-radio" style="flex:1;display:flex;align-items:center;gap:8px;padding:12px 14px;border:2px solid #d4cdc2;border-radius:12px;cursor:pointer;transition:all 0.2s;">
+                                    <input type="radio" name="wbMountCategory" value="manual" id="wbMountManual" checked>
+                                    <span style="display:flex;flex-direction:column;gap:2px;">
+                                        <span style="font-weight:600;font-size:14px;">📋 手动挂载</span>
+                                        <span style="font-size:12px;color:#7a8a7e;">仅按场景、联系人或显式勾选挂载</span>
+                                    </span>
+                                </label>
+                                <label class="mount-radio" style="flex:1;display:flex;align-items:center;gap:8px;padding:12px 14px;border:2px solid #d4cdc2;border-radius:12px;cursor:pointer;transition:all 0.2s;">
+                                    <input type="radio" name="wbMountCategory" value="persistent" id="wbMountPersistent">
+                                    <span style="display:flex;flex-direction:column;gap:2px;">
+                                        <span style="font-weight:600;font-size:14px;">📌 常驻挂载</span>
+                                        <span style="font-size:12px;color:#7a8a7e;">在所有场景中自动生效，无需手动勾选</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="wbManualMountSettings" style="margin-top:16px;">
+                            <div class="mount-section">
+                                <div style="font-size: 14px; color: #8ba3c7; margin-bottom: 10px;">挂载场景</div>
+                                <div class="mount-options" id="wbSceneOptions">
+                                    <label class="mount-checkbox wb-mount-checkbox">
     <input type="checkbox" value="chat" id="wbSceneChat">
     <span class="wb-mount-name">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
@@ -3918,15 +3938,22 @@
         <span>邮件（待开发）</span>
     </span>
 </label>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="mount-section" style="margin-top: 20px;">
-                            <div style="font-size: 14px; color: #8ba3c7; margin-bottom: 10px;">挂载对象（联系人）</div>
-                            <div id="wbCharOptions" class="mount-options">
+                            <div class="mount-section" style="margin-top: 12px;">
+                                <div style="font-size: 14px; color: #8ba3c7; margin-bottom: 10px;">挂载对象（联系人）</div>
+                                <div id="wbCharOptions" class="mount-options">
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    <style>
+                        .mount-radio input[type="radio"] { display:none; }
+                        .mount-radio input[type="radio"]:checked ~ span { color:#1a73e8; }
+                        .mount-radio:has(input[type="radio"]:checked) { border-color:#1a73e8; background:#f0f7ff; }
+                    </style>
 
                     <div style="display: flex; gap: 12px; margin-top: 24px; padding-bottom: 20px;">
                         <button class="worldbook-btn danger" id="deleteWorldbookBtn" style="display: none;">删除</button>
@@ -7012,150 +7039,87 @@ ${emoticonSection ? '- 你可以偶尔使用表情包，格式为 [MSG]表情包
 }
 
 function buildSafeHtmlCardIframe(rawHtml) {
-    const safeHtml = window.wbE ? window.wbE.sanitize(rawHtml || '') : escapeHtml(rawHtml || '');
+    var input = (rawHtml || '').trim();
+    var frameId = 'html_card_' + Date.now() + '_' + Math.random().toString(36).slice(2);
 
-    const frameId = 'html_card_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    // 智能检测：如果输入已经是完整 HTML 文档（包含 <!DOCTYPE html> 或 <html>），
+    // 则直接使用其自身结构，只在 </body> 前注入 resize 脚本和事件拦截脚本，
+    // 避免嵌套 <html>/<head>/<body> 导致的渲染异常
+    var isFullDoc = /<!DOCTYPE\s+html/i.test(input) || /<html[\s>]/i.test(input);
+
+    if (isFullDoc) {
+        // 对完整文档，用 sanitize 过滤内容（但保留文档结构）
+        // 注意：sanitize 可能移除 <!DOCTYPE> 和 <html> 标签，所以只过滤 <body> 内部内容
+        var bodyContent = '';
+        var headContent = '';
+        var bodyMatch = input.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+        var headMatch = input.match(/<head[^>]*>([\s\S]*)<\/head>/i);
+        if (bodyMatch) {
+            bodyContent = window.wbE ? window.wbE.sanitize(bodyMatch[1]) : escapeHtml(bodyMatch[1]);
+        } else {
+            // 没有完整 body 标签，整体过滤
+            bodyContent = window.wbE ? window.wbE.sanitize(input) : escapeHtml(input);
+        }
+        if (headMatch) {
+            headContent = headMatch[1];
+        }
+
+        // 基础 sandbox 滚动/边距样式（必须用 <style> 包裹，否则CSS会作为纯文本显示在页面上）
+        var baseStyle = '\n<style>\nhtml,body{margin:0;padding:0;background:transparent;max-height:100%;overflow:auto;-webkit-overflow-scrolling:touch}body{min-height:0;height:auto}.card-root,[class*="card-"]{max-width:100%;box-sizing:border-box}\n</style>\n';
+
+        // resize 脚本 + 事件拦截 —— 注入到 </body> 前
+        var injectScript = '\n<script>\n(function(){\n"use strict";\nvar F='+JSON.stringify(frameId)+';\nfunction h(){var b=document.body,e=document.documentElement;if(!b||!e)return 100;var r=[],t;try{r.push(b.getBoundingClientRect().height||0);r.push(e.getBoundingClientRect().height||0)}catch(x){}r.push(b.scrollHeight||0);r.push(b.offsetHeight||0);r.push(e.scrollHeight||0);r.push(e.offsetHeight||0);t=Math.max.apply(Math,r);return Math.ceil(Math.max(t,100))}\nvar L=0;function s(){var n=h();if(Math.abs(n-L)<3)return;L=n;parent.postMessage({type:"HALOES_HTML_CARD_RESIZE",frameId:F,height:n},"*")}\ndocument.addEventListener("submit",function(e){e.preventDefault();e.stopPropagation()},true);\ndocument.addEventListener("click",function(e){var a=e.target&&e.target.closest&&e.target.closest("a");if(a){a.setAttribute("target","_blank");a.setAttribute("rel","noopener noreferrer")}},true);\nwindow.addEventListener("load",function(){s();setTimeout(s,50);setTimeout(s,150);setTimeout(s,400);setTimeout(s,1e3);setTimeout(s,2e3)});\nif(window.ResizeObserver){var ro=new ResizeObserver(function(){s()});ro.observe(document.documentElement);if(document.body)ro.observe(document.body)}\nif(window.MutationObserver){var mo=new MutationObserver(function(){s();setTimeout(s,100)});mo.observe(document.documentElement,{childList:true,subtree:true,attributes:true,characterData:true})}\nwindow.addEventListener("resize",s);\ndocument.addEventListener("toggle",function(){s();setTimeout(s,150)},true);\nArray.prototype.forEach.call(document.images||[],function(i){if(!i.complete){i.addEventListener("load",s);i.addEventListener("error",s)}});\ns();\n})();\n<\/script>\n';
+
+        // 组装：保留原始 head（追加基础样式），保留原始 body（追加脚本）
+        var result = input;
+
+        // 在 </head> 前注入基础样式
+        result = result.replace(/<\/head>/i, baseStyle + '</head>');
+
+        // 在 </body> 前注入 resize 脚本
+        result = result.replace(/<\/body>/i, injectScript + '</body>');
+
+        // 如果没有 </body>，追加
+        if (result.indexOf('</body>') === -1) {
+            result += injectScript + '\n</body>\n</html>';
+        }
+        // 如果没有 </html>，追加
+        if (result.indexOf('</html>') === -1) {
+            result += '\n</html>';
+        }
+
+        var srcUri = 'data:text/html;charset=UTF-8,' + encodeURIComponent(result);
+        return [
+            '<div class="html-card-frame-wrap" data-html-frame-id="' + frameId + '">',
+            '<iframe class="html-card-frame" data-frame-id="' + frameId + '"',
+            'src="' + srcUri + '"',
+            'sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"',
+            'referrerpolicy="no-referrer">',
+            '</iframe></div>'
+        ].join('\n');
+    }
+
+    // 非完整文档：保持原有逻辑，将内容嵌入固定文档模板
+    var safeHtml = window.wbE ? window.wbE.sanitize(input) : escapeHtml(input);
 
     // 注意：
     // 1. 不注入全局 max-width / box-sizing / font-family，尽量不改变卡片原始样式
     // 2. 只注入最小必要的 html/body 边距清理
-    // 3. 注入 resize 脚本用于自动高度
+    // 3. 注入 resize 脚本用于自动高度 & 溢出滚动支持
     // 4. iframe sandbox 不给 allow-same-origin，内部脚本拿不到父页面 DOM
-    const srcdoc = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<base target="_blank">
-<style>
-html, body {
-    margin: 0;
-    padding: 0;
-    background: transparent;
-}
-</style>
-</head>
-<body>
-${safeHtml}
+    // 5. 沙盒内部可滚动：通过 max-height 限制 + overflow:auto，超出时内部出现滚动条
+    var srcdoc = '<!DOCTYPE html>\n<html>\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">\n<base target="_blank">\n<style>\nhtml,body{margin:0;padding:0;background:transparent;max-height:100%;overflow:auto;-webkit-overflow-scrolling:touch}body{min-height:0;height:auto}.card-root,[class*="card-"]{max-width:100%;box-sizing:border-box}\n</style>\n</head>\n<body>\n' + safeHtml + '\n<script>\n(function(){\n"use strict";\nvar F=' + JSON.stringify(frameId) + ';\nfunction h(){var b=document.body,e=document.documentElement;if(!b||!e)return 100;var r=[];try{r.push(b.getBoundingClientRect().height||0);r.push(e.getBoundingClientRect().height||0)}catch(x){}r.push(b.scrollHeight||0);r.push(b.offsetHeight||0);r.push(e.scrollHeight||0);r.push(e.offsetHeight||0);var t=Math.max.apply(Math,r);return Math.ceil(Math.max(t,100))}\nvar L=0;function s(){var n=h();if(Math.abs(n-L)<3)return;L=n;parent.postMessage({type:"HALOES_HTML_CARD_RESIZE",frameId:F,height:n},"*")}\ndocument.addEventListener("submit",function(e){e.preventDefault();e.stopPropagation()},true);\ndocument.addEventListener("click",function(e){var a=e.target&&e.target.closest&&e.target.closest("a");if(a){a.setAttribute("target","_blank");a.setAttribute("rel","noopener noreferrer")}},true);\nwindow.addEventListener("load",function(){s();setTimeout(s,50);setTimeout(s,150);setTimeout(s,400);setTimeout(s,1e3);setTimeout(s,2e3)});\nif(window.ResizeObserver){var ro=new ResizeObserver(function(){s()});ro.observe(document.documentElement);if(document.body)ro.observe(document.body)}\nif(window.MutationObserver){var mo=new MutationObserver(function(){s();setTimeout(s,100)});mo.observe(document.documentElement,{childList:true,subtree:true,attributes:true,characterData:true})}\nwindow.addEventListener("resize",s);\ndocument.addEventListener("toggle",function(){s();setTimeout(s,150)},true);\nArray.prototype.forEach.call(document.images||[],function(i){if(!i.complete){i.addEventListener("load",s);i.addEventListener("error",s)}});\ns();\n})();\n<\/script>\n</body>\n</html>';
 
-<script>
-(function() {
-    "use strict";
+    var srcUri = 'data:text/html;charset=UTF-8,' + encodeURIComponent(srcdoc);
 
-    var FRAME_ID = ${JSON.stringify(frameId)};
-
-    function getHeight() {
-        var body = document.body;
-        var html = document.documentElement;
-
-        if (!body || !html) return 100;
-
-        var rects = [];
-        try {
-            rects.push(body.getBoundingClientRect().height || 0);
-            rects.push(html.getBoundingClientRect().height || 0);
-        } catch (e) {}
-
-        rects.push(body.scrollHeight || 0);
-        rects.push(body.offsetHeight || 0);
-        rects.push(html.scrollHeight || 0);
-        rects.push(html.offsetHeight || 0);
-
-        var h = Math.max.apply(Math, rects);
-        return Math.ceil(Math.max(h, 100));
-    }
-
-    var lastHeight = 0;
-    function sendHeight() {
-        var h = getHeight();
-        if (Math.abs(h - lastHeight) < 2) return;
-        lastHeight = h;
-
-        parent.postMessage({
-            type: "HALOES_HTML_CARD_RESIZE",
-            frameId: FRAME_ID,
-            height: h
-        }, "*");
-    }
-
-    // 防止 form/button 默认提交导致 iframe 或父页面异常跳转
-    document.addEventListener("submit", function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }, true);
-
-    // 防止普通链接尝试顶层跳转；链接会因为 base target=_blank 走新窗口
-    document.addEventListener("click", function(e) {
-        var a = e.target && e.target.closest ? e.target.closest("a") : null;
-        if (a) {
-            a.setAttribute("target", "_blank");
-            a.setAttribute("rel", "noopener noreferrer");
-        }
-    }, true);
-
-    window.addEventListener("load", function() {
-        sendHeight();
-        setTimeout(sendHeight, 50);
-        setTimeout(sendHeight, 150);
-        setTimeout(sendHeight, 400);
-        setTimeout(sendHeight, 1000);
-        setTimeout(sendHeight, 2000);
-    });
-
-    if (window.ResizeObserver) {
-        var ro = new ResizeObserver(function() {
-            sendHeight();
-        });
-        ro.observe(document.documentElement);
-        if (document.body) ro.observe(document.body);
-    }
-
-    if (window.MutationObserver) {
-        var mo = new MutationObserver(function() {
-            sendHeight();
-            setTimeout(sendHeight, 100);
-        });
-        mo.observe(document.documentElement, {
-            childList: true,
-            subtree: true,
-            attributes: true,
-            characterData: true
-        });
-    }
-
-    window.addEventListener("resize", sendHeight);
-
-    // details/summary 展开、图片加载、字体变化等兜底
-    document.addEventListener("toggle", function() {
-        sendHeight();
-        setTimeout(sendHeight, 150);
-    }, true);
-
-    Array.prototype.forEach.call(document.images || [], function(img) {
-        if (!img.complete) {
-            img.addEventListener("load", sendHeight);
-            img.addEventListener("error", sendHeight);
-        }
-    });
-
-    sendHeight();
-})();
-<\/script>
-</body>
-</html>`;
-
-    return `
-        <div class="html-card-frame-wrap" data-html-frame-id="${frameId}">
-            <iframe
-                class="html-card-frame"
-                data-frame-id="${frameId}"
-                sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
-                referrerpolicy="no-referrer"
-                scrolling="no"
-                srcdoc="${escapeHtml(srcdoc).replace(/"/g, '&quot;')}">
-            </iframe>
-        </div>
-    `;
+    return [
+        '<div class="html-card-frame-wrap" data-html-frame-id="' + frameId + '">',
+        '<iframe class="html-card-frame" data-frame-id="' + frameId + '"',
+        'src="' + srcUri + '"',
+        'sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"',
+        'referrerpolicy="no-referrer">',
+        '</iframe></div>'
+    ].join('\n');
 }
 function setupHtmlCardIframes(root) {
     if (!root) return;
@@ -7190,7 +7154,11 @@ function setupHtmlCardIframes(root) {
         frame.style.border = "0";
         frame.style.display = "block";
         frame.style.height = "100px";
-        frame.style.overflow = "hidden";
+        frame.style.overflow = "auto";
+
+        // 通过 src="data:text/html;..." 加载内容，在 iframe 内部自动渲染
+        // iframe 内部的 resize 脚本会通过 parent.postMessage("*") 向父页面报告高度
+        // postMessage 跨源通信不受 sandbox 影响，可正常工作
 
         const wrap = frame.closest(".html-card-frame-wrap");
         if (wrap) {
@@ -9167,15 +9135,13 @@ ${contextText}
 5. 数值必须填具体数字，不能保留模板占位。
 6. HTML 必须是完整可独立展示的片段。
 7. 禁止依赖外层页面的 JS、CSS、DOM 或全局变量。
-8. 禁止 <script>、<iframe>、object、embed、form、input、button、textarea、select。
-9. 禁止 on* 事件属性，例如 onclick、onload、onerror。
-10. 禁止 javascript:、vbscript:、data:text/html 协议。
-11. 如果需要交互，只能使用原生 HTML/CSS 能力，例如：
+8. 禁止 <script>、<iframe>、object、embed，禁止 on* 事件属性（如 onclick、onload、onerror），禁止 javascript:、vbscript:、data:text/html 协议。
+9. ✨ 允许使用 <input>、<button>、<textarea>、<select>、<form> 等原生表单标签完成简单交互（输入、按钮点击、下拉选择等），但必须阻止默认提交行为：form 必须设置 onsubmit="return false" 或内部按钮 type="button"，确保不会刷新页面。
+10. 如果不需要表单交互，仍然可以使用以下原生能力：
     - details / summary
     - checkbox + label
-    - CSS hover
-    - CSS animation
-    - CSS transition
+    - CSS hover / animation / transition
+11. 支持上下左右滚动显示超出卡片尺寸的内容（卡片内部通过 CSS overflow:auto 自动处理），确保内容可访问。
 12. 不要写会自动跳转、刷新、提交表单的结构。
 13. 所有 CSS 选择器都要套在卡片自定义根类下，避免污染 iframe 内其他元素。
 14. 不要使用 position: fixed 试图覆盖整个页面。
@@ -10288,11 +10254,13 @@ async function forceUpdateApp() {
 
                 let html = '';
                 filtered.forEach(wb => {
+                    const isPersistent = wb.mountCategory === 'persistent';
                     const sceneLabels = {
     chat: `<span class="wb-meta-chip">${WB_ICONS.chat}<span>线上聊天</span></span>`,
     diary: `<span class="wb-meta-chip">${WB_ICONS.diary}<span>日记</span></span>`,
     email: `<span class="wb-meta-chip"><span>邮件</span></span>`
 };
+const persistentBadge = isPersistent ? `<span class="wb-meta-chip" style="background:#e8f0fe;color:#1a73e8;"><span>📌 常驻</span></span>` : '';
 const scenes = (wb.mountScenes || []).map(s => sceneLabels[s] || `<span class="wb-meta-chip"><span>${escapeHtml(s)}</span></span>`).join('');
 const charCount = (wb.mountChars || []).length;
 
@@ -10304,8 +10272,9 @@ const charCount = (wb.mountChars || []).length;
                     </div>
                     <div class="worldbook-card-preview">${escapeHtml((wb.content || '').substring(0, 100))}${wb.content?.length > 100 ? '...' : ''}</div>
                     <div class="worldbook-card-meta">
-    ${scenes || '<span class="wb-meta-chip"><span>未设置场景</span></span>'}
-    ${charCount > 0 ? `<span class="wb-meta-chip">${WB_ICONS.user}<span>${charCount} 个联系人</span></span>` : ''}
+    ${persistentBadge}
+    ${!isPersistent ? (scenes || '<span class="wb-meta-chip"><span>未设置场景</span></span>') : ''}
+    ${!isPersistent && charCount > 0 ? `<span class="wb-meta-chip">${WB_ICONS.user}<span>${charCount} 个联系人</span></span>` : ''}
 </div>
                 </div>
             `;
@@ -10333,6 +10302,13 @@ if (window.wbE) {
     document.getElementById('wbTitleInput').value = wb.title || '';
     document.getElementById('wbGroupInput').value = wb.group || '';
     document.getElementById('wbContentInput').value = wb.content || '';
+
+    // 设置挂载类型单选
+    const isPersistent = wb.mountCategory === 'persistent';
+    document.getElementById('wbMountPersistent').checked = isPersistent;
+    document.getElementById('wbMountManual').checked = !isPersistent;
+    const manualSettings = document.getElementById('wbManualMountSettings');
+    manualSettings.style.display = isPersistent ? 'none' : 'block';
 
     document.getElementById('wbSceneChat').checked = (wb.mountScenes || []).includes('chat');
     document.getElementById('wbSceneDiary').checked = (wb.mountScenes || []).includes('diary');
@@ -10385,6 +10361,9 @@ if (window.wbE) {
                 document.getElementById('wbTitleInput').value = '';
                 document.getElementById('wbGroupInput').value = '';
                 document.getElementById('wbContentInput').value = '';
+                document.getElementById('wbMountManual').checked = true;
+                document.getElementById('wbMountPersistent').checked = false;
+                document.getElementById('wbManualMountSettings').style.display = 'block';
                 document.getElementById('wbSceneChat').checked = false;
                 document.getElementById('wbSceneDiary').checked = false;
 
@@ -10415,20 +10394,28 @@ async function saveWorldbook() {
                 const group = document.getElementById('wbGroupInput').value.trim() || '默认';
                 const content = document.getElementById('wbContentInput').value.trim();
 
-                const mountScenes = [];
-                if (document.getElementById('wbSceneChat').checked) mountScenes.push('chat');
-                if (document.getElementById('wbSceneDiary').checked) mountScenes.push('diary');
+                // 获取挂载类型
+                const mountCategory = document.getElementById('wbMountPersistent').checked ? 'persistent' : 'manual';
 
+                const mountScenes = [];
                 const mountChars = [];
-                document.querySelectorAll('#wbCharOptions input[type="checkbox"]:checked').forEach(cb => {
-                    mountChars.push(cb.value);
-                });
+
+                // 仅当为手动挂载时才读取场景和联系人设置
+                if (mountCategory === 'manual') {
+                    if (document.getElementById('wbSceneChat').checked) mountScenes.push('chat');
+                    if (document.getElementById('wbSceneDiary').checked) mountScenes.push('diary');
+
+                    document.querySelectorAll('#wbCharOptions input[type="checkbox"]:checked').forEach(cb => {
+                        mountChars.push(cb.value);
+                    });
+                }
 
                 const worldbook = {
     id: currentWorldbookId || 'wb_' + Date.now(),
     title,
     group,
     content,
+    mountCategory,
     mountScenes,
     mountChars,
     injectDepth: window.wbE ? window.wbE.getDepth() : 'before',

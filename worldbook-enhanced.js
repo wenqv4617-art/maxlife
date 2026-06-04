@@ -145,9 +145,10 @@
     var charId = opts.charId || null;
 
     // 优先级：
-    // 1. 对话详情 / 群聊详情显式挂载或屏蔽
-    // 2. 世界书底部挂载联系人
-    // 3. 世界书底部挂载场景
+    // 1. 常驻（persistent）世界书 —— 每次 API 调用自动挂载
+    // 2. 对话详情 / 群聊详情显式挂载或屏蔽
+    // 3. 世界书底部挂载联系人
+    // 4. 世界书底部挂载场景
     var explicitMountIds = opts.worldbookIds || [];
     var explicitOverrides = opts.worldbookMountOverrides || {};
     var skipHtml = opts.skipHtml === true;
@@ -161,6 +162,13 @@
     }
 
     function shouldMount(wb) {
+        // 0. 常驻世界书：无条件挂载（除非被显式取消）
+        if (wb.mountCategory === 'persistent') {
+            // 显式取消仍可屏蔽常驻世界书
+            if (isExplicitFalse(wb)) return false;
+            return true;
+        }
+
         // 1. 显式取消：最高优先级，直接屏蔽
         if (isExplicitFalse(wb)) return false;
 

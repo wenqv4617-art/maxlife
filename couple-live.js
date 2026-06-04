@@ -466,8 +466,12 @@
       `;
     }
 
+    // 区分常驻世界书和手动世界书
+    const persistentWbs = all.filter(wb => wb.mountCategory === 'persistent');
+    const manualWbs = all.filter(wb => wb.mountCategory !== 'persistent');
+
     const groupMap = {};
-    all.forEach(wb => {
+    manualWbs.forEach(wb => {
       const g = wb.group || "未分组";
       if (!groupMap[g]) groupMap[g] = [];
       groupMap[g].push(wb);
@@ -475,14 +479,14 @@
 
     const groups = Object.keys(groupMap).sort((a, b) => a.localeCompare(b, "zh-CN"));
 
-    return `
+    let worldbookHtml = `
       <div class="cl-panel">
         <div class="cl-panel-head">
           <div class="cl-panel-title">Mounted Worldbooks</div>
         </div>
         <div class="cl-panel-body">
           <div class="cl-sub" style="margin-bottom:10px;">
-            直播系统世界书与线上、线下聊天完全隔离，只影响弹幕、粉丝群和私信。
+            直播系统世界书与线上、线下聊天完全隔离，只影响弹幕、粉丝群和私信。常驻世界书自动挂载。
           </div>
 
           ${groups.map(g => {
@@ -509,9 +513,25 @@
               </div>
             `;
           }).join("")}
-        </div>
       </div>
     `;
+
+    // 添加常驻世界书提示
+    if (persistentWbs.length > 0) {
+      worldbookHtml += `
+        <div class="cl-panel" style="margin-top:8px;">
+          <div class="cl-panel-body">
+            <div style="padding:8px 10px;background:#f0f7ff;border-radius:8px;border:1px solid #cce5ff;font-size:13px;color:#1a73e8;">
+              <span style="font-weight:600;">📌 常驻世界书（${persistentWbs.length}本）</span>
+              <span style="display:block;margin-top:4px;color:#555;">${persistentWbs.map(wb => esc(wb.title)).join('、')}</span>
+              <span style="display:block;margin-top:2px;color:#888;font-size:12px;">常驻世界书已在所有场景中自动挂载，无需手动勾选。</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    return worldbookHtml;
   }
 
   function renderFanChannel(cfg, info) {
@@ -1649,10 +1669,15 @@ gift 必须带 amount 数字。
     const cfg = await getCfg(convId);
     const ids = cfg.mountedWorldbookIds || [];
 
-    if (!ids.length) return "";
-
     const all = await DB.getAll("worldbooks");
-    const mounted = all.filter(w => ids.includes(w.id));
+
+    // 收集所有需要挂载的世界书：手动勾选的 + 常驻世界书
+    const persistentIds = all.filter(w => w.mountCategory === 'persistent').map(w => w.id);
+    const allMountedIds = [...new Set([...ids, ...persistentIds])];
+
+    if (!allMountedIds.length) return "";
+
+    const mounted = all.filter(w => allMountedIds.includes(w.id));
 
     return mounted
       .map(w => `--- ${w.title || "未命名"} ---\n${w.content || ""}`)

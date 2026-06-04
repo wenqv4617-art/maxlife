@@ -129,7 +129,7 @@ if (g.worldbookIds?.length > 0) {
         if (resolved.middle) wbGroupExtra += '\n' + resolved.middle + '\n';
         if (resolved.after) wbGroupExtra += '\n' + resolved.after + '\n';
         if (resolved.hasHtml) {
-            wbGroupExtra += '\n[HTML 卡片格式] 在群聊中输出 HTML 卡片时，使用：[角色名]:[MSG]html_card:<你的 html>。使用卡片工具类。不要使用 script 标签。\n';
+            wbGroupExtra += '\n[HTML 卡片格式] 在群聊中输出 HTML 卡片时，使用：[角色名]:[MSG]html_card:<你的 html>。使用卡片工具类。禁止 script/iframe/on*事件/javascipt:协议；允许使用 input/button/textarea/select/form 等原生标签做交互，form 需阻止默认提交。卡片会自动显示在可滚动的安全沙盒中。\n';
         }
     } else {
         const mounted = allWorldbooks.filter(wb => g.worldbookIds.includes(wb.id));
@@ -684,9 +684,13 @@ ${charsSection}
     bubbleContent = renderGroupMediaBubble('voice', m.content);
 } else if (m.messageType === 'voice_call_start' || m.messageType === 'voice_call_end') {
     bubbleContent = renderGroupCallBubble(m.content);
-} else if (m.messageType === 'html_card') {
-    const sanitized = window.wbE ? window.wbE.sanitize(m.content || '') : window.escapeHtml(m.content || '');
-    bubbleContent = `<div class="html-card-bubble">${sanitized}</div>`;
+    } else if (m.messageType === 'html_card') {
+    if (window.buildSafeHtmlCardIframe) {
+        bubbleContent = window.buildSafeHtmlCardIframe(m.content || '');
+    } else {
+        const sanitized = window.wbE ? window.wbE.sanitize(m.content || '') : window.escapeHtml(m.content || '');
+        bubbleContent = `<div class="html-card-bubble">${sanitized}</div>`;
+    }
 } else {
     bubbleContent = renderQuotedGroupBubble(m.content);
 }
@@ -1857,11 +1861,15 @@ await loadGroupMessages(id);
         return;
     }
 
+    // 区分常驻世界书和手动世界书
+    const persistentWbs = allWorldbooks.filter(wb => wb.mountCategory === 'persistent');
+    const manualWbs = allWorldbooks.filter(wb => wb.mountCategory !== 'persistent');
+    
     const groupMap = {};
-    allWorldbooks.forEach(wb => {
-        const groupName = wb.group || '未分组';
-        if (!groupMap[groupName]) groupMap[groupName] = [];
-        groupMap[groupName].push(wb);
+    manualWbs.forEach(wb => {
+    const groupName = wb.group || '未分组';
+    if (!groupMap[groupName]) groupMap[groupName] = [];
+    groupMap[groupName].push(wb);
     });
 
     const groupNames = Object.keys(groupMap).sort((a, b) => {
@@ -1938,6 +1946,18 @@ await loadGroupMessages(id);
             </div>
         `;
     });
+
+    // 添加常驻世界书提示
+    if (persistentWbs.length > 0) {
+        const persistentNames = persistentWbs.map(wb => window.escapeHtml(wb.title)).join('、');
+        html += `
+            <div class="wb-persistent-hint" style="margin-top:12px;padding:10px 12px;background:#f0f7ff;border-radius:8px;border:1px solid #cce5ff;font-size:13px;color:#1a73e8;">
+                <span style="font-weight:600;">📌 常驻世界书（${persistentWbs.length}本）</span>
+                <span style="display:block;margin-top:4px;color:#555;">${persistentNames}</span>
+                <span style="display:block;margin-top:2px;color:#888;font-size:12px;">常驻世界书已在所有场景中自动挂载，无需手动勾选。</span>
+            </div>
+        `;
+    }
 
     container.innerHTML = html;
 

@@ -1402,7 +1402,15 @@ async function renderWorldbookMountList() {
         listEl.innerHTML = '<div style="color:#a0a8a2;font-size:13px;padding:10px;">暂无世界书</div>';
         return;
     }
-    listEl.innerHTML = wbs.map(wb => `
+    
+    // 区分常驻世界书和手动世界书
+    const persistentWbs = wbs.filter(wb => wb.mountCategory === 'persistent');
+    const manualWbs = wbs.filter(wb => wb.mountCategory !== 'persistent');
+    
+    let html = '';
+    
+    // 渲染手动世界书（可勾选）
+    html += manualWbs.map(wb => `
         <label class="worldbook-checkbox">
             <input type="checkbox" value="${wb.id}" ${mounted.includes(wb.id) ? 'checked' : ''}>
             <div>
@@ -1411,6 +1419,17 @@ async function renderWorldbookMountList() {
             </div>
         </label>
     `).join('');
+    
+    // 渲染常驻世界书提示（不可勾选）
+    if (persistentWbs.length > 0) {
+        html += `<div style="margin-top:10px;padding:8px 10px;background:#f0f7ff;border-radius:8px;border:1px solid #cce5ff;font-size:12px;color:#1a73e8;">
+            <span style="font-weight:600;">📌 常驻世界书（${persistentWbs.length}本）</span>
+            <span style="display:block;margin-top:3px;color:#666;">${persistentWbs.map(wb => window.escapeHtml(wb.title)).join('、')}</span>
+            <span style="display:block;margin-top:2px;color:#999;">常驻世界书已在所有场景中自动挂载，无需手动勾选。</span>
+        </div>`;
+    }
+    
+    listEl.innerHTML = html;
 }
 
 async function saveForumSettings() {
@@ -1627,9 +1646,16 @@ async function buildForumContext(includeAccountPersona = false) {
     const mounted = data.mountedWorldbooks || [];
 
     let context = `【论坛设定】\n论坛名称：${data.settings.name}\n氛围风格：${data.settings.style}\n`;
-    if (mounted.length > 0) {
+    
+    // 收集所有需要挂载的世界书：手动勾选的 + 常驻世界书
+    const allMounted = [...new Set([
+        ...mounted,
+        ...wbs.filter(wb => wb.mountCategory === 'persistent').map(wb => wb.id)
+    ])];
+    
+    if (allMounted.length > 0) {
         context += '\n【挂载世界书】\n';
-        wbs.filter(wb => mounted.includes(wb.id)).forEach(wb => { context += `--- ${wb.title} ---\n${wb.content}\n\n`; });
+        wbs.filter(wb => allMounted.includes(wb.id)).forEach(wb => { context += `--- ${wb.title} ---\n${wb.content}\n\n`; });
     }
     if (includeAccountPersona && account) {
         context += `\n【当前操作用户】\n用户名：${account.name}\n账号：@${account.handle}\n签名：${account.bio}\n人设：${account.persona || '普通用户'}\n`;

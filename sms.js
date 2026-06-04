@@ -992,6 +992,20 @@ document.getElementById('smsComposeBackBtn').addEventListener('click', () => {
                     convContext = `\n【聊天上下文（最近对话）】\n${recent}\n`;
                 }
 
+                // 获取常驻世界书并拼接
+                let worldbookText = '';
+                try {
+                    const allWbs = await window.DB.getAll('worldbooks');
+                    if (allWbs && allWbs.length) {
+                        const persistentWbs = allWbs.filter(w => w.mountCategory === 'persistent');
+                        if (persistentWbs.length) {
+                            worldbookText = persistentWbs.map(w => `--- ${w.title} ---\n${w.content}`).join('\n\n');
+                        }
+                    }
+                } catch (e) {
+                    console.warn('[sms] 获取常驻世界书失败:', e);
+                }
+
                 let systemPrompt = '';
 
                 if (thread.peerType === 'stranger' || thread.peerType === 'npc') {
@@ -1063,6 +1077,7 @@ ${convContext}
 ${identityRule}
 
 ${charDetail ? `你的人设背景：\n${charDetail}` : ''}
+${worldbookText ? `\n【世界观参考】\n${worldbookText}` : ''}
 ${convContext}
 
 【邮件回复规则】
@@ -1173,6 +1188,7 @@ ${convContext}
 你是【${realName}】，正在以陌生人身份（假邮箱：${thread.peerAddress}，显示名称：${thread.peerDisplayName}）给【${mask?.name || '用户'}】回信。
 你清楚地知道对面是谁。
 ${charDetail ? `人设：${charDetail}` : ''}
+${worldbookText ? `\n【世界观参考】\n${worldbookText}` : ''}
 ${convContext}
 目的：${purpose}
 禁止 Emoji，保持邮件风格。直接写正文。
@@ -1203,6 +1219,7 @@ ${convContext}
 ${identityRule}
 
 ${charDetail ? `人设：${charDetail}` : ''}
+${worldbookText ? `\n【世界观参考】\n${worldbookText}` : ''}
 ${convContext}
 
 规则：
@@ -1581,10 +1598,24 @@ ${convContext}
 
             if (sub.isCharSub) {
                 const c = await DB.get('characters', sub.charId);
+                // 获取常驻世界书
+                let persistentWbText = '';
+                try {
+                    const allWbs = await window.DB.getAll('worldbooks');
+                    if (allWbs && allWbs.length) {
+                        const persistentWbs = allWbs.filter(w => w.mountCategory === 'persistent');
+                        if (persistentWbs.length) {
+                            persistentWbText = persistentWbs.map(w => `--- ${w.title} ---\n${w.content}`).join('\n\n');
+                        }
+                    }
+                } catch (e) {
+                    console.warn('[sms-trigger] 获取常驻世界书失败:', e);
+                }
                 systemPrompt = `
 你是【${c?.name}】。为订阅专栏撰写一期约300字随笔。
 禁止 Emoji。保持邮件体裁。直接写正文，不要加标签。
 人设：${c?.detail || '普通朋友'}
+${persistentWbText ? `\n【世界观参考】\n${persistentWbText}` : ''}
                 `;
                 userPrompt = `请为《${sub.name}》写最新一期内容。`;
             } else {
@@ -1846,6 +1877,20 @@ ${convContext}
     const mailboxDisplayName = activeAccount?.name || '邮箱主人';
     const mailboxAddress = activeAccount?.address || '';
 
+    // 获取常驻世界书
+    let worldbookText = '';
+    try {
+        const allWbs = await window.DB.getAll('worldbooks');
+        if (allWbs && allWbs.length) {
+            const persistentWbs = allWbs.filter(w => w.mountCategory === 'persistent');
+            if (persistentWbs.length) {
+                worldbookText = persistentWbs.map(w => `--- ${w.title} ---\n${w.content}`).join('\n\n');
+            }
+        }
+    } catch (e) {
+        console.warn('[sms-genMail] 获取常驻世界书失败:', e);
+    }
+
     const peerType = isDisguised ? 'stranger' : 'conversation';
     const peerKey = isDisguised ? ('stranger_' + Math.random().toString(36).slice(2, 8)) : (char?.id || `conv_${conv.id}`);
     const peerAddress = isDisguised ? `${peerKey}@stranger.mail` : `conv_${conv.id}@haloes.mail`;
@@ -1888,6 +1933,7 @@ ${convContext}
 你的目的：${selectedPurpose}
 
 ${detail ? `你的真实人设背景：\n${detail}` : ''}
+${worldbookText ? `\n【世界观参考】\n${worldbookText}` : ''}
 ${contextText ? `最近聊天上下文：\n${contextText}` : ''}
 
 【规则】
@@ -1915,6 +1961,7 @@ ${contextText ? `最近聊天上下文：\n${contextText}` : ''}
             systemPrompt = `
 你是【${displayName}】（你的真实身份），但你现在使用化名/假邮箱“${senderName}”给一个邮箱写信。
 
+${worldbookText ? '【世界观背景】\n' + worldbookText + '\n' : ''}
 【收件邮箱信息】
 显示名：${mailboxDisplayName}
 邮箱：${mailboxAddress}
@@ -1948,6 +1995,7 @@ ${contextText ? `你的近期记忆，仅用于影响你的语气，不得作为
 你是【${displayName}】。
 你主动给你的朋友【${mask?.name || '用户'}】写一封主动来信。
 
+${worldbookText ? '【世界观背景】\n' + worldbookText + '\n' : ''}
 【收件邮箱】
 ${activeAccount.address}
 
@@ -1969,6 +2017,7 @@ ${contextText || '无'}
 你是【${displayName}】。
 你准备给一个邮箱写一封主动来信。
 
+${worldbookText ? '【世界观背景】\n' + worldbookText + '\n' : ''}
 【收件邮箱信息】
 显示名：${mailboxDisplayName}
 邮箱：${mailboxAddress}
@@ -2086,6 +2135,20 @@ async function generateOnePureStrangerAIMail(mask) {
     const mailboxDisplayName = activeAccount?.name || '邮箱主人';
     const mailboxAddress = activeAccount?.address || '';
 
+    // 获取常驻世界书
+    let persistentWbText = '';
+    try {
+        const allWbs = await window.DB.getAll('worldbooks');
+        if (allWbs && allWbs.length) {
+            const persistentWbs = allWbs.filter(w => w.mountCategory === 'persistent');
+            if (persistentWbs.length) {
+                persistentWbText = persistentWbs.map(w => `--- ${w.title} ---\n${w.content}`).join('\n\n');
+            }
+        }
+    } catch (e) {
+        console.warn('[sms-stranger] 获取常驻世界书失败:', e);
+    }
+
     const categories = [
         '营销类邮件：优惠、促销、活动邀请、会员福利、课程推广、产品推荐等，但要像真实邮件，不要太机械。',
         '交友类邮件：陌生人想认识收件人、偶然看到邮箱、想找人聊天、树洞倾诉、兴趣交友等。',
@@ -2132,6 +2195,7 @@ ${recipientIdentityBlock}
 【本次邮件类型】
 ${selectedCategory}
 
+${persistentWbText ? `【世界观背景（世界设定）】\n以下是你所在世界的整体背景设定，请据此生成符合世界观的邮件内容（但陌生人仍然不知道收件人真实身份）：\n${persistentWbText}\n\n` : ''}
 【生成要求】
 1. 必须像真实陌生人邮件，不要像模板。
 2. 邮件可以是营销类、交友类、骚扰类、误发类、求助类、神秘类、合作类、情感倾诉类等。

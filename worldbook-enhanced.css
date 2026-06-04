@@ -505,10 +505,12 @@
     width: 100%;
     min-height: 560px;
     height: 560px;
+    max-height: 85vh;
     display: block;
     border: 0;
     background: transparent;
-    overflow: hidden;
+    overflow: auto;
+    resize: both;
 }
 /* ========== 世界书挂载分组折叠 UI ========== */
 .wb-mount-group {

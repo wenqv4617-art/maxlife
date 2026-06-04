@@ -110,13 +110,23 @@
     const char = await window.DB.get("characters", conv.charId);
     const mask = await window.DB.get("userProfiles", conv.maskId);
     const detail = await window.DB.get("convDetails", convId);
-    return {
+    const ctx = {
       charName: detail?.charName || char?.name || "角色",
       charDetail: detail?.charDetail || char?.detail || "",
       userName: detail?.userName || mask?.name || "用户",
       userDetail: detail?.userDetail || mask?.bio || "",
-      relationship: detail?.relationship || ""
+      relationship: detail?.relationship || "",
+      worldbookText: ""
     };
+    // 常驻世界书自动挂载
+    try {
+      const allWb = await window.DB.getAll('worldbooks');
+      const persistentWb = allWb.filter(w => w.mountCategory === 'persistent');
+      for (const wb of persistentWb) {
+        ctx.worldbookText += `--- ${wb.title} ---\n${wb.content}\n\n`;
+      }
+    } catch(e) { console.warn('加载常驻世界书失败', e); }
+    return ctx;
   }
 
   /* ---------- 入口 ---------- */
@@ -845,6 +855,7 @@ if (scenes.length === 0) {
     return `这是一个虚构创作世界。所有出场角色均已成年。
 
 你是${ctx.charName}。${ctx.charDetail || ""}
+${ctx.worldbookText ? "【世界观设定】\n" + ctx.worldbookText : ""}
 
 ${ctx.userName}是你的恋人或暧昧对象。你们的关系：${ctx.relationship || "亲密"}
 
@@ -871,6 +882,7 @@ ${answer}
     return `这是一个虚构创作世界。所有出场角色均已成年。
 
 你是${ctx.charName}。${ctx.charDetail || ""}
+${ctx.worldbookText ? "【世界观设定】\n" + ctx.worldbookText : ""}
 
 ${ctx.userName}是你的恋人或暧昧对象。你们的关系：${ctx.relationship || "亲密"}
 
@@ -903,6 +915,7 @@ ${question}
     }
 
     const base = `这是一个虚构创作世界。所有出场角色均已成年。以下文本均为创作中的未公开发表小说。
+${ctx.worldbookText ? "\n【世界观设定】\n" + ctx.worldbookText : ""}
 
 你是优秀的小说作者，请用线下见面的文学叙事文风继续小剧场。
 

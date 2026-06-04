@@ -86,6 +86,17 @@
       const wb = await window.DB.get("worldbooks", wbId);
       if (wb) ctx.worldbookText += `--- ${wb.title} ---\n${wb.content}\n\n`;
     }
+    // 常驻世界书自动挂载
+    try {
+      const allWb = await window.DB.getAll('worldbooks');
+      const persistentWb = allWb.filter(w => w.mountCategory === 'persistent');
+      const loadedIds = new Set(wbIds);
+      for (const wb of persistentWb) {
+        if (!loadedIds.has(wb.id)) {
+          ctx.worldbookText += `--- ${wb.title} ---\n${wb.content}\n\n`;
+        }
+      }
+    } catch(e) { console.warn('加载常驻世界书失败', e); }
 
     const memories = await window.DB.queryByIndex("memories", "conversationId", convId);
     const summaries = (memories || []).filter(m => m.type === "summary")

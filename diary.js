@@ -582,17 +582,29 @@
         let worldbookContext = '';
         const allWorldbooks = await DB.getAll('worldbooks');
 
-        if (friend.convId) {
-            const convDetail = await DB.get('convDetails', friend.convId);
-            const mountedIds = convDetail?.worldbookIds || [];
-            for (const wb of allWorldbooks) {
-                if (mountedIds.includes(wb.id)) {
+        // 第0步：常驻世界书自动挂载（优先加入）
+        for (const wb of allWorldbooks) {
+            if (wb.mountCategory === 'persistent') {
+                if (!worldbookContext.includes(wb.title)) {
                     worldbookContext += `\n【${wb.title}】\n${wb.content}\n`;
                 }
             }
         }
 
+        if (friend.convId) {
+            const convDetail = await DB.get('convDetails', friend.convId);
+            const mountedIds = convDetail?.worldbookIds || [];
+            for (const wb of allWorldbooks) {
+                if (mountedIds.includes(wb.id)) {
+                    if (!worldbookContext.includes(wb.title)) {
+                        worldbookContext += `\n【${wb.title}】\n${wb.content}\n`;
+                    }
+                }
+            }
+        }
+
         for (const wb of allWorldbooks) {
+            if (wb.mountCategory === 'persistent') continue; // 常驻已处理，跳过
             if ((wb.mountScenes || []).includes('diary') && (wb.mountChars || []).includes(char.id)) {
                 if (!worldbookContext.includes(wb.title)) {
                     worldbookContext += `\n【${wb.title}】\n${wb.content}\n`;

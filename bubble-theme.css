@@ -266,11 +266,11 @@
     color: var(--chat-bubble-subtext);
 }
 
-/* HTML 卡片外壳 */
+/* HTML 卡片外壳 — 容器自身不截断滚动，让 iframe 内部自行处理滚动 */
 .html-card-bubble,
 .html-card-frame-wrap {
     width: 100%;
-    overflow: hidden;
+    overflow: visible;
     border-radius: 14px;
 }
 
